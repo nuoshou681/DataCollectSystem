@@ -2,11 +2,17 @@ package com.example.crawlernode.crawler;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import com.example.crawlernode.entity.result.CrawlerResult;
-import com.example.crawlernode.entity.task.SubTask;
+import com.example.crawlernode.entity.CrawlerResult;
+import com.example.crawlernode.entity.SubTask;
 
-public class TextCrawler {
+@Component
+public class Crawler {
+
+    @Value("${node.id}")
+    private String nodeId;
 
     public CrawlerResult crawl(SubTask subTask) {
         try {
@@ -21,12 +27,12 @@ public class TextCrawler {
                     .get();
             String text = doc.text();
             if (text.contains(subTask.getKeyword())) {
-                return new CrawlerResult(true, text);
+                return new CrawlerResult(nodeId, true, text);
             } else {
-                return new CrawlerResult(false, text);
+                return new CrawlerResult(nodeId, false, text);
             }
         } catch (Exception e) {
-            return new CrawlerResult(false, e.getMessage());
+            return new CrawlerResult(nodeId, false, e.getMessage());
         }
     }
 }

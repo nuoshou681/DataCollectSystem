@@ -22,10 +22,7 @@ public class UserTaskService {
         for (String url : urls) {
             SubTask subTask = new SubTask();
             subTask.setTaskId(userTask.getId());
-            subTask.setSubtaskName(userTask.getTaskName() + "-" + url.trim());
-            subTask.setTargetUrl(url.trim());
-            subTask.setStatus("INIT");
-            subTask.setProgress(0);
+            subTask.setUrl(url.trim());
             subTasks.add(subTask);
         }
         // 分发子任务，失败则可处理主任务状态

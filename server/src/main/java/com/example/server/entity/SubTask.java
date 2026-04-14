@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SubTask {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Long subTaskId;
     private Long taskId;
-    private Long assigned_client;
-    private String subtaskName;
-    private String targetUrl;
-    private String status;
-    private Integer progress;
+    // 分配爬虫节点id
+    private String nodeId;
+    private String url;
+    // 最大递归深度
+    private int maxDepth = 3;
+    // 每层最多爬多少个链接，防止爆炸
+    private int maxLinksPerLevel = 20;
 }
