@@ -1,6 +1,7 @@
 package com.example.server.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +20,9 @@ public class SubTask {
     private String url;
     private String keyword;
     // 最大递归深度
+    @TableField(exist = false)
     private int maxDepth = 3;
     // 每层最多爬多少个链接，防止爆炸
+    @TableField(exist = false)
     private int maxLinksPerLevel = 20;
 }

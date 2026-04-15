@@ -47,20 +47,24 @@ public class RabbitMQConfig {
         return new Queue(CRAWLER_STATUS_QUEUE, true);
     }
 
-    /**
-     * 将生产者发送时 header 中的类（crawler 端实体全类名）
-     * 映射为当前服务中的实体类，这样 @RabbitListener 参数就能正常反序列化。
-     */
     @Bean
     public DefaultClassMapper rabbitClassMapper() {
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
-        // 爬虫节点发来的类型 -> 本服务中的实体类型
         idClassMapping.put("com.example.crawlernode.entity.CrawlerStatus",
                 com.example.server.entity.CrawlerStatus.class);
-        idClassMapping.put("com.example.crawlernode.entity.CrawlResult",
+        idClassMapping.put("com.example.crawlernode.entity.CrawlerResult",
                 com.example.server.entity.CrawlResult.class);
         classMapper.setIdClassMapping(idClassMapping);
+
+        // 关键：信任爬虫节点那边的实体包
+        classMapper.setTrustedPackages(
+                "com.example.crawlernode.entity",
+                "com.example.server.entity",
+                "java.util",
+                "java.lang");
+        // 临时偷懒也可以：classMapper.setTrustedPackages("*"); 但不太安全
+
         return classMapper;
     }
 
