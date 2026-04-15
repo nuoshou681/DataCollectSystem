@@ -21,7 +21,7 @@ public class SecurityConfig {
         })
                 .csrf(crsf -> crsf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/login", "/register", "/task/*").permitAll()
                         .anyRequest().authenticated() // 其他接口需要认证
                 )
                 // 登录注册接口放行

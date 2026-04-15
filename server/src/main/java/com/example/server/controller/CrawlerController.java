@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
-public class ClientController {
+public class CrawlerController {
 
     @Autowired
     private ClientMapper clientmapper;

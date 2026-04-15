@@ -18,5 +18,4 @@ public class Task {
     private String url;
     private String status;
     private Integer progress;
-    
 }
