@@ -1,9 +1,5 @@
 package com.example.server.entity;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,11 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CrawlResult {
-    @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long taskId;
-    private Long subtaskId;
-    private Long clientId;
-    private String resultData;
+    private String taskId;
+    private String subTaskId;
+    private String nodeId; // 哪个爬虫节点处理的
 
+    private boolean success;
+    private String data; // 结果内容（文本 / 保存路径 / JSON）
+    private String errorMessage; // 失败原因（成功时可为空）
 }

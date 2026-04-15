@@ -1,4 +1,4 @@
-package com.example.server.entity;
+package com.example.server.entity.Message;
 
 public class ErrorCode {
     public static final int SUCCESS = 0;

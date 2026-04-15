@@ -3,11 +3,10 @@ package com.example.server.service;
 import com.example.server.entity.SubTask;
 import com.example.server.config.RabbitMQConfig;
 // ...existing code...
-import com.example.server.entity.Client;
+import com.example.server.entity.Crawler;
 import com.example.server.mapper.SubTaskMapper;
 import com.example.server.mapper.ClientMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -35,13 +34,16 @@ public class SubTaskService {
      * 分发子任务到可用客户端，互斥访问，失败则回滚
      */
     public synchronized boolean dispatchSubTasks(List<SubTask> subTasks) {
-        List<Client> clients = clientMapper.selectList(null);
+        // 检测是否有可用的爬虫节点
+        List<Crawler> clients = clientMapper.selectList(null);
         int clientCount = clients.size();
         if (clientCount == 0) {
             return false;
         }
+        // 分发子任务到任务队列
         List<Long> insertedIds = new ArrayList<>();
         try {
+            // 需要修改子任务表，在这里设置子任务的状态（正在执行，等待执行，执行完成）
             for (SubTask subTask : subTasks) {
                 rabbitTemplate.convertAndSend(
                         RabbitMQConfig.CRAWLER_EXCHANGE,

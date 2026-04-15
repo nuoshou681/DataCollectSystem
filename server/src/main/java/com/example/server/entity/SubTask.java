@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SubTask {
     @TableId(type = IdType.AUTO)
-    private Long subTaskId;
+    private Long subtaskId;
     private Long taskId;
     // 分配爬虫节点id
     private String nodeId;
     private String url;
+    private String keyword;
     // 最大递归深度
     private int maxDepth = 3;
     // 每层最多爬多少个链接，防止爆炸

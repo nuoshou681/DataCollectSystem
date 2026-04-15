@@ -8,8 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CrawlerResult {
-    private String nodeId;
-    private boolean  success;
-    // 爬取图片、文字、视频等数据 结果用枚举更好后续再继续完善
-    private String data;
+    private Long taskId;
+    private Long subTaskId;
+    private String nodeId;       // 哪个爬虫节点处理的
+
+    private boolean success;
+    private String data;         // 结果内容（文本 / 保存路径 / JSON）
+    private String errorMessage; // 失败原因（成功时可为空）
 }

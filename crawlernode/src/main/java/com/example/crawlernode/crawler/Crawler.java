@@ -27,12 +27,12 @@ public class Crawler {
                     .get();
             String text = doc.text();
             if (text.contains(subTask.getKeyword())) {
-                return new CrawlerResult(nodeId, true, text);
+                return new CrawlerResult(subTask.getTaskId(), subTask.getSubtaskId(), nodeId, true, text, null);
             } else {
-                return new CrawlerResult(nodeId, false, text);
+                return new CrawlerResult(subTask.getTaskId(), subTask.getSubtaskId(),nodeId, false, text, null);
             }
         } catch (Exception e) {
-            return new CrawlerResult(nodeId, false, e.getMessage());
+            return new CrawlerResult(subTask.getTaskId(), subTask.getSubtaskId(),nodeId, false, e.getMessage(),null);
         }
     }
 }

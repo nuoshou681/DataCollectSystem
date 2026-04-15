@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserTask {
+public class Task {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Long taskId;
     private Long userId;
-    private String taskName;
     private String keyword;
-    private String targetUrl;
+    private String url;
     private String status;
     private Integer progress;
     

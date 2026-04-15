@@ -12,7 +12,7 @@ import lombok.Data;
 @NoArgsConstructor
 public class User {
     @TableId(type = IdType.AUTO )
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String email;

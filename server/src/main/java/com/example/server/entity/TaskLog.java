@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TaskLog {
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Long logId;
     private Long taskId;
     private Long subtaskId;
-    private Long clientId;
+    private Long nodeId;
     private String logMessage;
     private String logLevel;
 }
