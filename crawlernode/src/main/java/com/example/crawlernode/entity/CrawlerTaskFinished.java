@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CrawlerResult {
+public class CrawlerTaskFinished {
     private Long taskId;
     private Long subTaskId;
-    private String nodeId;       // 哪个爬虫节点处理的
+    private String nodeId;
 
     private boolean success;
-    private String data;         // 结果内容（文本 / 保存路径 / JSON）
-    private String errorMessage; // 失败原因（成功时可为空）
+    private int totalPages;
+    private String message;
 }

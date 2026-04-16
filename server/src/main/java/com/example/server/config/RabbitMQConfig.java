@@ -56,15 +56,7 @@ public class RabbitMQConfig {
         idClassMapping.put("com.example.crawlernode.entity.CrawlerResult",
                 com.example.server.entity.CrawlResult.class);
         classMapper.setIdClassMapping(idClassMapping);
-
-        // 关键：信任爬虫节点那边的实体包
-        classMapper.setTrustedPackages(
-                "com.example.crawlernode.entity",
-                "com.example.server.entity",
-                "java.util",
-                "java.lang");
-        // 临时偷懒也可以：classMapper.setTrustedPackages("*"); 但不太安全
-
+        classMapper.setTrustedPackages("*"); // 不太安全但是方便
         return classMapper;
     }
 

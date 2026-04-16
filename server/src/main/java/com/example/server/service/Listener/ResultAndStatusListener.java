@@ -1,4 +1,4 @@
-package com.example.server.service;
+package com.example.server.service.Listener;
 
 import com.example.server.config.RabbitMQConfig;
 import com.example.server.entity.CrawlResult;
