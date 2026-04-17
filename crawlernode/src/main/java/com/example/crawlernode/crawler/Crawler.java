@@ -1,30 +1,33 @@
 package com.example.crawlernode.crawler;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.example.crawlernode.service.FirecrawlService;
+import com.example.crawlernode.config.RabbitMQConfig;
+import com.example.crawlernode.entity.CrawlerPageResult;
+import com.example.crawlernode.entity.CrawlerTaskFinished;
+import com.example.crawlernode.entity.SubTask;
 import com.google.gson.JsonObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.CDPSession;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitUntilState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.LoadState;
-import com.microsoft.playwright.options.WaitUntilState;
-import com.example.crawlernode.config.RabbitMQConfig;
-import com.example.crawlernode.entity.CrawlerPageResult;
-import com.example.crawlernode.entity.CrawlerTaskFinished;
-import com.example.crawlernode.entity.SubTask;
 
 @Component
 public class Crawler {
@@ -32,6 +35,7 @@ public class Crawler {
     private static final Logger log = LoggerFactory.getLogger(Crawler.class);
 
     private final RabbitTemplate rabbitTemplate;
+    private final FirecrawlService firecrawlService;
 
     @Value("${node.id}")
     private String nodeId;
@@ -39,16 +43,17 @@ public class Crawler {
     @Value("${crawler.storage.base-dir:/Users/rain/Desktop/DataCollectSystem/shared/crawl-files}")
     private String baseDir;
 
-    public Crawler(RabbitTemplate rabbitTemplate) {
+    public Crawler(RabbitTemplate rabbitTemplate, FirecrawlService firecrawlService) {
         this.rabbitTemplate = rabbitTemplate;
+        this.firecrawlService = firecrawlService;
     }
 
     public void crawl(SubTask subTask) {
-        String searchUrl = buildSearchUrl(subTask.getUrl(), subTask.getKeyword());
-        int maxLinksPerLevel = subTask.getMaxLinksPerLevel();
+        List<String> pageUrls = resolveLinks(subTask);
 
-        List<String> pageUrls = fetchPageUrlsFromSearchResult(searchUrl, maxLinksPerLevel);
-
+        for (String pageual : pageUrls) {
+            log.info("firecrawl收集到的网站link: " + pageual);
+        }
         if (pageUrls.isEmpty()) {
             reportTaskFinished(subTask, false, 0, "no result pages found");
             return;
@@ -98,71 +103,22 @@ public class Crawler {
         reportTaskFinished(subTask, true, successCount, "crawl finished");
     }
 
-    private String buildSearchUrl(String templateUrl, String keyword) {
-        String encodedKeyword = URLEncoder.encode(keyword == null ? "" : keyword, StandardCharsets.UTF_8);
+    private List<String> resolveLinks(SubTask subTask) {
+        String seedUrl = safeTrim(subTask.getUrl());
+        String keyword = safeTrim(subTask.getKeyword());
+        int limit = subTask.getMaxLinksPerLevel();
 
-        if (templateUrl == null || templateUrl.isBlank()) {
-            return "https://www.bing.com/search?q=" + encodedKeyword;
-        }
-
-        if (templateUrl.contains("{keyword}")) {
-            return templateUrl.replace("{keyword}", encodedKeyword);
-        }
-
-        if (templateUrl.endsWith("=") || templateUrl.endsWith("?") || templateUrl.endsWith("&")) {
-            return templateUrl + encodedKeyword;
-        }
-
-        return templateUrl + encodedKeyword;
-    }
-
-    private List<String> fetchPageUrlsFromSearchResult(String searchUrl, int maxLinksPerLevel) {
         try {
-            Document doc = Jsoup.connect(searchUrl)
-                    .userAgent(
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
-                    .referrer("https://www.bing.com")
-                    .timeout(15000)
-                    .get();
-
-            Elements resultLinks = doc.select("li.b_algo h2 a[href]");
-            List<String> pageUrls = new ArrayList<>();
-
-            for (Element a : resultLinks) {
-                String href = a.absUrl("href");
-                if (href == null || href.isBlank()) {
-                    continue;
-                }
-                if (href.startsWith("http://") || href.startsWith("https://")) {
-                    pageUrls.add(href);
-                }
-                if (pageUrls.size() >= maxLinksPerLevel) {
-                    break;
-                }
+            List<String> links;
+            if (isSearchUrl(seedUrl)) {
+                links = firecrawlService.searchLinks(keyword, limit);
+            } else {
+                links = firecrawlService.mapLinks(seedUrl, limit);
             }
-
-            if (!pageUrls.isEmpty()) {
-                return pageUrls;
-            }
-
-            Elements fallbackLinks = doc.select("a[href]");
-            for (Element a : fallbackLinks) {
-                String href = a.absUrl("href");
-                if (href == null || href.isBlank()) {
-                    continue;
-                }
-                if (href.startsWith("http://") || href.startsWith("https://")) {
-                    pageUrls.add(href);
-                }
-                if (pageUrls.size() >= maxLinksPerLevel) {
-                    break;
-                }
-            }
-
-            return pageUrls;
+            return deduplicateAndLimit(links, limit);
         } catch (Exception e) {
-            log.error("【CrawlerNode】{} 抓取搜索页失败: searchUrl={}, error={}",
-                    nodeId, searchUrl, e.getMessage(), e);
+            log.error("【CrawlerNode】{} Firecrawl 解析链接失败: seedUrl={}, keyword={}, error={}",
+                    nodeId, seedUrl, keyword, e.getMessage(), e);
             return List.of();
         }
     }
@@ -279,5 +235,34 @@ public class Crawler {
     }
 
     private record PageSnapshot(String title, String filePath) {
+    }
+
+    private boolean isSearchUrl(String seedUrl) {
+        if (seedUrl == null) {
+            return false;
+        }
+        return seedUrl.contains("/search") || seedUrl.contains("q=") || seedUrl.contains("{keyword}");
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private List<String> deduplicateAndLimit(List<String> links, int limit) {
+        if (links == null || links.isEmpty() || limit <= 0) {
+            return List.of();
+        }
+
+        Set<String> unique = new LinkedHashSet<>();
+        for (String link : links) {
+            if (link != null && !link.isBlank()) {
+                unique.add(link);
+            }
+            if (unique.size() >= limit) {
+                break;
+            }
+        }
+
+        return new ArrayList<>(unique);
     }
 }
