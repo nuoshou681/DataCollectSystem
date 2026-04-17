@@ -1,4 +1,4 @@
-package com.example.server.service.Listener;
+package com.example.server.Listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class CrawlerPageResultListener {
                 result.getTaskId(),
                 result.getSubTaskId(),
                 result.getPageUrl(),
-                result.getDepth(),
+                result.getFilePath(),
                 result.isSuccess());
 
         if (result.isSuccess()) {

@@ -1,10 +1,14 @@
 package com.example.crawlernode.crawler;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import com.google.gson.JsonObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitUntilState;
 import com.example.crawlernode.config.RabbitMQConfig;
 import com.example.crawlernode.entity.CrawlerPageResult;
 import com.example.crawlernode.entity.CrawlerTaskFinished;
@@ -25,111 +31,223 @@ public class Crawler {
 
     private static final Logger log = LoggerFactory.getLogger(Crawler.class);
 
+    private final RabbitTemplate rabbitTemplate;
+
     @Value("${node.id}")
     private String nodeId;
 
-    private final RabbitTemplate rabbitTemplate;
+    @Value("${crawler.storage.base-dir:/Users/rain/Desktop/DataCollectSystem/shared/crawl-files}")
+    private String baseDir;
 
     public Crawler(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
     public void crawl(SubTask subTask) {
-        Set<String> visited = new HashSet<>();
-        List<String> seedUrls = new ArrayList<>();
-        String url = "http://www.bing.com/search?q=" + subTask.getUrl() + subTask.getKeyword();
-        seedUrls.add(url);
+        String searchUrl = buildSearchUrl(subTask.getUrl(), subTask.getKeyword());
+        int maxLinksPerLevel = subTask.getMaxLinksPerLevel();
 
-        int totalPages = 0;
+        List<String> pageUrls = fetchPageUrlsFromSearchResult(searchUrl, maxLinksPerLevel);
 
-        try {
-            totalPages = crawlRecursive(subTask, seedUrls, visited, 0);
-            reportTaskFinished(subTask, true, totalPages, "crawl finished");
-        } catch (Exception e) {
-            log.error("【CrawlerNode】{} 递归爬取失败: subTaskId={}, error={}",
-                    nodeId, subTask.getSubtaskId(), e.getMessage(), e);
-            reportTaskFinished(subTask, false, totalPages, e.getMessage());
-        }
-    }
-
-    private int crawlRecursive(SubTask subTask, List<String> currentLevelUrls, Set<String> visited, int depth) {
-        if (depth > subTask.getMaxDepth()) {
-            return 0;
+        if (pageUrls.isEmpty()) {
+            reportTaskFinished(subTask, false, 0, "no result pages found");
+            return;
         }
 
-        int totalPages = 0;
-        List<String> nextLevelUrls = new ArrayList<>();
+        int pageIndex = 0;
+        int successCount = 0;
 
-        for (String url : currentLevelUrls) {
-            if (totalPages >= subTask.getMaxLinksPerLevel()) {
-                break;
-            }
-            if (!visited.add(url)) {
-                continue;
-            }
-
+        for (String pageUrl : pageUrls) {
+            pageIndex++;
             try {
-                log.info("【CrawlerNode】{} 开始请求页面: subTaskId={}, depth={}, url={}",
-                        nodeId, subTask.getSubtaskId(), depth, url);
+                PageSnapshot snapshot = savePageAsMhtml(subTask, pageUrl, pageIndex);
 
-                Document doc = Jsoup.connect(url)
-                        .userAgent(
-                                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
-                        .referrer("https://www.bing.com")
-                        .timeout(8000)
-                        .get();
-
-                String content = doc.body() != null ? doc.body().text() : "";
-                String title = doc.title();
-
-                CrawlerPageResult pageResult = new CrawlerPageResult(
+                CrawlerPageResult result = new CrawlerPageResult(
                         subTask.getTaskId(),
                         subTask.getSubtaskId(),
                         nodeId,
-                        url,
-                        title,
-                        depth,
+                        pageUrl,
+                        snapshot.title(),
+                        pageIndex,
                         true,
-                        content,
+                        snapshot.filePath(),
                         null);
 
-                sendPageResult(pageResult);
-                totalPages++;
-
-                Elements links = doc.select("a[href]");
-                for (Element a : links) {
-                    String href = a.absUrl("href");
-                    if (href == null || href.isBlank()) {
-                        continue;
-                    }
-                    nextLevelUrls.add(href);
-                    if (nextLevelUrls.size() >= subTask.getMaxLinksPerLevel()) {
-                        break;
-                    }
-                }
+                sendPageResult(result);
+                successCount++;
 
             } catch (Exception e) {
-                CrawlerPageResult pageResult = new CrawlerPageResult(
+                log.error("【CrawlerNode】{} 保存页面失败: subTaskId={}, pageUrl={}, error={}",
+                        nodeId, subTask.getSubtaskId(), pageUrl, e.getMessage(), e);
+
+                CrawlerPageResult result = new CrawlerPageResult(
                         subTask.getTaskId(),
                         subTask.getSubtaskId(),
                         nodeId,
-                        url,
+                        pageUrl,
                         null,
-                        depth,
+                        pageIndex,
                         false,
                         null,
                         e.getMessage());
-                sendPageResult(pageResult);
-                log.error("【CrawlerNode】{} 页面抓取失败: subTaskId={}, url={}, error={}",
-                        nodeId, subTask.getSubtaskId(), url, e.getMessage(), e);
+
+                sendPageResult(result);
             }
         }
 
-        if (!nextLevelUrls.isEmpty() && depth < subTask.getMaxDepth()) {
-            totalPages += crawlRecursive(subTask, nextLevelUrls, visited, depth + 1);
+        reportTaskFinished(subTask, true, successCount, "crawl finished");
+    }
+
+    private String buildSearchUrl(String templateUrl, String keyword) {
+        String encodedKeyword = URLEncoder.encode(keyword == null ? "" : keyword, StandardCharsets.UTF_8);
+
+        if (templateUrl == null || templateUrl.isBlank()) {
+            return "https://www.bing.com/search?q=" + encodedKeyword;
         }
 
-        return totalPages;
+        if (templateUrl.contains("{keyword}")) {
+            return templateUrl.replace("{keyword}", encodedKeyword);
+        }
+
+        if (templateUrl.endsWith("=") || templateUrl.endsWith("?") || templateUrl.endsWith("&")) {
+            return templateUrl + encodedKeyword;
+        }
+
+        return templateUrl + encodedKeyword;
+    }
+
+    private List<String> fetchPageUrlsFromSearchResult(String searchUrl, int maxLinksPerLevel) {
+        try {
+            Document doc = Jsoup.connect(searchUrl)
+                    .userAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+                    .referrer("https://www.bing.com")
+                    .timeout(15000)
+                    .get();
+
+            Elements resultLinks = doc.select("li.b_algo h2 a[href]");
+            List<String> pageUrls = new ArrayList<>();
+
+            for (Element a : resultLinks) {
+                String href = a.absUrl("href");
+                if (href == null || href.isBlank()) {
+                    continue;
+                }
+                if (href.startsWith("http://") || href.startsWith("https://")) {
+                    pageUrls.add(href);
+                }
+                if (pageUrls.size() >= maxLinksPerLevel) {
+                    break;
+                }
+            }
+
+            if (!pageUrls.isEmpty()) {
+                return pageUrls;
+            }
+
+            Elements fallbackLinks = doc.select("a[href]");
+            for (Element a : fallbackLinks) {
+                String href = a.absUrl("href");
+                if (href == null || href.isBlank()) {
+                    continue;
+                }
+                if (href.startsWith("http://") || href.startsWith("https://")) {
+                    pageUrls.add(href);
+                }
+                if (pageUrls.size() >= maxLinksPerLevel) {
+                    break;
+                }
+            }
+
+            return pageUrls;
+        } catch (Exception e) {
+            log.error("【CrawlerNode】{} 抓取搜索页失败: searchUrl={}, error={}",
+                    nodeId, searchUrl, e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    private PageSnapshot savePageAsMhtml(SubTask subTask, String pageUrl, int pageIndex) throws IOException {
+        String safeTaskId = String.valueOf(subTask.getTaskId());
+        String safeSubTaskId = String.valueOf(subTask.getSubtaskId());
+
+        Path dir = Path.of(baseDir, safeTaskId, safeSubTaskId);
+        Files.createDirectories(dir);
+
+        String fileName = String.format("%02d.mhtml", pageIndex);
+        Path file = dir.resolve(fileName);
+
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                    .setHeadless(true)
+                    .setArgs(java.util.List.of(
+                            "--disable-features=LazyImageLoading,LazyFrameLoading",
+                            "--no-sandbox")));
+
+            BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                    .setViewportSize(1600, 12000)
+                    .setUserAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"));
+
+            Page page = context.newPage();
+            page.navigate(pageUrl, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+
+            // waitForBingOrPageReady(page);
+            forceScrollToBottom(page);
+
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForTimeout(2500);
+            waitForImagesComplete(page);
+
+            String title = page.title();
+
+            CDPSession session = context.newCDPSession(page);
+            JsonObject params = new JsonObject();
+            params.addProperty("format", "mhtml");
+
+            JsonObject snapshot = session.send("Page.captureSnapshot", params);
+            String mhtml = snapshot.get("data").getAsString();
+
+            Files.writeString(file, mhtml, StandardCharsets.UTF_8);
+            browser.close();
+
+            return new PageSnapshot(title, file.toAbsolutePath().toString());
+        }
+    }
+
+    private void forceScrollToBottom(Page page) {
+        try {
+            page.evaluate("""
+                    async () => {
+                        await new Promise(resolve => {
+                            let totalHeight = 0;
+                            const distance = 800;
+                            const timer = setInterval(() => {
+                                const scrollHeight = document.body.scrollHeight;
+                                window.scrollBy(0, distance);
+                                totalHeight += distance;
+                                if (totalHeight >= scrollHeight) {
+                                    clearInterval(timer);
+                                    window.scrollTo(0, 0);
+                                    resolve();
+                                }
+                            }, 200);
+                        });
+                    }
+                    """);
+        } catch (Exception e) {
+            log.warn("【CrawlerNode】{} 强制滚动失败: {}", nodeId, e.getMessage());
+        }
+    }
+
+    private void waitForImagesComplete(Page page) {
+        try {
+            page.waitForFunction("""
+                    () => Array.from(document.images).every(img => img.complete)
+                    """);
+        } catch (Exception e) {
+            log.warn("【CrawlerNode】{} 等待图片 complete 超时: {}", nodeId, e.getMessage());
+        }
     }
 
     private void sendPageResult(CrawlerPageResult result) {
@@ -138,8 +256,8 @@ public class Crawler {
                 RabbitMQConfig.ROUTING_RESULT,
                 result);
 
-        log.info("【CrawlerNode】{} 已发送页面结果: subTaskId={}, pageUrl={}, depth={}",
-                nodeId, result.getSubTaskId(), result.getPageUrl(), result.getDepth());
+        log.info("【CrawlerNode】{} 已发送页面结果: subTaskId={}, pageUrl={}, filePath={}",
+                nodeId, result.getSubTaskId(), result.getPageUrl(), result.getFilePath());
     }
 
     public void reportTaskFinished(SubTask subTask, boolean success, int totalPages, String message) {
@@ -153,10 +271,13 @@ public class Crawler {
 
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.CRAWLER_EXCHANGE,
-                RabbitMQConfig.ROUTING_RESULT,
+                RabbitMQConfig.ROUTING_TASK_FINISHED,
                 finished);
 
         log.info("【CrawlerNode】{} 已发送子任务完成消息: subTaskId={}, success={}, totalPages={}",
                 nodeId, subTask.getSubtaskId(), success, totalPages);
+    }
+
+    private record PageSnapshot(String title, String filePath) {
     }
 }

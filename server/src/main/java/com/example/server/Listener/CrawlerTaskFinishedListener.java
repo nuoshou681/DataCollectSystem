@@ -1,4 +1,4 @@
-package com.example.server.service.Listener;
+package com.example.server.Listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ public class CrawlerTaskFinishedListener {
 
     private static final Logger log = LoggerFactory.getLogger(CrawlerTaskFinishedListener.class);
 
-    @RabbitListener(queues = RabbitMQConfig.CRAWLER_RESULT_QUEUE)
+    @RabbitListener(queues = RabbitMQConfig.CRAWLER_TASK_FINISHED_QUEUE)
     public void handleTaskFinished(CrawlerTaskFinished finished) {
         log.info("子任务完成: taskId={}, subTaskId={}, nodeId={}, success={}, totalPages={}",
                 finished.getTaskId(),

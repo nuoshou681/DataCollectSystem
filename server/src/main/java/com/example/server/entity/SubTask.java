@@ -19,10 +19,6 @@ public class SubTask {
     private String nodeId;
     private String url;
     private String keyword;
-    // 最大递归深度
     @TableField(exist = false)
-    private int maxDepth = 3;
-    // 每层最多爬多少个链接，防止爆炸
-    @TableField(exist = false)
-    private int maxLinksPerLevel = 20;
+    private int maxLinksPerLevel = 10;
 }

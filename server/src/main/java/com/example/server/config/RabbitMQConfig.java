@@ -22,10 +22,12 @@ public class RabbitMQConfig {
     public static final String CRAWLER_TASK_QUEUE = "crawler.task.queue";
     public static final String CRAWLER_RESULT_QUEUE = "crawler.result.queue";
     public static final String CRAWLER_STATUS_QUEUE = "crawler.status.queue";
+    public static final String CRAWLER_TASK_FINISHED_QUEUE = "crawler.task.finished.queue";
 
     public static final String ROUTING_TASK = "crawler.task";
     public static final String ROUTING_RESULT = "crawler.result";
     public static final String ROUTING_STATUS = "crawler.status";
+    public static final String ROUTING_TASK_FINISHED = "crawler.task.finished";
 
     @Bean
     public DirectExchange crawDirectExchange() {
@@ -48,13 +50,20 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue crawlerTaskFinishedQueue() {
+        return new Queue(CRAWLER_TASK_FINISHED_QUEUE, true);
+    }
+
+    @Bean
     public DefaultClassMapper rabbitClassMapper() {
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("com.example.crawlernode.entity.CrawlerStatus",
-                com.example.server.entity.CrawlerStatus.class);
-        idClassMapping.put("com.example.crawlernode.entity.CrawlerResult",
-                com.example.server.entity.CrawlResult.class);
+                com.example.server.entity.Message.CrawlerStatus.class);
+        idClassMapping.put("com.example.crawlernode.entity.CrawlerPageResult",
+                com.example.server.entity.Message.CrawlerPageResult.class);
+        idClassMapping.put("com.example.crawlernode.entity.CrawlerTaskFinished",
+                com.example.server.entity.Message.CrawlerTaskFinished.class);
         classMapper.setIdClassMapping(idClassMapping);
         classMapper.setTrustedPackages("*"); // 不太安全但是方便
         return classMapper;
@@ -99,5 +108,12 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(crawlerStatusQueue)
                 .to(crawlDirectExchange)
                 .with(ROUTING_STATUS);
+    }
+
+    @Bean
+    public Binding taskFinishedBinding(DirectExchange crawlDirectExchange, Queue crawlerTaskFinishedQueue) {
+        return BindingBuilder.bind(crawlerTaskFinishedQueue)
+                .to(crawlDirectExchange)
+                .with(ROUTING_TASK_FINISHED);
     }
 }
