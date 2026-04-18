@@ -1,21 +1,25 @@
 package com.example.crawlernode.service;
 
 import com.firecrawl.client.FirecrawlClient;
-import com.firecrawl.models.MapData;
-import com.firecrawl.models.MapOptions;
-import com.firecrawl.models.SearchData;
-import com.firecrawl.models.SearchOptions;
+import com.firecrawl.models.Document;
+import com.firecrawl.models.ScrapeOptions;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import org.slf4j.Logger;
 
 @Service
 public class FirecrawlService {
 
     private final FirecrawlClient client;
+
+    private static final Logger log = LoggerFactory.getLogger(FirecrawlService.class);
 
     public FirecrawlService(@Value("${firecrawl.api-key}") String apiKey) {
         this.client = FirecrawlClient.builder()
@@ -23,51 +27,45 @@ public class FirecrawlService {
                 .build();
     }
 
-    public List<String> searchLinks(String query, int limit) {
-        SearchData results = client.search(
-                query,
-                SearchOptions.builder()
-                        .limit(limit)
-                        .build());
-
-        List<String> urls = new ArrayList<>();
-        if (results != null && results.getWeb() != null) {
-            for (Map<String, Object> item : results.getWeb()) {
-                Object url = item.get("url");
-                if (url != null) {
-                    String link = url.toString();
-                    if (!link.isBlank()) {
-                        urls.add(link);
-                    }
-                }
-            }
+    public List<String> mapLinks(String seedUrl, String keyword, int limit) {
+        if (seedUrl == null || seedUrl.isBlank() || limit <= 0) {
+            return List.of();
         }
-        return urls;
+
+        Document doc = client.scrape(
+                seedUrl + keyword,
+                ScrapeOptions.builder()
+                        .formats(List.of((Object) "links"))
+                        .onlyMainContent(false) // 保留全页面上下文，links 更全
+                        .waitFor(2500) // 等待动态内容加载
+                        .timeout(45000) // 给复杂页面更长渲染时间
+                        .mobile(false)
+                        .build());
+        if (doc == null || doc.getLinks() == null || doc.getLinks().isEmpty()) {
+            return List.of();
+        }
+        return normalizeLinks(doc.getLinks(), limit);
     }
 
-    public List<String> mapLinks(String siteUrl, int limit) {
-        MapData data = client.map(
-                siteUrl,
-                MapOptions.builder()
-                        .limit(limit)
-                        .build());
-
-        List<String> urls = new ArrayList<>();
-        if (data != null && data.getLinks() != null) {
-            for (Map<String, Object> item : data.getLinks()) {
-                Object url = item.get("url");
-                if (url != null) {
-                    String link = url.toString();
-                    if (!link.isBlank()) {
-                        urls.add(link);
-                    }
-                }
+    private List<String> normalizeLinks(List<String> links, int limit) {
+        Set<String> uniq = new LinkedHashSet<>();
+        int len = links.size();
+        for (int i = len / 4; i < len; i++) {
+            if (links.get(i) == null) {
+                continue;
+            }
+            String v = links.get(i).trim();
+            if (v.isEmpty()) {
+                continue;
+            }
+            if (!(v.startsWith("http://") || v.startsWith("https://"))) {
+                continue;
+            }
+            uniq.add(v);
+            if (uniq.size() >= limit) {
+                break;
             }
         }
-        return urls;
-    }
-
-    public String scrapeMarkdown(String url) {
-        return client.scrape(url).getMarkdown();
+        return new ArrayList<>(uniq);
     }
 }

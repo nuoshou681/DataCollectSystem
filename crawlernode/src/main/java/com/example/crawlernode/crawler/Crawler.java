@@ -19,6 +19,8 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.CDPSession;
+import com.microsoft.playwright.Frame;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.LoadState;
@@ -34,6 +36,28 @@ public class Crawler {
 
     private static final Logger log = LoggerFactory.getLogger(Crawler.class);
 
+    private static final List<String> CONSENT_SELECTORS = List.of(
+            "#onetrust-accept-btn-handler",
+            "button#didomi-notice-agree-button",
+            "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll",
+            "button[aria-label*='Accept' i]",
+            "button[title*='Accept' i]");
+
+    private static final List<String> CONSENT_TEXT_SELECTORS = List.of(
+            "button:has-text('Accept All')",
+            "button:has-text('Accept all')",
+            "button:has-text('Accept')",
+            "button:has-text('I Agree')",
+            "button:has-text('I agree')",
+            "button:has-text('Allow all')",
+            "button:has-text('同意')",
+            "button:has-text('我同意')",
+            "button:has-text('确定')",
+            "button:has-text('全部接受')",
+            "button:has-text('允许全部')",
+            "[role='button']:has-text('Accept')",
+            "[role='button']:has-text('同意')",
+            "[role='button']:has-text('确定')");
     private final RabbitTemplate rabbitTemplate;
     private final FirecrawlService firecrawlService;
 
@@ -109,13 +133,10 @@ public class Crawler {
         int limit = subTask.getMaxLinksPerLevel();
 
         try {
-            List<String> links;
-            if (isSearchUrl(seedUrl)) {
-                links = firecrawlService.searchLinks(keyword, limit);
-            } else {
-                links = firecrawlService.mapLinks(seedUrl, limit);
-            }
-            return deduplicateAndLimit(links, limit);
+            List<String> links = firecrawlService.mapLinks(seedUrl, keyword, limit);
+            if (links.isEmpty())
+                log.info(seedUrl + keyword + "links为空");
+            return links;
         } catch (Exception e) {
             log.error("【CrawlerNode】{} Firecrawl 解析链接失败: seedUrl={}, keyword={}, error={}",
                     nodeId, seedUrl, keyword, e.getMessage(), e);
@@ -148,11 +169,17 @@ public class Crawler {
             Page page = context.newPage();
             page.navigate(pageUrl, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
 
-            // waitForBingOrPageReady(page);
+            // 第一次尝试处理 Cookie/用户须知弹窗
+            acceptConsentIfPresent(page);
+
             forceScrollToBottom(page);
 
             page.waitForLoadState(LoadState.NETWORKIDLE);
-            page.waitForTimeout(2500);
+            page.waitForTimeout(2000);
+
+            // 页面滚动后很多站点会再次弹窗，再处理一次
+            acceptConsentIfPresent(page);
+
             waitForImagesComplete(page);
 
             String title = page.title();
@@ -169,6 +196,56 @@ public class Crawler {
 
             return new PageSnapshot(title, file.toAbsolutePath().toString());
         }
+    }
+
+    private void acceptConsentIfPresent(Page page) {
+        int clicked = 0;
+
+        for (int round = 0; round < 3; round++) {
+            boolean roundClicked = false;
+
+            for (Frame frame : page.frames()) {
+                if (clickConsentInFrame(frame)) {
+                    clicked++;
+                    roundClicked = true;
+                    page.waitForTimeout(500);
+                }
+            }
+
+            if (!roundClicked) {
+                break;
+            }
+        }
+
+        if (clicked > 0) {
+            log.info("【CrawlerNode】{} 自动点击同意类弹窗成功: clicks={}", nodeId, clicked);
+        }
+    }
+
+    private boolean clickConsentInFrame(Frame frame) {
+        for (String selector : CONSENT_SELECTORS) {
+            try {
+                Locator locator = frame.locator(selector).first();
+                if (locator.isVisible(new Locator.IsVisibleOptions().setTimeout(500))) {
+                    locator.click(new Locator.ClickOptions().setTimeout(1200));
+                    return true;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (String selector : CONSENT_TEXT_SELECTORS) {
+            try {
+                Locator locator = frame.locator(selector).first();
+                if (locator.isVisible(new Locator.IsVisibleOptions().setTimeout(500))) {
+                    locator.click(new Locator.ClickOptions().setTimeout(1200));
+                    return true;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return false;
     }
 
     private void forceScrollToBottom(Page page) {
@@ -237,32 +314,7 @@ public class Crawler {
     private record PageSnapshot(String title, String filePath) {
     }
 
-    private boolean isSearchUrl(String seedUrl) {
-        if (seedUrl == null) {
-            return false;
-        }
-        return seedUrl.contains("/search") || seedUrl.contains("q=") || seedUrl.contains("{keyword}");
-    }
-
     private String safeTrim(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private List<String> deduplicateAndLimit(List<String> links, int limit) {
-        if (links == null || links.isEmpty() || limit <= 0) {
-            return List.of();
-        }
-
-        Set<String> unique = new LinkedHashSet<>();
-        for (String link : links) {
-            if (link != null && !link.isBlank()) {
-                unique.add(link);
-            }
-            if (unique.size() >= limit) {
-                break;
-            }
-        }
-
-        return new ArrayList<>(unique);
     }
 }
