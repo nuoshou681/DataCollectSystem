@@ -11,11 +11,20 @@ const requset = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+function normalizeToken(rawToken: string) {
+  const trimmed = rawToken.trim()
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return trimmed.slice(1, -1)
+  }
+  return trimmed
+}
+
 // 请求拦截器
 requset.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${normalizeToken(token)}`
   }
   return config
 })

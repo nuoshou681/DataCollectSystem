@@ -7,11 +7,18 @@ import org.springframework.stereotype.Component;
 
 import com.example.server.config.RabbitMQConfig;
 import com.example.server.entity.Message.CrawlerPageResult;
+import com.example.server.service.CrawlerRuntimeStore;
 
 @Component
 public class CrawlerPageResultListener {
 
     private static final Logger log = LoggerFactory.getLogger(CrawlerPageResultListener.class);
+
+    private final CrawlerRuntimeStore crawlerRuntimeStore;
+
+    public CrawlerPageResultListener(CrawlerRuntimeStore crawlerRuntimeStore) {
+        this.crawlerRuntimeStore = crawlerRuntimeStore;
+    }
 
     @RabbitListener(queues = RabbitMQConfig.CRAWLER_RESULT_QUEUE)
     public void handlePageResult(CrawlerPageResult result) {
@@ -21,6 +28,8 @@ public class CrawlerPageResultListener {
                 result.getPageUrl(),
                 result.getFilePath(),
                 result.isSuccess());
+
+        crawlerRuntimeStore.addPageResult(result);
 
         if (result.isSuccess()) {
             // 这里可以：

@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import TaskView from '@/views/TaskView.vue'
 import LogView from '@/views/LogView.vue'
+import AdminNodeView from '@/views/AdminNodeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import MainLayout from '@/views/MainLayout.vue'
@@ -14,7 +15,8 @@ const routes = [
     children: [
       { path:'',component:HomeView },
       { path:'task',component:TaskView},
-      { path:'log', component:LogView}
+      { path:'log', component:LogView},
+      { path:'admin/nodes', component:AdminNodeView }
     ]
   },
   { path: '/login', component: LoginView },

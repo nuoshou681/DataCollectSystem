@@ -18,7 +18,7 @@ async function handleLogin() {
     }else {
       // res.data就是token
       if (res && res.data && res.data) {
-        localStorage.setItem('token', JSON.stringify(res.data))
+        localStorage.setItem('token', String(res.data))
         // 跳转首页等后续操作
         router.push('/')
       }
