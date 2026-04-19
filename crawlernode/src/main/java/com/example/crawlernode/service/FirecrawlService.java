@@ -1,5 +1,8 @@
 package com.example.crawlernode.service;
 
+import com.example.crawlernode.website.BaiduBaikeLinkRule;
+import com.example.crawlernode.website.BingLinkRule;
+import com.example.crawlernode.website.SohuNewsLinkRule;
 import com.firecrawl.client.FirecrawlClient;
 import com.firecrawl.models.Document;
 import com.firecrawl.models.ScrapeOptions;
@@ -18,6 +21,10 @@ import org.slf4j.Logger;
 public class FirecrawlService {
 
     private final FirecrawlClient client;
+
+    private BaiduBaikeLinkRule baiduBaikeLinkRule = new BaiduBaikeLinkRule();
+    private BingLinkRule bingLinkRule = new BingLinkRule();;
+    private SohuNewsLinkRule sohuNewsLinkRule = new SohuNewsLinkRule();
 
     private static final Logger log = LoggerFactory.getLogger(FirecrawlService.class);
 
@@ -38,34 +45,26 @@ public class FirecrawlService {
                         .formats(List.of((Object) "links"))
                         .onlyMainContent(false) // 保留全页面上下文，links 更全
                         .waitFor(2500) // 等待动态内容加载
-                        .timeout(45000) // 给复杂页面更长渲染时间
-                        .mobile(false)
+                        .timeout(20000) // 给复杂页面更长渲染时间
+                        .mobile(true)
                         .build());
+        // 判断是否为空
         if (doc == null || doc.getLinks() == null || doc.getLinks().isEmpty()) {
             return List.of();
         }
-        return normalizeLinks(doc.getLinks(), limit);
-    }
-
-    private List<String> normalizeLinks(List<String> links, int limit) {
-        Set<String> uniq = new LinkedHashSet<>();
-        int len = links.size();
-        for (int i = len / 4; i < len; i++) {
-            if (links.get(i) == null) {
-                continue;
-            }
-            String v = links.get(i).trim();
-            if (v.isEmpty()) {
-                continue;
-            }
-            if (!(v.startsWith("http://") || v.startsWith("https://"))) {
-                continue;
-            }
-            uniq.add(v);
-            if (uniq.size() >= limit) {
-                break;
-            }
+        for (String link : doc.getLinks()) {
+            log.info("收集到的网页地址:" + link);
         }
-        return new ArrayList<>(uniq);
+        // 去对应网站规则过滤
+        List<String> links = new ArrayList<>();
+        if (seedUrl.contains("baike.baidu.com"))
+            links = baiduBaikeLinkRule.filter(doc.getLinks(), limit);
+        if (seedUrl.contains("www.bing.com"))
+            links = bingLinkRule.filter(doc.getLinks(), limit);
+        if (seedUrl.contains("search.sohu.com"))
+            links = sohuNewsLinkRule.filter(doc.getLinks(), limit);
+        // 添加原始链接
+        links.add(seedUrl + keyword);
+        return links;
     }
 }

@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.example.crawlernode.service.FirecrawlService;
 import com.example.crawlernode.config.RabbitMQConfig;
@@ -76,7 +73,7 @@ public class Crawler {
         List<String> pageUrls = resolveLinks(subTask);
 
         for (String pageual : pageUrls) {
-            log.info("firecrawl收集到的网站link: " + pageual);
+            log.info("经过清洗后firecrawl收集到的网站link: " + pageual);
         }
         if (pageUrls.isEmpty()) {
             reportTaskFinished(subTask, false, 0, "no result pages found");
@@ -102,6 +99,7 @@ public class Crawler {
                         snapshot.filePath(),
                         null);
 
+                // 上传爬取结果到队列
                 sendPageResult(result);
                 successCount++;
 
@@ -124,7 +122,38 @@ public class Crawler {
             }
         }
 
+        // 上传任务完成信息到队列
         reportTaskFinished(subTask, true, successCount, "crawl finished");
+    }
+
+    // 上传队列
+    private void sendPageResult(CrawlerPageResult result) {
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.CRAWLER_EXCHANGE,
+                RabbitMQConfig.ROUTING_RESULT,
+                result);
+
+        log.info("【CrawlerNode】{} 已发送页面结果: subTaskId={}, pageUrl={}, filePath={}",
+                nodeId, result.getSubTaskId(), result.getPageUrl(), result.getFilePath());
+    }
+
+    // 上传队列
+    public void reportTaskFinished(SubTask subTask, boolean success, int totalPages, String message) {
+        CrawlerTaskFinished finished = new CrawlerTaskFinished(
+                subTask.getTaskId(),
+                subTask.getSubtaskId(),
+                nodeId,
+                success,
+                totalPages,
+                message);
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.CRAWLER_EXCHANGE,
+                RabbitMQConfig.ROUTING_TASK_FINISHED,
+                finished);
+
+        log.info("【CrawlerNode】{} 已发送子任务完成消息: subTaskId={}, success={}, totalPages={}",
+                nodeId, subTask.getSubtaskId(), success, totalPages);
     }
 
     private List<String> resolveLinks(SubTask subTask) {
@@ -133,9 +162,8 @@ public class Crawler {
         int limit = subTask.getMaxLinksPerLevel();
 
         try {
+            // 调用firecrawl获取links
             List<String> links = firecrawlService.mapLinks(seedUrl, keyword, limit);
-            if (links.isEmpty())
-                log.info(seedUrl + keyword + "links为空");
             return links;
         } catch (Exception e) {
             log.error("【CrawlerNode】{} Firecrawl 解析链接失败: seedUrl={}, keyword={}, error={}",
@@ -144,6 +172,7 @@ public class Crawler {
         }
     }
 
+    // 保存为mhtml
     private PageSnapshot savePageAsMhtml(SubTask subTask, String pageUrl, int pageIndex) throws IOException {
         String safeTaskId = String.valueOf(subTask.getTaskId());
         String safeSubTaskId = String.valueOf(subTask.getSubtaskId());
@@ -281,34 +310,6 @@ public class Crawler {
         } catch (Exception e) {
             log.warn("【CrawlerNode】{} 等待图片 complete 超时: {}", nodeId, e.getMessage());
         }
-    }
-
-    private void sendPageResult(CrawlerPageResult result) {
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.CRAWLER_EXCHANGE,
-                RabbitMQConfig.ROUTING_RESULT,
-                result);
-
-        log.info("【CrawlerNode】{} 已发送页面结果: subTaskId={}, pageUrl={}, filePath={}",
-                nodeId, result.getSubTaskId(), result.getPageUrl(), result.getFilePath());
-    }
-
-    public void reportTaskFinished(SubTask subTask, boolean success, int totalPages, String message) {
-        CrawlerTaskFinished finished = new CrawlerTaskFinished(
-                subTask.getTaskId(),
-                subTask.getSubtaskId(),
-                nodeId,
-                success,
-                totalPages,
-                message);
-
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.CRAWLER_EXCHANGE,
-                RabbitMQConfig.ROUTING_TASK_FINISHED,
-                finished);
-
-        log.info("【CrawlerNode】{} 已发送子任务完成消息: subTaskId={}, success={}, totalPages={}",
-                nodeId, subTask.getSubtaskId(), success, totalPages);
     }
 
     private record PageSnapshot(String title, String filePath) {
