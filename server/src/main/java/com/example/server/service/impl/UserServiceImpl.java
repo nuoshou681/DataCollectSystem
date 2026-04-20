@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword())); // 密码加密
+        user.setRole(normalizeRole(req.getRole()));
         userMapper.insert(user);
     }
 
@@ -53,5 +54,15 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
-}
 
+    private String normalizeRole(String role) {
+        if (role == null || role.isBlank()) {
+            return "user";
+        }
+        String trimmed = role.trim().toLowerCase();
+        if ("admin".equals(trimmed)) {
+            return "admin";
+        }
+        return "user";
+    }
+}

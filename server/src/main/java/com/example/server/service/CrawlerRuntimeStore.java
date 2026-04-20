@@ -14,16 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CrawlerRuntimeStore {
 
     private final Map<Long, List<CrawlerPageResult>> byTaskId = new ConcurrentHashMap<>();
-    private final Map<Long, List<CrawlerPageResult>> bySubTaskId = new ConcurrentHashMap<>();
 
     public void addPageResult(CrawlerPageResult result) {
-        if (result == null || result.getTaskId() == null || result.getSubTaskId() == null) {
+        if (result == null || result.getTaskId() == null) {
             return;
         }
 
         byTaskId.computeIfAbsent(result.getTaskId(), k -> Collections.synchronizedList(new ArrayList<>())).add(result);
-        bySubTaskId.computeIfAbsent(result.getSubTaskId(), k -> Collections.synchronizedList(new ArrayList<>()))
-                .add(result);
     }
 
     public List<CrawlerPageResult> getByTaskId(Long taskId) {
@@ -33,20 +30,12 @@ public class CrawlerRuntimeStore {
         return sortCopy(byTaskId.getOrDefault(taskId, List.of()));
     }
 
-    public List<CrawlerPageResult> getBySubTaskId(Long subTaskId) {
-        if (subTaskId == null) {
-            return List.of();
-        }
-        return sortCopy(bySubTaskId.getOrDefault(subTaskId, List.of()));
-    }
-
     public List<CrawlerPageResult> getAll() {
         List<CrawlerPageResult> all = new ArrayList<>();
         for (List<CrawlerPageResult> results : byTaskId.values()) {
             all.addAll(results);
         }
         all.sort(Comparator.comparing(CrawlerPageResult::getTaskId)
-                .thenComparing(CrawlerPageResult::getSubTaskId)
                 .thenComparingInt(CrawlerPageResult::getPageIndex));
         return all;
     }
@@ -54,7 +43,6 @@ public class CrawlerRuntimeStore {
     private List<CrawlerPageResult> sortCopy(List<CrawlerPageResult> source) {
         List<CrawlerPageResult> copy = new ArrayList<>(source);
         copy.sort(Comparator.comparing(CrawlerPageResult::getTaskId)
-                .thenComparing(CrawlerPageResult::getSubTaskId)
                 .thenComparingInt(CrawlerPageResult::getPageIndex));
         return copy;
     }

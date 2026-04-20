@@ -17,10 +17,15 @@ async function handleLogin() {
       password.value = ''
     }else {
       // res.data就是token
-      if (res && res.data && res.data) {
-        localStorage.setItem('token', String(res.data))
+      if (res && res.data) {
+        localStorage.setItem('token', String(res.data.token))
+        localStorage.setItem('role', String(res.data.role || 'user'))
         // 跳转首页等后续操作
-        router.push('/')
+        if (res.data.role === 'admin') {
+          router.push('/admin')
+        } else {
+          router.push('/')
+        }
       }
     }
   } catch (e: unknown) {

@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { dispatchTask, fetchPageResults, fetchSubTasks, fetchTasks } from '@/api/api'
-import type { CrawlerPageResult, DispatchTaskPayload, SubTask, Task } from '@/types/entity'
+import {
+  cachePageResultMhtml,
+  dispatchTask,
+  downloadPageResultMhtml,
+  fetchPageResults,
+  getPageResultStreamUrl,
+  fetchTasks,
+} from '@/api/api'
+import type { CrawlerPageResult, DispatchTaskPayload, Task } from '@/types/entity'
 
 type SiteKey = 'sohu' | 'bing' | 'baike' | 'other'
 
@@ -13,20 +21,26 @@ interface SiteOption {
 }
 
 interface LinkRow {
+  pageResultId?: number
   pageUrl: string
   pageTitle?: string
   pageIndex: number
   success: boolean
+  filePath?: string
   errorMessage?: string
+  mhtmlCached?: boolean
+  mhtmlCachedAt?: string
+  isSeed?: boolean
 }
 
 interface SiteTaskRow {
-  subtaskId: number
   taskId: number
   keyword: string
   nodeId: string
   taskStatus: string
   taskProgress: number
+  completedPages: number
+  expectedPages: number
   links: LinkRow[]
 }
 
@@ -34,7 +48,7 @@ const siteOptions: SiteOption[] = [
   {
     key: 'sohu',
     label: '搜狐新闻',
-    seedUrl: 'https://search.sohu.com/search?query=',
+    seedUrl: 'https://search.sohu.com/?keyword=',
   },
   {
     key: 'bing',
@@ -44,9 +58,14 @@ const siteOptions: SiteOption[] = [
   {
     key: 'baike',
     label: '百度百科',
-    seedUrl: 'https://baike.baidu.com/search?word=',
+    seedUrl: 'https://baike.baidu.com/item/',
   },
 ]
+
+const EXPECTED_PAGE_RESULTS_PER_TASK = 10
+
+const route = useRoute()
+const router = useRouter()
 
 const selectedSites = ref<SiteOption['key'][]>(['sohu'])
 const usePerSiteKeyword = ref(false)
@@ -60,9 +79,14 @@ const siteKeywords = ref<Record<SiteOption['key'], string>>({
 const loading = ref(false)
 const submitting = ref(false)
 const tasks = ref<Task[]>([])
-const subTasks = ref<SubTask[]>([])
 const pageResults = ref<CrawlerPageResult[]>([])
 const activeSitePanels = ref<string[]>(['sohu'])
+const streamConnected = ref(false)
+const streamStatusText = ref('正在连接实时结果流...')
+let resultStream: EventSource | null = null
+
+const cacheLoadingMap = ref<Record<number, boolean>>({})
+const downloadLoadingMap = ref<Record<number, boolean>>({})
 
 const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
 
@@ -113,22 +137,87 @@ function buildSeedLink(url: string, keyword: string) {
   return `${url}${encodeURIComponent(keyword)}`
 }
 
-async function loadTaskData() {
-  loading.value = true
+async function loadTaskData(silent = false) {
+  if (!silent) {
+    loading.value = true
+  }
   try {
-    const [taskRes, subTaskRes, pageResultRes] = await Promise.all([
+    const [taskRes, pageResultRes] = await Promise.all([
       fetchTasks(),
-      fetchSubTasks(),
       fetchPageResults(),
     ])
 
     tasks.value = taskRes
-    subTasks.value = subTaskRes
     pageResults.value = pageResultRes
   } catch {
     ElMessage.error('任务数据加载失败')
   } finally {
-    loading.value = false
+    if (!silent) {
+      loading.value = false
+    }
+  }
+}
+
+function upsertPageResult(incoming: CrawlerPageResult) {
+  const index = pageResults.value.findIndex(item => {
+    if (incoming.pageResultId && item.pageResultId) {
+      return item.pageResultId === incoming.pageResultId
+    }
+    return (
+      item.taskId === incoming.taskId
+      && item.pageIndex === incoming.pageIndex
+      && item.pageUrl === incoming.pageUrl
+    )
+  })
+
+  if (index >= 0) {
+    pageResults.value[index] = {
+      ...pageResults.value[index],
+      ...incoming,
+    }
+    return
+  }
+
+  pageResults.value.push(incoming)
+}
+
+function parsePageResultEvent(raw: string) {
+  try {
+    const parsed = JSON.parse(raw) as CrawlerPageResult
+    if (!parsed || parsed.taskId === undefined || parsed.pageUrl === undefined || parsed.pageIndex === undefined) {
+      return null
+    }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function connectPageResultStream() {
+  if (resultStream) {
+    resultStream.close()
+    resultStream = null
+  }
+
+  const streamUrl = getPageResultStreamUrl()
+  resultStream = new EventSource(streamUrl)
+
+  resultStream.onopen = () => {
+    streamConnected.value = true
+    streamStatusText.value = '实时结果流已连接'
+  }
+
+  resultStream.addEventListener('crawler-page-result', event => {
+    const payload = parsePageResultEvent((event as MessageEvent).data)
+    if (!payload) {
+      return
+    }
+    upsertPageResult(payload)
+  })
+
+  resultStream.onerror = () => {
+    streamConnected.value = false
+    streamStatusText.value = '实时结果流重连中...'
   }
 }
 
@@ -188,36 +277,239 @@ async function submitTask() {
   }
 }
 
+function isCaching(pageResultId?: number) {
+  if (!pageResultId) {
+    return false
+  }
+  return Boolean(cacheLoadingMap.value[pageResultId])
+}
+
+async function cacheLinkMhtml(link: LinkRow) {
+  if (!link.pageResultId) {
+    ElMessage.warning('该链接没有可缓存的页面结果记录')
+    return
+  }
+  if (!link.filePath) {
+    ElMessage.warning('该链接没有可用的 MHTML 文件路径')
+    return
+  }
+
+  cacheLoadingMap.value[link.pageResultId] = true
+  try {
+    const result = await cachePageResultMhtml(link.pageResultId)
+    if (result) {
+      ElMessage.success('MHTML 已缓存到数据库')
+      upsertPageResult(result)
+      return
+    }
+    ElMessage.error('MHTML 缓存失败')
+  } catch {
+    ElMessage.error('MHTML 缓存失败')
+  } finally {
+    delete cacheLoadingMap.value[link.pageResultId]
+  }
+}
+
+function normalizeNodeId(value?: string | number | null) {
+  if (value === null || value === undefined) {
+    return ''
+  }
+  return String(value).trim()
+}
+
+function resolveNodeId(task: Task, pageList: CrawlerPageResult[]) {
+  const taskNodeId = normalizeNodeId(task.nodeId ?? task.node_id)
+  if (taskNodeId && taskNodeId !== '-1') {
+    return taskNodeId
+  }
+
+  const pageNodeId = pageList
+    .map(page => normalizeNodeId(page.nodeId ?? page.node_id))
+    .find(nodeId => nodeId && nodeId !== '-1')
+  if (pageNodeId) {
+    return pageNodeId
+  }
+
+  return 'node_id'
+}
+
+function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
+  const completedPages = pageList.length
+  const pageBasedProgress = Math.min(
+    100,
+    Math.round((completedPages / EXPECTED_PAGE_RESULTS_PER_TASK) * 100),
+  )
+  const failedPages = pageList.filter(page => !page.success).length
+
+  if (completedPages === 0) {
+    return {
+      status: 'PENDING',
+      progress: 0,
+      completedPages,
+      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+    }
+  }
+
+  if (completedPages < EXPECTED_PAGE_RESULTS_PER_TASK) {
+    return {
+      status: 'RUNNING',
+      progress: pageBasedProgress,
+      completedPages,
+      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+    }
+  }
+
+  if (failedPages === 0) {
+    return {
+      status: 'FINISHED',
+      progress: 100,
+      completedPages,
+      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+    }
+  }
+
+  if (failedPages >= completedPages) {
+    return {
+      status: 'FAILED',
+      progress: 100,
+      completedPages,
+      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+    }
+  }
+
+  return {
+    status: 'PARTIAL_FAILED',
+    progress: 100,
+    completedPages,
+    expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+  }
+}
+
+function isDownloading(pageResultId?: number) {
+  if (!pageResultId) {
+    return false
+  }
+  return Boolean(downloadLoadingMap.value[pageResultId])
+}
+
+function triggerBrowserDownload(blob: Blob, fileName: string) {
+  const objectUrl = window.URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = objectUrl
+  anchor.download = fileName
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  window.URL.revokeObjectURL(objectUrl)
+}
+
+async function downloadLinkMhtml(link: LinkRow) {
+  if (!link.pageResultId) {
+    ElMessage.warning('该链接没有可下载的页面结果记录')
+    return
+  }
+
+  downloadLoadingMap.value[link.pageResultId] = true
+  try {
+    const result = await downloadPageResultMhtml(link.pageResultId)
+    if (!result?.blob) {
+      ElMessage.error('下载失败')
+      return
+    }
+
+    triggerBrowserDownload(result.blob, result.fileName)
+    ElMessage.success('已开始下载 MHTML 文件')
+  } catch {
+    ElMessage.error('下载失败')
+  } finally {
+    delete downloadLoadingMap.value[link.pageResultId]
+  }
+}
+
 const taskStats = computed(() => {
-  const total = tasks.value.length
+  const total = filteredTasks.value.length
   let running = 0
+  let pending = 0
   let finished = 0
   let failed = 0
 
-  for (const task of tasks.value) {
-    if (task.status === 'FINISHED') {
+  const pageMap = new Map<number, CrawlerPageResult[]>()
+  for (const pageResult of filteredPageResults.value) {
+    if (!pageMap.has(pageResult.taskId)) {
+      pageMap.set(pageResult.taskId, [])
+    }
+    pageMap.get(pageResult.taskId)?.push(pageResult)
+  }
+
+  for (const task of filteredTasks.value) {
+    const runtime = calculateTaskRuntime(pageMap.get(task.taskId) ?? [])
+    if (runtime.status === 'FINISHED') {
       finished += 1
       continue
     }
-    if (task.status === 'FAILED' || task.status === 'PARTIAL_FAILED') {
+    if (runtime.status === 'FAILED' || runtime.status === 'PARTIAL_FAILED') {
       failed += 1
       continue
     }
-    running += 1
+    if (runtime.status === 'PENDING') {
+      pending += 1
+      continue
+    }
+    if (runtime.status === 'RUNNING') {
+      running += 1
+    }
   }
 
-  return { total, running, finished, failed }
+  return { total, pending, running, finished, failed }
 })
 
+const filterKeyword = computed(() => {
+  const queryValue = route.query.q
+  if (typeof queryValue !== 'string') {
+    return ''
+  }
+  return queryValue.trim().toLowerCase()
+})
+
+const filteredTasks = computed(() => {
+  if (!filterKeyword.value) {
+    return tasks.value
+  }
+  return tasks.value.filter((task) => {
+    return (
+      String(task.taskId).includes(filterKeyword.value) ||
+      task.keyword?.toLowerCase().includes(filterKeyword.value) ||
+      task.url?.toLowerCase().includes(filterKeyword.value)
+    )
+  })
+})
+
+const filteredPageResults = computed(() => {
+  if (!filterKeyword.value) {
+    return pageResults.value
+  }
+  return pageResults.value.filter((page) => {
+    return (
+      String(page.taskId).includes(filterKeyword.value) ||
+      String(page.pageResultId ?? '').includes(filterKeyword.value) ||
+      page.pageUrl?.toLowerCase().includes(filterKeyword.value) ||
+      page.pageTitle?.toLowerCase().includes(filterKeyword.value)
+    )
+  })
+})
+
+function clearFilter() {
+  router.replace({ path: '/tasks' })
+}
+
 const groupedSiteTasks = computed(() => {
-  const taskMap = new Map(tasks.value.map(task => [task.taskId, task]))
   const pageMap = new Map<number, CrawlerPageResult[]>()
 
-  for (const pageResult of pageResults.value) {
-    if (!pageMap.has(pageResult.subTaskId)) {
-      pageMap.set(pageResult.subTaskId, [])
+  for (const pageResult of filteredPageResults.value) {
+    if (!pageMap.has(pageResult.taskId)) {
+      pageMap.set(pageResult.taskId, [])
     }
-    pageMap.get(pageResult.subTaskId)?.push(pageResult)
+    pageMap.get(pageResult.taskId)?.push(pageResult)
   }
 
   for (const pageList of pageMap.values()) {
@@ -226,37 +518,44 @@ const groupedSiteTasks = computed(() => {
 
   const grouped = new Map<SiteKey, SiteTaskRow[]>()
 
-  for (const subTask of subTasks.value) {
-    const site = detectSite(subTask.url)
-    const task = taskMap.get(subTask.taskId)
-    const keyword = task?.keyword ?? subTask.keyword ?? ''
+  for (const task of filteredTasks.value) {
+    const site = detectSite(task.url)
+    const keyword = task.keyword ?? ''
 
-    const pageList = pageMap.get(subTask.subtaskId) ?? []
+    const pageList = pageMap.get(task.taskId) ?? []
+    const runtime = calculateTaskRuntime(pageList)
     const links: LinkRow[] =
       pageList.length > 0
         ? pageList.map(page => ({
-            pageUrl: page.pageUrl,
-            pageTitle: page.pageTitle,
-            pageIndex: page.pageIndex,
-            success: page.success,
-            errorMessage: page.errorMessage,
-          }))
+          pageResultId: page.pageResultId,
+          pageUrl: page.pageUrl,
+          pageTitle: page.pageTitle,
+          pageIndex: page.pageIndex,
+          success: page.success,
+          filePath: page.filePath,
+          errorMessage: page.errorMessage,
+          mhtmlCached: page.mhtmlCached,
+          mhtmlCachedAt: page.mhtmlCachedAt,
+          isSeed: false,
+        }))
         : [
-            {
-              pageUrl: buildSeedLink(subTask.url, keyword),
-              pageTitle: '种子链接',
-              pageIndex: 0,
-              success: true,
-            },
-          ]
+          {
+            pageUrl: buildSeedLink(task.url, keyword),
+            pageTitle: '种子链接',
+            pageIndex: 0,
+            success: true,
+            isSeed: true,
+          },
+        ]
 
     const row: SiteTaskRow = {
-      subtaskId: subTask.subtaskId,
-      taskId: subTask.taskId,
+      taskId: task.taskId,
       keyword,
-      nodeId: subTask.nodeId || '-',
-      taskStatus: task?.status || 'PENDING',
-      taskProgress: task?.progress ?? 0,
+      nodeId: resolveNodeId(task, pageList),
+      taskStatus: runtime.status,
+      taskProgress: runtime.progress,
+      completedPages: runtime.completedPages,
+      expectedPages: runtime.expectedPages,
       links,
     }
 
@@ -276,6 +575,14 @@ const groupedSiteTasks = computed(() => {
 
 onMounted(() => {
   loadTaskData()
+  connectPageResultStream()
+})
+
+onBeforeUnmount(() => {
+  if (resultStream) {
+    resultStream.close()
+    resultStream = null
+  }
 })
 </script>
 
@@ -287,16 +594,17 @@ onMounted(() => {
         <div class="text-2xl font-semibold mt-2">{{ taskStats.total }}</div>
       </el-card>
       <el-card>
-        <div class="text-sm text-gray-500">进行中</div>
+        <div class="text-sm text-gray-500">待开始</div>
+        <div class="text-2xl font-semibold mt-2 text-slate-600">{{ taskStats.pending }}</div>
+      </el-card>
+      <el-card>
+        <div class="text-sm text-gray-500">执行中</div>
         <div class="text-2xl font-semibold mt-2 text-blue-600">{{ taskStats.running }}</div>
       </el-card>
       <el-card>
-        <div class="text-sm text-gray-500">已完成</div>
+        <div class="text-sm text-gray-500">完成/异常</div>
         <div class="text-2xl font-semibold mt-2 text-emerald-600">{{ taskStats.finished }}</div>
-      </el-card>
-      <el-card>
-        <div class="text-sm text-gray-500">失败/部分失败</div>
-        <div class="text-2xl font-semibold mt-2 text-red-600">{{ taskStats.failed }}</div>
+        <div class="text-xs text-red-500 mt-1">异常 {{ taskStats.failed }}</div>
       </el-card>
     </section>
 
@@ -327,13 +635,8 @@ onMounted(() => {
 
         <template v-else>
           <el-form-item v-for="site in siteOptions" :key="site.key" :label="`${site.label}关键词`">
-            <el-input
-              v-model="siteKeywords[site.key]"
-              :disabled="!selectedSites.includes(site.key)"
-              maxlength="80"
-              show-word-limit
-              :placeholder="`输入 ${site.label} 的关键词`"
-            />
+            <el-input v-model="siteKeywords[site.key]" :disabled="!selectedSites.includes(site.key)" maxlength="80"
+              show-word-limit :placeholder="`输入 ${site.label} 的关键词`" />
           </el-form-item>
         </template>
       </el-form>
@@ -343,28 +646,32 @@ onMounted(() => {
       <template #header>
         <div class="flex items-center justify-between">
           <span class="font-semibold">按站点查看任务与网页链接</span>
-          <el-button text type="primary" :loading="loading" @click="loadTaskData">刷新</el-button>
+          <div class="flex items-center gap-3">
+            <el-tag v-if="filterKeyword" size="small" type="info">
+              当前过滤: {{ filterKeyword }}
+            </el-tag>
+            <el-button v-if="filterKeyword" text type="primary" @click="clearFilter">
+              清除过滤
+            </el-button>
+            <el-tag :type="streamConnected ? 'success' : 'warning'" size="small">
+              {{ streamStatusText }}
+            </el-tag>
+            <el-button text type="primary" :loading="loading" @click="loadTaskData">刷新</el-button>
+          </div>
         </div>
       </template>
 
       <el-skeleton :loading="loading" animated :rows="6">
         <template #default>
-          <el-empty
-            v-if="groupedSiteTasks.every(group => group.rows.length === 0)"
-            description="还没有任务，先在上方表单创建一个任务"
-          />
+          <el-empty v-if="groupedSiteTasks.every(group => group.rows.length === 0)" description="还没有任务，先在上方表单创建一个任务" />
 
           <el-collapse v-else v-model="activeSitePanels">
-            <el-collapse-item
-              v-for="group in groupedSiteTasks"
-              :key="group.key"
-              :name="group.key"
-              :disabled="group.rows.length === 0"
-            >
+            <el-collapse-item v-for="group in groupedSiteTasks" :key="group.key" :name="group.key"
+              :disabled="group.rows.length === 0">
               <template #title>
                 <div class="flex items-center gap-2">
                   <span>{{ group.label }}</span>
-                  <el-tag size="small" type="info">{{ group.rows.length }} 个子任务</el-tag>
+                  <el-tag size="small" type="info">{{ group.rows.length }} 个任务</el-tag>
                 </div>
               </template>
 
@@ -373,33 +680,61 @@ onMounted(() => {
                   <template #default="scope">
                     <div class="px-4 py-2">
                       <el-timeline>
-                        <el-timeline-item
-                          v-for="link in scope.row.links"
-                          :key="`${scope.row.subtaskId}-${link.pageIndex}-${link.pageUrl}`"
-                          :type="link.success ? 'success' : 'danger'"
-                          :timestamp="`序号 ${link.pageIndex}`"
-                        >
+                        <el-timeline-item v-for="link in scope.row.links"
+                          :key="`${scope.row.taskId}-${link.pageIndex}-${link.pageUrl}`"
+                          :type="link.success ? 'success' : 'danger'" :timestamp="`序号 ${link.pageIndex}`">
                           <div class="font-medium">{{ link.pageTitle || '网页链接' }}</div>
                           <a class="text-blue-600 break-all" :href="link.pageUrl" target="_blank" rel="noopener">
                             {{ link.pageUrl }}
                           </a>
+                          <div v-if="link.filePath" class="text-xs text-gray-500 break-all mt-1">
+                            MHTML路径: {{ link.filePath }}
+                          </div>
+                          <div class="flex items-center gap-2 mt-2">
+                            <el-tag v-if="link.mhtmlCached" type="success" size="small">已缓存MHTML</el-tag>
+                            <el-tag v-else-if="link.filePath" type="info" size="small">可缓存MHTML</el-tag>
+                            <el-button
+                              size="small"
+                              type="primary"
+                              plain
+                              :disabled="!link.pageResultId || !link.filePath || Boolean(link.mhtmlCached)"
+                              :loading="isCaching(link.pageResultId)"
+                              @click="cacheLinkMhtml(link)"
+                            >
+                              {{ link.mhtmlCached ? '已缓存' : '缓存MHTML' }}
+                            </el-button>
+                            <el-button
+                              size="small"
+                              type="success"
+                              plain
+                              :disabled="!link.pageResultId || (!link.filePath && !link.mhtmlCached)"
+                              :loading="isDownloading(link.pageResultId)"
+                              @click="downloadLinkMhtml(link)"
+                            >
+                              下载 MHTML 文件
+                            </el-button>
+                          </div>
                           <div v-if="link.errorMessage" class="text-red-500 mt-1">{{ link.errorMessage }}</div>
                         </el-timeline-item>
                       </el-timeline>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="subtaskId" label="子任务ID" width="110" />
-                <el-table-column prop="taskId" label="任务ID" width="100" />
+                <el-table-column prop="taskId" label="任务ID" width="110" />
                 <el-table-column prop="keyword" label="关键词" min-width="160" />
                 <el-table-column label="任务状态" width="130">
                   <template #default="scope">
                     <el-tag :type="statusTagType(scope.row.taskStatus)">{{ statusText(scope.row.taskStatus) }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="进度" width="180">
+                <el-table-column label="进度" width="230">
                   <template #default="scope">
-                    <el-progress :percentage="scope.row.taskProgress" :stroke-width="10" />
+                    <div class="w-full">
+                      <el-progress :percentage="scope.row.taskProgress" :stroke-width="10" />
+                      <div class="text-xs text-gray-500 mt-1">
+                        已完成 {{ scope.row.completedPages }}/{{ scope.row.expectedPages }}
+                      </div>
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column prop="nodeId" label="节点ID" min-width="140" />

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CrawlerTaskFinished {
     private Long taskId;
-    private Long subTaskId;
     private String nodeId;
 
     private boolean success;

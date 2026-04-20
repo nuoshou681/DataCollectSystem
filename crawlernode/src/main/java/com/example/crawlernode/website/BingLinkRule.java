@@ -9,30 +9,29 @@ import java.util.Set;
 public class BingLinkRule {
     private static final String SEARCH_PREFIX = "https://www.bing.com/search?q=";
     private static final String CK_PREFIX = "https://www.bing.com/ck/a?";
+    private static final String BING_HOST_SUFFIX = "bing.com";
 
     // 去重，筛选链接
-    public List<String> filter(List<String> links, int limit) {
+    public List<String> filter(String seedUrl, String keyword, List<String> links, int limit) {
         Set<String> urls = new LinkedHashSet<>();
-
+        urls.add(seedUrl + keyword);
         for (String link : links) {
             if (link == null || link.isBlank()) {
                 continue;
             }
 
-            // 1) search?q= 原样保留
-            if (link.startsWith(SEARCH_PREFIX)) {
-                urls.add(link);
-            }
-
-            // 2) /ck/a 解码成外链后保存
+            // 2) /ck/a 解码成外链后清洗掉内部链接
             if (link.startsWith(CK_PREFIX)) {
                 String decoded = decodeBingRedirect(link);
                 if (!decoded.isEmpty()) {
-                    urls.add(decoded);
+                    String normalized = normalizeToAbsolute(decoded);
+                    if (!normalized.isEmpty() && !isBingSectionLink(normalized)) {
+                        urls.add(normalized);
+                    }
                 }
             }
-            // if (urls.size() > limit)
-            //     break;
+            if (urls.size() >= limit)
+                break;
         }
 
         return new ArrayList<>(urls);
@@ -78,6 +77,43 @@ public class BingLinkRule {
             return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
             return "";
+        }
+    }
+
+    private String normalizeToAbsolute(String url) {
+        try {
+            URI uri = URI.create(url);
+            if (uri.isAbsolute()) {
+                return uri.toString();
+            }
+            // 相对路径补齐到 bing 域
+            return URI.create("https://www.bing.com").resolve(uri).toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private boolean isBingSectionLink(String url) {
+        try {
+            URI uri = URI.create(url);
+            String host = uri.getHost();
+            String path = uri.getPath();
+            if (host == null || path == null) {
+                return false;
+            }
+            boolean isBingHost = host.equals(BING_HOST_SUFFIX) || host.endsWith("." + BING_HOST_SUFFIX);
+            if (!isBingHost) {
+                return false;
+            }
+            return path.contains("/maps")
+                    || path.contains("/images")
+                    || path.contains("/videos")
+                    || path.contains("/news")
+                    || path.contains("/shop")
+                    || path.contains("/travel")
+                    || path.contains("microsoft");
+        } catch (Exception e) {
+            return false;
         }
     }
 }

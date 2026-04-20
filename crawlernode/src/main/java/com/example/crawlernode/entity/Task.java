@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubTask {
-    private Long subtaskId;
+public class Task {
     private Long taskId;
     // 分配爬虫节点id
     private String nodeId;

@@ -6,31 +6,25 @@ export interface UserInfo {
 
 export interface Task {
   taskId: number
-  userId?: number
-  keyword: string
-  url: string
-  status?: string
-  progress?: number
-}
-
-export interface SubTask {
-  subtaskId: number
-  taskId: number
   nodeId?: string
+  node_id?: string
   url: string
   keyword?: string
 }
 
 export interface CrawlerPageResult {
+  pageResultId?: number
   taskId: number
-  subTaskId: number
   nodeId?: string
+  node_id?: string
   pageUrl: string
   pageTitle?: string
   pageIndex: number
   success: boolean
   filePath?: string
   errorMessage?: string
+  mhtmlCached?: boolean
+  mhtmlCachedAt?: string
 }
 
 export interface CrawlerNode {
@@ -45,4 +39,17 @@ export interface DispatchTaskPayload {
   url: string
   status?: string
   progress?: number
+}
+
+export interface AuthResponse {
+  token: string
+  role: string
+}
+
+export interface TaskLog {
+  logId: number
+  taskId: number
+  nodeId?: string | number
+  logMessage: string
+  logLevel: string
 }

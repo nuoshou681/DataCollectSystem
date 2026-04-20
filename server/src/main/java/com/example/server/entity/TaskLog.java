@@ -14,7 +14,6 @@ public class TaskLog {
     @TableId(type = IdType.AUTO)
     private Long logId;
     private Long taskId;
-    private Long subtaskId;
     private Long nodeId;
     private String logMessage;
     private String logLevel;

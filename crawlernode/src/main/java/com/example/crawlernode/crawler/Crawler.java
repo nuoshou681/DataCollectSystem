@@ -10,7 +10,7 @@ import com.example.crawlernode.service.FirecrawlService;
 import com.example.crawlernode.config.RabbitMQConfig;
 import com.example.crawlernode.entity.CrawlerPageResult;
 import com.example.crawlernode.entity.CrawlerTaskFinished;
-import com.example.crawlernode.entity.SubTask;
+import com.example.crawlernode.entity.Task;
 import com.google.gson.JsonObject;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
@@ -69,14 +69,14 @@ public class Crawler {
         this.firecrawlService = firecrawlService;
     }
 
-    public void crawl(SubTask subTask) {
-        List<String> pageUrls = resolveLinks(subTask);
+    public void crawl(Task task) {
+        List<String> pageUrls = resolveLinks(task);
 
         for (String pageual : pageUrls) {
             log.info("经过清洗后firecrawl收集到的网站link: " + pageual);
         }
         if (pageUrls.isEmpty()) {
-            reportTaskFinished(subTask, false, 0, "no result pages found");
+            reportTaskFinished(task, false, 0, "no result pages found");
             return;
         }
 
@@ -86,11 +86,10 @@ public class Crawler {
         for (String pageUrl : pageUrls) {
             pageIndex++;
             try {
-                PageSnapshot snapshot = savePageAsMhtml(subTask, pageUrl, pageIndex);
+                PageSnapshot snapshot = savePageAsMhtml(task, pageUrl, pageIndex);
 
                 CrawlerPageResult result = new CrawlerPageResult(
-                        subTask.getTaskId(),
-                        subTask.getSubtaskId(),
+                        task.getTaskId(),
                         nodeId,
                         pageUrl,
                         snapshot.title(),
@@ -104,12 +103,11 @@ public class Crawler {
                 successCount++;
 
             } catch (Exception e) {
-                log.error("【CrawlerNode】{} 保存页面失败: subTaskId={}, pageUrl={}, error={}",
-                        nodeId, subTask.getSubtaskId(), pageUrl, e.getMessage(), e);
+                log.error("【CrawlerNode】{} 保存页面失败: taskId={}, pageUrl={}, error={}",
+                        nodeId, task.getTaskId(), pageUrl, e.getMessage(), e);
 
                 CrawlerPageResult result = new CrawlerPageResult(
-                        subTask.getTaskId(),
-                        subTask.getSubtaskId(),
+                        task.getTaskId(),
                         nodeId,
                         pageUrl,
                         null,
@@ -123,7 +121,7 @@ public class Crawler {
         }
 
         // 上传任务完成信息到队列
-        reportTaskFinished(subTask, true, successCount, "crawl finished");
+        reportTaskFinished(task, true, successCount, "crawl finished");
     }
 
     // 上传队列
@@ -133,15 +131,14 @@ public class Crawler {
                 RabbitMQConfig.ROUTING_RESULT,
                 result);
 
-        log.info("【CrawlerNode】{} 已发送页面结果: subTaskId={}, pageUrl={}, filePath={}",
-                nodeId, result.getSubTaskId(), result.getPageUrl(), result.getFilePath());
+        log.info("【CrawlerNode】{} 已发送页面结果: taskId={}, pageUrl={}, filePath={}",
+                nodeId, result.getTaskId(), result.getPageUrl(), result.getFilePath());
     }
 
     // 上传队列
-    public void reportTaskFinished(SubTask subTask, boolean success, int totalPages, String message) {
+    public void reportTaskFinished(Task task, boolean success, int totalPages, String message) {
         CrawlerTaskFinished finished = new CrawlerTaskFinished(
-                subTask.getTaskId(),
-                subTask.getSubtaskId(),
+                task.getTaskId(),
                 nodeId,
                 success,
                 totalPages,
@@ -152,18 +149,18 @@ public class Crawler {
                 RabbitMQConfig.ROUTING_TASK_FINISHED,
                 finished);
 
-        log.info("【CrawlerNode】{} 已发送子任务完成消息: subTaskId={}, success={}, totalPages={}",
-                nodeId, subTask.getSubtaskId(), success, totalPages);
+        log.info("【CrawlerNode】{} 已发送任务完成消息: taskId={}, success={}, totalPages={}",
+                nodeId, task.getTaskId(), success, totalPages);
     }
 
-    private List<String> resolveLinks(SubTask subTask) {
-        String seedUrl = safeTrim(subTask.getUrl());
-        String keyword = safeTrim(subTask.getKeyword());
-        int limit = subTask.getMaxLinksPerLevel();
+    private List<String> resolveLinks(Task task) {
+        String seedUrl = safeTrim(task.getUrl());
+        String keyword = safeTrim(task.getKeyword());
+        int limit = task.getMaxLinksPerLevel();
 
         try {
             // 调用firecrawl获取links
-            List<String> links = firecrawlService.mapLinks(seedUrl, keyword, limit);
+            List<String> links = firecrawlService.getLinks(seedUrl, keyword, limit);
             return links;
         } catch (Exception e) {
             log.error("【CrawlerNode】{} Firecrawl 解析链接失败: seedUrl={}, keyword={}, error={}",
@@ -173,11 +170,10 @@ public class Crawler {
     }
 
     // 保存为mhtml
-    private PageSnapshot savePageAsMhtml(SubTask subTask, String pageUrl, int pageIndex) throws IOException {
-        String safeTaskId = String.valueOf(subTask.getTaskId());
-        String safeSubTaskId = String.valueOf(subTask.getSubtaskId());
+    private PageSnapshot savePageAsMhtml(Task task, String pageUrl, int pageIndex) throws IOException {
+        String safeTaskId = String.valueOf(task.getTaskId());
 
-        Path dir = Path.of(baseDir, safeTaskId, safeSubTaskId);
+        Path dir = Path.of(baseDir, safeTaskId);
         Files.createDirectories(dir);
 
         String fileName = String.format("%02d.mhtml", pageIndex);
