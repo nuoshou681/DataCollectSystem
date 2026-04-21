@@ -117,18 +117,39 @@ function statusTagType(status?: string): 'success' | 'danger' | 'warning' | 'inf
   if (status === 'FINISHED') {
     return 'success'
   }
-  if (status === 'FAILED' || status === 'PARTIAL_FAILED') {
+  if (status === 'FAILED') {
     return 'danger'
   }
-  if (status === 'RUNNING' || status === 'PENDING') {
+  if (status === 'PARTIAL_FAILED') {
     return 'warning'
+  }
+  if (status === 'RUNNING') {
+    return 'warning'
+  }
+  if (status === 'PENDING') {
+    return 'info'
   }
   return 'info'
 }
 
 function statusText(status?: string) {
   if (!status) {
-    return 'PENDING'
+    return '排队中'
+  }
+  if (status === 'FINISHED') {
+    return '已完成'
+  }
+  if (status === 'FAILED') {
+    return '失败'
+  }
+  if (status === 'PARTIAL_FAILED') {
+    return '部分失败'
+  }
+  if (status === 'RUNNING') {
+    return '执行中'
+  }
+  if (status === 'PENDING') {
+    return '排队中'
   }
   return status
 }
@@ -333,11 +354,36 @@ function resolveNodeId(task: Task, pageList: CrawlerPageResult[]) {
   return 'node_id'
 }
 
-function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
+function resolveExpectedPages(pageList: CrawlerPageResult[]) {
+  const candidates = pageList
+    .map(page => page.totalPages ?? 0)
+    .filter(value => value && value > 0)
+  if (candidates.length > 0) {
+    return Math.max(...candidates)
+  }
+  return EXPECTED_PAGE_RESULTS_PER_TASK
+}
+
+function resolveTaskStatus(task: Task, runtimeStatus: string) {
+  if (task.taskStatus) {
+    return task.taskStatus
+  }
+  return runtimeStatus
+}
+
+function resolveTaskProgress(task: Task, runtimeProgress: number) {
+  if (typeof task.taskProgress === 'number') {
+    return task.taskProgress
+  }
+  return runtimeProgress
+}
+
+function calculateTaskRuntime(pageList: CrawlerPageResult[], expectedPages: number) {
   const completedPages = pageList.length
+  const totalPages = expectedPages > 0 ? expectedPages : EXPECTED_PAGE_RESULTS_PER_TASK
   const pageBasedProgress = Math.min(
     100,
-    Math.round((completedPages / EXPECTED_PAGE_RESULTS_PER_TASK) * 100),
+    Math.round((completedPages / totalPages) * 100),
   )
   const failedPages = pageList.filter(page => !page.success).length
 
@@ -346,16 +392,16 @@ function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
       status: 'PENDING',
       progress: 0,
       completedPages,
-      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+      expectedPages: totalPages,
     }
   }
 
-  if (completedPages < EXPECTED_PAGE_RESULTS_PER_TASK) {
+  if (completedPages < totalPages) {
     return {
       status: 'RUNNING',
       progress: pageBasedProgress,
       completedPages,
-      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+      expectedPages: totalPages,
     }
   }
 
@@ -364,7 +410,7 @@ function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
       status: 'FINISHED',
       progress: 100,
       completedPages,
-      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+      expectedPages: totalPages,
     }
   }
 
@@ -373,7 +419,7 @@ function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
       status: 'FAILED',
       progress: 100,
       completedPages,
-      expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+      expectedPages: totalPages,
     }
   }
 
@@ -381,7 +427,7 @@ function calculateTaskRuntime(pageList: CrawlerPageResult[]) {
     status: 'PARTIAL_FAILED',
     progress: 100,
     completedPages,
-    expectedPages: EXPECTED_PAGE_RESULTS_PER_TASK,
+    expectedPages: totalPages,
   }
 }
 
@@ -442,20 +488,23 @@ const taskStats = computed(() => {
   }
 
   for (const task of filteredTasks.value) {
-    const runtime = calculateTaskRuntime(pageMap.get(task.taskId) ?? [])
-    if (runtime.status === 'FINISHED') {
+    const pageList = pageMap.get(task.taskId) ?? []
+    const expectedPages = resolveExpectedPages(pageList)
+    const runtime = calculateTaskRuntime(pageList, expectedPages)
+    const status = resolveTaskStatus(task, runtime.status)
+    if (status === 'FINISHED') {
       finished += 1
       continue
     }
-    if (runtime.status === 'FAILED' || runtime.status === 'PARTIAL_FAILED') {
+    if (status === 'FAILED' || status === 'PARTIAL_FAILED') {
       failed += 1
       continue
     }
-    if (runtime.status === 'PENDING') {
+    if (status === 'PENDING') {
       pending += 1
       continue
     }
-    if (runtime.status === 'RUNNING') {
+    if (status === 'RUNNING') {
       running += 1
     }
   }
@@ -523,7 +572,11 @@ const groupedSiteTasks = computed(() => {
     const keyword = task.keyword ?? ''
 
     const pageList = pageMap.get(task.taskId) ?? []
-    const runtime = calculateTaskRuntime(pageList)
+    const expectedPages = resolveExpectedPages(pageList)
+    const runtime = calculateTaskRuntime(pageList, expectedPages)
+    const status = resolveTaskStatus(task, runtime.status)
+    const progress = resolveTaskProgress(task, runtime.progress)
+    const expected = typeof task.totalPages === 'number' ? task.totalPages : runtime.expectedPages
     const links: LinkRow[] =
       pageList.length > 0
         ? pageList.map(page => ({
@@ -552,10 +605,10 @@ const groupedSiteTasks = computed(() => {
       taskId: task.taskId,
       keyword,
       nodeId: resolveNodeId(task, pageList),
-      taskStatus: runtime.status,
-      taskProgress: runtime.progress,
+      taskStatus: status,
+      taskProgress: progress,
       completedPages: runtime.completedPages,
-      expectedPages: runtime.expectedPages,
+      expectedPages: expected,
       links,
     }
 
@@ -722,9 +775,11 @@ onBeforeUnmount(() => {
                 </el-table-column>
                 <el-table-column prop="taskId" label="任务ID" width="110" />
                 <el-table-column prop="keyword" label="关键词" min-width="160" />
-                <el-table-column label="任务状态" width="130">
+                <el-table-column label="任务状态" min-width="160">
                   <template #default="scope">
-                    <el-tag :type="statusTagType(scope.row.taskStatus)">{{ statusText(scope.row.taskStatus) }}</el-tag>
+                    <el-tag :type="statusTagType(scope.row.taskStatus)" class="status-tag">
+                      {{ statusText(scope.row.taskStatus) }}
+                    </el-tag>
                   </template>
                 </el-table-column>
                 <el-table-column label="进度" width="230">
@@ -746,3 +801,10 @@ onBeforeUnmount(() => {
     </el-card>
   </div>
 </template>
+
+<style scoped>
+.status-tag {
+  max-width: 140px;
+  white-space: normal;
+}
+</style>

@@ -1,28 +1,141 @@
 <script setup lang="ts">
-const highlights = [
-  { label: '进行中任务', value: '6', note: '过去 24 小时' },
-  { label: '采集成功率', value: '92%', note: '最近 7 天' },
-  { label: '页面平均耗时', value: '2.8s', note: '中位数' },
-  { label: '新增链接', value: '214', note: '今日捕获' },
-]
+import { computed, onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { fetchPageResults, fetchTasks } from '@/api/api'
+import type { CrawlerPageResult, Task } from '@/types/entity'
 
-const focusKeywords = [
-  { name: '古汉语', tags: ['搜狐', '必应'] },
-  { name: '新能源', tags: ['百科', '必应'] },
-  { name: '风险治理', tags: ['搜狐'] },
-]
+type SiteKey = 'sohu' | 'bing' | 'baike' | 'other'
 
-const suggestions = [
-  '新增任务建议错峰投放，以减少节点拥塞。',
-  '今天百度百科命中率较高，推荐优先爬取。',
-  '失败任务多集中在 Bing 的深度翻页。',
-]
+const tasks = ref<Task[]>([])
+const pageResults = ref<CrawlerPageResult[]>([])
+const loading = ref(false)
 
-const recentLinks = [
-  { title: '新能源产业发展趋势', source: '搜狐', time: '10:24' },
-  { title: '量子计算研究进展', source: '必应', time: '10:18' },
-  { title: '古汉语词义演化', source: '百科', time: '09:57' },
-]
+function detectSite(url: string): SiteKey {
+  if (url.includes('search.sohu.com')) {
+    return 'sohu'
+  }
+  if (url.includes('www.bing.com')) {
+    return 'bing'
+  }
+  if (url.includes('baike.baidu.com')) {
+    return 'baike'
+  }
+  return 'other'
+}
+
+function siteLabel(site: SiteKey) {
+  if (site === 'sohu') {
+    return '搜狐'
+  }
+  if (site === 'bing') {
+    return '必应'
+  }
+  if (site === 'baike') {
+    return '百科'
+  }
+  return '其他'
+}
+
+const taskStats = computed(() => {
+  const total = tasks.value.length
+  const running = tasks.value.filter(task => task.taskStatus === 'RUNNING').length
+  const pending = tasks.value.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length
+  const failed = tasks.value.filter(task => task.taskStatus === 'FAILED' || task.taskStatus === 'PARTIAL_FAILED').length
+  return { total, running, pending, failed }
+})
+
+const successRate = computed(() => {
+  const total = pageResults.value.length
+  if (!total) {
+    return 0
+  }
+  const success = pageResults.value.filter(page => page.success).length
+  return Math.round((success / total) * 100)
+})
+
+const highlights = computed(() => [
+  { label: '任务总数', value: String(taskStats.value.total), note: '累计任务' },
+  { label: '进行中任务', value: String(taskStats.value.running), note: '执行中' },
+  { label: '采集成功率', value: `${successRate.value}%`, note: '基于页面结果' },
+  { label: '新增链接', value: String(pageResults.value.length), note: '当前结果量' },
+])
+
+const focusKeywords = computed(() => {
+  const counter = new Map<string, { count: number; sites: Set<string> }>()
+  for (const task of tasks.value) {
+    const keyword = (task.keyword || '').trim()
+    if (!keyword) {
+      continue
+    }
+    const site = siteLabel(detectSite(task.url))
+    const entry = counter.get(keyword) || { count: 0, sites: new Set<string>() }
+    entry.count += 1
+    entry.sites.add(site)
+    counter.set(keyword, entry)
+  }
+
+  return [...counter.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 3)
+    .map(([name, meta]) => ({ name, tags: [...meta.sites], count: meta.count }))
+})
+
+const suggestions = computed(() => {
+  const tips: string[] = []
+  if (taskStats.value.failed > 0) {
+    tips.push('存在失败任务，建议优先检查失败原因并重试。')
+  }
+  if (successRate.value < 70) {
+    tips.push('当前成功率偏低，可减少任务并发或调整站点策略。')
+  }
+  if (taskStats.value.pending > 0 && taskStats.value.running === 0) {
+    tips.push('任务仍在排队，确认节点在线状态和队列负载。')
+  }
+  if (tips.length === 0) {
+    tips.push('采集运行稳定，可继续扩展关键词覆盖。')
+  }
+  return tips
+})
+
+const nextSteps = computed(() => {
+  const steps: string[] = []
+  if (taskStats.value.failed > 0) {
+    steps.push('优先处理失败任务并检查节点异常。')
+  }
+  if (taskStats.value.pending > 0) {
+    steps.push('确认排队任务已分配到可用节点。')
+  }
+  steps.push('定期下载高价值页面并归档。')
+  return steps
+})
+
+const recentLinks = computed(() => {
+  return [...pageResults.value]
+    .sort((a, b) => (b.pageResultId ?? 0) - (a.pageResultId ?? 0))
+    .slice(0, 3)
+    .map(page => ({
+      title: page.pageTitle || page.pageUrl,
+      source: siteLabel(detectSite(page.pageUrl)),
+      meta: `结果ID #${page.pageResultId ?? '-'} · 任务 #${page.taskId}`,
+    }))
+})
+
+async function loadDashboard() {
+  loading.value = true
+  try {
+    const [taskData, pageData] = await Promise.all([fetchTasks(), fetchPageResults()])
+    tasks.value = taskData
+    pageResults.value = pageData
+  } catch {
+    ElMessage.error('仪表盘数据加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  void loadDashboard()
+})
 </script>
 
 <template>
@@ -52,7 +165,7 @@ const recentLinks = [
     </section>
 
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <el-card v-for="item in highlights" :key="item.label" class="shadow-sm">
+      <el-card v-for="item in highlights" :key="item.label" class="shadow-sm" v-loading="loading">
         <div class="text-sm text-gray-500">{{ item.label }}</div>
         <div class="text-2xl font-semibold mt-2 text-slate-800">{{ item.value }}</div>
         <div class="text-xs text-gray-400 mt-1">{{ item.note }}</div>
@@ -73,7 +186,7 @@ const recentLinks = [
             <div class="keyword-tags">
               <el-tag v-for="tag in item.tags" :key="tag" size="small" type="info">{{ tag }}</el-tag>
             </div>
-            <div class="keyword-note">建议优先投放夜间节点</div>
+            <div class="keyword-note">关联任务 {{ item.count }} 个</div>
           </div>
         </div>
       </el-card>
@@ -97,9 +210,9 @@ const recentLinks = [
           <div v-for="link in recentLinks" :key="link.title" class="link-row">
             <div>
               <div class="font-medium text-gray-700">{{ link.title }}</div>
-              <div class="text-xs text-gray-400">{{ link.source }}</div>
+              <div class="text-xs text-gray-400">{{ link.source }} · {{ link.meta }}</div>
             </div>
-            <div class="text-xs text-gray-400">{{ link.time }}</div>
+            <div class="text-xs text-gray-400">最新</div>
           </div>
         </div>
       </el-card>
@@ -109,10 +222,7 @@ const recentLinks = [
           <span class="font-semibold">下一步建议</span>
         </template>
         <ol class="text-sm text-gray-600 space-y-3">
-          <li>1. 确认关键词策略并分配到高命中站点。</li>
-          <li>2. 检查异常任务并进行缓存补录。</li>
-          <li>3. 将高价值链接加入下载列表。</li>
-          <li>4. 在任务列表中标记优先级。</li>
+          <li v-for="(item, index) in nextSteps" :key="item">{{ index + 1 }}. {{ item }}</li>
         </ol>
       </el-card>
     </section>

@@ -1,14 +1,47 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { fetchTaskLogs } from '@/api/api'
+import type { TaskLog } from '@/types/entity'
 
 const filters = ref({ level: 'ALL', keyword: '' })
+const logs = ref<TaskLog[]>([])
+const loading = ref(false)
 
-const logs = ref([
-  { time: '2026-04-20 10:22', level: 'INFO', source: 'Scheduler', taskId: 42, nodeId: 'node-1', message: 'queued 8 tasks for Sohu' },
-  { time: '2026-04-20 10:21', level: 'WARN', source: 'NodeMonitor', taskId: 37, nodeId: 'node-3', message: 'heartbeat delay 18s' },
-  { time: '2026-04-20 10:18', level: 'ERROR', source: 'Crawler', taskId: 35, nodeId: 'node-2', message: 'timeout on page index 5' },
-  { time: '2026-04-20 10:15', level: 'INFO', source: 'Cache', taskId: 31, nodeId: 'node-4', message: 'mhtml cached' },
-])
+const filteredLogs = computed(() => {
+  const keyword = filters.value.keyword.trim().toLowerCase()
+  return logs.value.filter(log => {
+    const matchesLevel = filters.value.level === 'ALL' || log.logLevel === filters.value.level
+    const matchesKeyword =
+      !keyword ||
+      String(log.taskId).includes(keyword) ||
+      String(log.nodeId ?? '').includes(keyword) ||
+      log.logMessage.toLowerCase().includes(keyword)
+    return matchesLevel && matchesKeyword
+  })
+})
+
+const stats = computed(() => {
+  const total = logs.value.length
+  const errors = logs.value.filter(log => log.logLevel === 'ERROR').length
+  const warns = logs.value.filter(log => log.logLevel === 'WARN').length
+  return { total, errors, warns }
+})
+
+async function loadLogs() {
+  loading.value = true
+  try {
+    logs.value = await fetchTaskLogs()
+  } catch {
+    ElMessage.error('日志加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  void loadLogs()
+})
 </script>
 
 <template>
@@ -16,18 +49,18 @@ const logs = ref([
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <el-card>
         <div class="text-sm text-gray-500">日志总数</div>
-        <div class="text-2xl font-semibold mt-2">248</div>
-        <div class="text-xs text-gray-400 mt-1">过去 24 小时</div>
+        <div class="text-2xl font-semibold mt-2">{{ stats.total }}</div>
+        <div class="text-xs text-gray-400 mt-1">实时统计</div>
       </el-card>
       <el-card>
         <div class="text-sm text-gray-500">错误事件</div>
-        <div class="text-2xl font-semibold mt-2 text-rose-600">12</div>
+        <div class="text-2xl font-semibold mt-2 text-rose-600">{{ stats.errors }}</div>
         <div class="text-xs text-gray-400 mt-1">需要复盘</div>
       </el-card>
       <el-card>
-        <div class="text-sm text-gray-500">队列写入</div>
-        <div class="text-2xl font-semibold mt-2 text-emerald-600">+86</div>
-        <div class="text-xs text-gray-400 mt-1">最近 1 小时</div>
+        <div class="text-sm text-gray-500">警告事件</div>
+        <div class="text-2xl font-semibold mt-2 text-amber-600">{{ stats.warns }}</div>
+        <div class="text-xs text-gray-400 mt-1">关注异常</div>
       </el-card>
     </section>
 
@@ -47,22 +80,21 @@ const logs = ref([
         </div>
       </template>
 
-      <el-table :data="logs" border stripe>
-        <el-table-column prop="time" label="时间" width="180" />
-        <el-table-column prop="level" label="级别" width="100">
+      <el-table :data="filteredLogs" border stripe v-loading="loading">
+        <el-table-column prop="logId" label="日志ID" width="120" />
+        <el-table-column prop="logLevel" label="级别" width="100">
           <template #default="scope">
             <el-tag
-              :type="scope.row.level === 'ERROR' ? 'danger' : scope.row.level === 'WARN' ? 'warning' : 'info'"
+              :type="scope.row.logLevel === 'ERROR' ? 'danger' : scope.row.logLevel === 'WARN' ? 'warning' : 'info'"
               size="small"
             >
-              {{ scope.row.level }}
+              {{ scope.row.logLevel }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="source" label="来源" width="140" />
         <el-table-column prop="taskId" label="任务ID" width="120" />
         <el-table-column prop="nodeId" label="节点" width="140" />
-        <el-table-column prop="message" label="内容" min-width="260" />
+        <el-table-column prop="logMessage" label="内容" min-width="260" />
       </el-table>
     </el-card>
   </div>

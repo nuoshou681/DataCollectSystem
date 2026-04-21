@@ -81,6 +81,7 @@ public class Crawler {
         }
 
         int pageIndex = 0;
+        int totalPages = pageUrls.size();
         int successCount = 0;
 
         for (String pageUrl : pageUrls) {
@@ -94,6 +95,7 @@ public class Crawler {
                         pageUrl,
                         snapshot.title(),
                         pageIndex,
+                        totalPages,
                         true,
                         snapshot.filePath(),
                         null);
@@ -112,6 +114,7 @@ public class Crawler {
                         pageUrl,
                         null,
                         pageIndex,
+                        totalPages,
                         false,
                         null,
                         e.getMessage());

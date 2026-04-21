@@ -10,6 +10,9 @@ export interface Task {
   node_id?: string
   url: string
   keyword?: string
+  taskStatus?: string
+  taskProgress?: number
+  totalPages?: number
 }
 
 export interface CrawlerPageResult {
@@ -20,6 +23,7 @@ export interface CrawlerPageResult {
   pageUrl: string
   pageTitle?: string
   pageIndex: number
+  totalPages?: number
   success: boolean
   filePath?: string
   errorMessage?: string

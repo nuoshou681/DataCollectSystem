@@ -2,6 +2,7 @@ package com.example.server.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,6 +30,12 @@ public class TaskServiceImpl implements TaskService {
         // 保存任务并派发到MQ
         for (Task task : tasks) {
             task.setKeyword(request.getKeyword());
+            task.setTaskStatus("PENDING");
+            task.setTaskProgress(0);
+            task.setTotalPages(0);
+            LocalDateTime now = LocalDateTime.now();
+            task.setCreatedAt(now);
+            task.setUpdatedAt(now);
             taskMapper.insert(task);
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.CRAWLER_EXCHANGE,

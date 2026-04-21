@@ -33,9 +33,17 @@ const searchOpen = ref(false)
 const notificationsOpen = ref(false)
 const userMenuOpen = ref(false)
 const isLoadingSearch = ref(false)
+
 const tasks = ref<Task[]>([])
 const pageResults = ref<CrawlerPageResult[]>([])
 const lastSeenPageResultId = ref(Number(localStorage.getItem('user.lastSeenPageResultId') || 0))
+
+// 进行中任务数量，支持 taskStatus 为 '进行中' 或 'running'（兼容中英文）
+const runningTaskCount = computed(() => {
+  return tasks.value.filter(
+    t => t.taskStatus === '进行中' || t.taskStatus === 'running'
+  ).length
+})
 
 const userName = computed(() => {
   const token = localStorage.getItem('token')
@@ -210,7 +218,7 @@ onMounted(() => {
         <div class="side-card-body">
           <div class="metric">
             <span>进行中任务</span>
-            <strong>3</strong>
+            <strong>{{ runningTaskCount }}</strong>
           </div>
           <div class="metric">
             <span>下次刷新</span>
@@ -647,6 +655,8 @@ onMounted(() => {
   padding: 12px;
   box-shadow: 0 20px 36px rgba(15, 23, 42, 0.14);
   z-index: 10;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .dropdown-title {
@@ -669,6 +679,7 @@ onMounted(() => {
   gap: 4px;
   cursor: pointer;
   font-size: 13px;
+  word-break: break-all;
 }
 
 .dropdown-item.danger {
@@ -679,6 +690,7 @@ onMounted(() => {
 .dropdown-meta {
   font-size: 12px;
   color: #64748b;
+  word-break: break-all;
 }
 
 .dropdown-empty {

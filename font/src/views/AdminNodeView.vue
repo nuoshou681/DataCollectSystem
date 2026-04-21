@@ -81,6 +81,20 @@ const stats = computed(() => {
   return { total, online, busy, offline }
 })
 
+const suggestions = computed(() => {
+  const tips: string[] = []
+  if (stats.value.offline > 0) {
+    tips.push(`离线节点 ${stats.value.offline} 个，建议检查网络或重启。`)
+  }
+  if (stats.value.busy > stats.value.online / 2) {
+    tips.push('繁忙节点占比较高，建议临时扩容或限流。')
+  }
+  if (!tips.length) {
+    tips.push('节点运行稳定，可继续提升任务吞吐。')
+  }
+  return tips
+})
+
 onMounted(() => {
   loadNodes()
   refreshTimer = window.setInterval(() => {
@@ -144,12 +158,10 @@ onBeforeUnmount(() => {
 
     <el-card>
       <template #header>
-        <span class="font-semibold">管理员建议操作（预留）</span>
+        <span class="font-semibold">节点运维建议</span>
       </template>
       <ul class="list-disc pl-6 text-sm text-gray-600 space-y-2">
-        <li>离线超过 30 秒的节点建议触发自动告警。</li>
-        <li>连续失败任务数超阈值时建议临时摘除节点并进行健康检查。</li>
-        <li>后续可增加节点重启、暂停接单、容量调整等管理动作。</li>
+        <li v-for="item in suggestions" :key="item">{{ item }}</li>
       </ul>
     </el-card>
   </div>

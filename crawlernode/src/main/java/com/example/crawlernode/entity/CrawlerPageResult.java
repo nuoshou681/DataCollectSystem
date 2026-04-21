@@ -14,6 +14,7 @@ public class CrawlerPageResult {
     private String pageUrl;
     private String pageTitle;
     private int pageIndex;
+    private Integer totalPages;
 
     private boolean success;
     private String filePath;

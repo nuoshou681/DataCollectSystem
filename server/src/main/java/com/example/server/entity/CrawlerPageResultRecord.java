@@ -27,6 +27,9 @@ public class CrawlerPageResultRecord {
     private String pageTitle;
     private Integer pageIndex;
 
+    @TableField("total_pages")
+    private Integer totalPages;
+
     private Boolean success;
     private String filePath;
     private String errorMessage;

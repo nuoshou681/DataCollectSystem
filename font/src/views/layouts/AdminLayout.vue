@@ -592,6 +592,9 @@ onMounted(() => {
   background: rgba(30, 41, 59, 0.8);
   position: relative;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon {
@@ -650,6 +653,8 @@ onMounted(() => {
   padding: 12px;
   box-shadow: 0 20px 36px rgba(2, 6, 23, 0.6);
   z-index: 10;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .dropdown-title {
@@ -673,6 +678,7 @@ onMounted(() => {
   cursor: pointer;
   font-size: 13px;
   color: #e2e8f0;
+  word-break: break-all;
 }
 
 .dropdown-item.danger {
@@ -683,6 +689,7 @@ onMounted(() => {
 .dropdown-meta {
   font-size: 12px;
   color: #94a3b8;
+  word-break: break-all;
 }
 
 .dropdown-empty {

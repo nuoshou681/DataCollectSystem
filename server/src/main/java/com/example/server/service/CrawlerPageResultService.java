@@ -48,12 +48,13 @@ public class CrawlerPageResultService {
             insert.setPageUrl(message.getPageUrl());
             insert.setPageTitle(message.getPageTitle());
             insert.setPageIndex(message.getPageIndex());
+            insert.setTotalPages(message.getTotalPages());
             insert.setSuccess(message.isSuccess());
             insert.setFilePath(message.getFilePath());
             insert.setErrorMessage(message.getErrorMessage());
             insert.setMhtmlCached(false);
             crawlerPageResultMapper.insert(insert);
-            updateTaskNodeIdIfMissing(message.getTaskId(), message.getNodeId());
+            updateTaskRuntimeFromResult(message);
             return crawlerPageResultMapper.selectById(insert.getPageResultId());
         }
 
@@ -62,12 +63,13 @@ public class CrawlerPageResultService {
                 .set(CrawlerPageResultRecord::getTaskId, message.getTaskId())
                 .set(CrawlerPageResultRecord::getNodeId, message.getNodeId())
                 .set(CrawlerPageResultRecord::getPageTitle, message.getPageTitle())
+                .set(CrawlerPageResultRecord::getTotalPages, message.getTotalPages())
                 .set(CrawlerPageResultRecord::getSuccess, message.isSuccess())
                 .set(CrawlerPageResultRecord::getFilePath, message.getFilePath())
                 .set(CrawlerPageResultRecord::getErrorMessage, message.getErrorMessage());
 
         crawlerPageResultMapper.update(null, updateWrapper);
-        updateTaskNodeIdIfMissing(message.getTaskId(), message.getNodeId());
+        updateTaskRuntimeFromResult(message);
         return crawlerPageResultMapper.selectById(exists.getPageResultId());
     }
 
@@ -169,17 +171,24 @@ public class CrawlerPageResultService {
         }
     }
 
-    private void updateTaskNodeIdIfMissing(Long taskId, String nodeId) {
-        if (taskId == null || nodeId == null || nodeId.isBlank()) {
+    private void updateTaskRuntimeFromResult(CrawlerPageResult message) {
+        if (message == null || message.getTaskId() == null) {
             return;
         }
 
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(Task::getTaskId, taskId)
-                .and(wrapper -> wrapper.isNull(Task::getNodeId)
+        updateWrapper.eq(Task::getTaskId, message.getTaskId())
+                .and(wrapper -> wrapper.isNull(Task::getTaskStatus)
                         .or()
-                        .eq(Task::getNodeId, ""))
-                .set(Task::getNodeId, nodeId);
+                        .eq(Task::getTaskStatus, "PENDING"))
+                .set(Task::getTaskStatus, "RUNNING")
+                .set(Task::getTotalPages, message.getTotalPages())
+                .set(Task::getUpdatedAt, LocalDateTime.now());
+
+        if (message.getNodeId() != null && !message.getNodeId().isBlank()) {
+            updateWrapper.set(Task::getNodeId, message.getNodeId());
+        }
+
         taskMapper.update(null, updateWrapper);
     }
 }
