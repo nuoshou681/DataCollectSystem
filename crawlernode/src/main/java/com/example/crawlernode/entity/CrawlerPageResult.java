@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CrawlerPageResult {
     private Long taskId;
-    private Long subTaskId;
-    private String nodeId;       // 爬虫节点
+    private String nodeId; // 爬虫节点
 
     private String pageUrl;
     private String pageTitle;
     private int pageIndex;
-    
+    private Integer totalPages;
+
     private boolean success;
-    private String filePath;     
+    private String filePath;
     private String errorMessage; // 失败原因（成功时可为空）
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.server.common.util.JwtUtil;
 import com.example.server.entity.User;
 import com.example.server.entity.Message.ApiResponse;
+import com.example.server.entity.Message.AuthResponse;
 import com.example.server.entity.Message.ErrorCode;
 import com.example.server.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,8 @@ public class UserController {
             return ApiResponse.error(ErrorCode.PARAM_ERROR, "邮箱或密码错误");
         }
         String token = jwtUtil.generateToken(user);
-        return ApiResponse.success(token);
+        String role = user.getRole() == null || user.getRole().isBlank() ? "user" : user.getRole();
+        return ApiResponse.success(new AuthResponse(token, role));
     }
 
 }

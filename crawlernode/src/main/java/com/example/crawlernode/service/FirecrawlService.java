@@ -34,11 +34,27 @@ public class FirecrawlService {
                 .build();
     }
 
-    public List<String> mapLinks(String seedUrl, String keyword, int limit) {
+    public List<String> getLinks(String seedUrl, String keyword, int limit) {
         if (seedUrl == null || seedUrl.isBlank() || limit <= 0) {
             return List.of();
         }
 
+        // 去对应网站规则过滤
+        List<String> links = new ArrayList<>();
+        if (seedUrl.contains("baike.baidu.com")) {
+            links = scrapeLinks(seedUrl, keyword, false);
+            links = baiduBaikeLinkRule.filter(seedUrl, keyword, links, limit);
+        } else if (seedUrl.contains("www.bing.com")) {
+            links = scrapeLinks(seedUrl, keyword, false);
+            links = bingLinkRule.filter(seedUrl, keyword, links, limit);
+        } else if (seedUrl.contains("search.sohu.com")) {
+            links = scrapeLinks(seedUrl, keyword, true);
+            links = sohuNewsLinkRule.filter(seedUrl, keyword, links, limit);
+        }
+        return links;
+    }
+
+    public List<String> scrapeLinks(String seedUrl, String keyword, boolean mobile) {
         Document doc = client.scrape(
                 seedUrl + keyword,
                 ScrapeOptions.builder()
@@ -46,7 +62,7 @@ public class FirecrawlService {
                         .onlyMainContent(false) // 保留全页面上下文，links 更全
                         .waitFor(2500) // 等待动态内容加载
                         .timeout(20000) // 给复杂页面更长渲染时间
-                        .mobile(true)
+                        .mobile(mobile)
                         .build());
         // 判断是否为空
         if (doc == null || doc.getLinks() == null || doc.getLinks().isEmpty()) {
@@ -55,16 +71,6 @@ public class FirecrawlService {
         for (String link : doc.getLinks()) {
             log.info("收集到的网页地址:" + link);
         }
-        // 去对应网站规则过滤
-        List<String> links = new ArrayList<>();
-        if (seedUrl.contains("baike.baidu.com"))
-            links = baiduBaikeLinkRule.filter(doc.getLinks(), limit);
-        if (seedUrl.contains("www.bing.com"))
-            links = bingLinkRule.filter(doc.getLinks(), limit);
-        if (seedUrl.contains("search.sohu.com"))
-            links = sohuNewsLinkRule.filter(doc.getLinks(), limit);
-        // 添加原始链接
-        links.add(seedUrl + keyword);
-        return links;
+        return doc.getLinks();
     }
 }

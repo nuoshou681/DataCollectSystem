@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.example.crawlernode.config.RabbitMQConfig;
-import com.example.crawlernode.entity.SubTask;
+import com.example.crawlernode.entity.Task;
 
 @Component
 public class CrawlerTaskListener {
@@ -24,20 +24,20 @@ public class CrawlerTaskListener {
 
         // 从任务队列中获取消费任务
         @RabbitListener(queues = RabbitMQConfig.CRAWLER_TASK_QUEUE)
-        public void handleTask(SubTask subTask) {
+        public void handleTask(Task task) {
                 // 1.收到任务
-                log.info("【CrawlerNode】{} 收到子任务: taskId={}, subTaskId={}, url={}, keyword={}",
-                                nodeId, subTask.getTaskId(), subTask.getSubtaskId(), subTask.getUrl(),
-                                subTask.getKeyword());
+                log.info("【CrawlerNode】{} 收到任务: taskId={}, url={}, keyword={}",
+                                nodeId, task.getTaskId(), task.getUrl(),
+                                task.getKeyword());
 
                 try {
-                        crawler.crawl(subTask);
-                        log.info("【CrawlerNode】{} 子任务执行结束: subTaskId={}",
-                                        nodeId, subTask.getSubtaskId());
+                        crawler.crawl(task);
+                        log.info("【CrawlerNode】{} 任务执行结束: taskId={}",
+                                        nodeId, task.getTaskId());
                 } catch (Exception e) {
-                        log.error("【CrawlerNode】{} 子任务执行失败: subTaskId={}, error={}",
-                                        nodeId, subTask.getSubtaskId(), e.getMessage(), e);
-                        crawler.reportTaskFinished(subTask, false, 0, e.getMessage());
+                        log.error("【CrawlerNode】{} 任务执行失败: taskId={}, error={}",
+                                        nodeId, task.getTaskId(), e.getMessage(), e);
+                        crawler.reportTaskFinished(task, false, 0, e.getMessage());
                 }
         }
 

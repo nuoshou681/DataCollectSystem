@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { HomeIcon, RectangleStackIcon, DocumentIcon,MagnifyingGlassIcon,BellIcon } from '@heroicons/vue/24/outline';
+import { HomeIcon, RectangleStackIcon, DocumentIcon, MagnifyingGlassIcon, BellIcon, ServerStackIcon } from '@heroicons/vue/24/outline';
 import { BugAntIcon } from '@heroicons/vue/24/solid'
 import { navActive,iconActive } from '@/style';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+function isPathActive(path: string) {
+  if (path === '/') {
+    return route.path === '/';
+  }
+  return route.path === path || route.path.startsWith(path + '/');
+}
+
 function getNavClass(path:string, type:number) {
-  if(type===0&&route.path===path) return navActive;
-  if(type===1&&route.path===path) return iconActive;
+  if(type===0&&isPathActive(path)) return navActive;
+  if(type===1&&isPathActive(path)) return iconActive;
   return '';
 }
 </script>
@@ -22,19 +29,25 @@ function getNavClass(path:string, type:number) {
       <!-- Nav -->
       <nav class="flex flex-col px-2 py-2 space-y-2">
         <div class="w-full rounded-lg">
-          <RouterLink :class="route.path==='/'?'bg-gray-50':''" class="flex items-center rounded px-2 py-2 space-x-4" to="/">
+          <RouterLink :class="isPathActive('/')?'bg-gray-50':''" class="flex items-center rounded px-2 py-2 space-x-4" to="/">
             <HomeIcon :class="getNavClass('/',1)" class="w-6 h-6 text-gray-400" />
             <span :class="getNavClass('/',0)" class="font-medium text-gray-600">Dashboard</span>
           </RouterLink>
         </div>
         <div class="w-full rounded-lg ">
-          <RouterLink :class="route.path==='/task'?'bg-gray-50':''"  class="flex items-center rounded px-2 py-2 space-x-4" to="/task">
+          <RouterLink :class="isPathActive('/task')?'bg-gray-50':''"  class="flex items-center rounded px-2 py-2 space-x-4" to="/task">
             <RectangleStackIcon :class="getNavClass('/task',1)" class="w-6 h-6 text-gray-400" />
-            <span :class="getNavClass('/task',0)" class="font-medium text-gray-600">Task</span>
+            <span :class="getNavClass('/task',0)" class="font-medium text-gray-600">User Task</span>
           </RouterLink>
         </div>
         <div class="w-full rounded-lg ">
-          <RouterLink :class="route.path==='/log'?'bg-gray-50':''"  class="flex items-center rounded px-2 py-2 space-x-4" to="/log">
+          <RouterLink :class="isPathActive('/admin/nodes')?'bg-gray-50':''"  class="flex items-center rounded px-2 py-2 space-x-4" to="/admin/nodes">
+            <ServerStackIcon :class="getNavClass('/admin/nodes',1)" class="w-6 h-6 text-gray-400" />
+            <span :class="getNavClass('/admin/nodes',0)" class="font-medium text-gray-600">Admin Node</span>
+          </RouterLink>
+        </div>
+        <div class="w-full rounded-lg ">
+          <RouterLink :class="isPathActive('/log')?'bg-gray-50':''"  class="flex items-center rounded px-2 py-2 space-x-4" to="/log">
             <DocumentIcon :class="getNavClass('/log',1)" class="w-6 h-6 text-gray-400" />
             <span :class="getNavClass('/log',0)" class="font-medium text-gray-600">Log</span>
           </RouterLink>

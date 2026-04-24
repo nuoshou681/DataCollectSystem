@@ -10,7 +10,8 @@ public class RabbitJsonConfig {
 
     @Bean
     public MessageConverter rabbitMessageConverter() {
-        // 使用 Jackson 把对象 <-> JSON
-        return new Jackson2JsonMessageConverter();
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        converter.setClassMapper(new CrawlerTaskClassMapper());
+        return converter;
     }
 }
