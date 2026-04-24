@@ -1,0 +1,7 @@
+# Local data and runtime artifacts
+shared/
+shared/**
+
+# macOS
+.DS_Store
+server/src/main/resources/schema.sql
