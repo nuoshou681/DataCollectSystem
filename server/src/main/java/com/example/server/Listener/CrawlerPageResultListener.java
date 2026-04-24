@@ -33,6 +33,18 @@ public class CrawlerPageResultListener {
                 result.getFilePath(),
                 result.isSuccess());
 
+        if (result == null || result.getTaskId() == null) {
+            log.warn("丢弃无效页面结果消息: taskId 为空");
+            return;
+        }
+
+        if (!crawlerPageResultService.taskExists(result.getTaskId())) {
+            log.warn("丢弃孤儿页面结果消息: taskId={} 不存在, url={}",
+                    result.getTaskId(),
+                    result.getPageUrl());
+            return;
+        }
+
         CrawlerPageResultRecord saved = crawlerPageResultService.saveOrUpdateFromMessage(result);
         crawlerPageResultStreamService.publish(saved);
 

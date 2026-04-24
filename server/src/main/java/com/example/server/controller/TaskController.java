@@ -3,6 +3,7 @@ package com.example.server.controller;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.server.common.util.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,13 @@ public class TaskController {
     @GetMapping("/task")
     public ApiResponse<List<Task>> queryList() {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        if (!SecurityUtils.isAdmin()) {
+            Long currentUserId = SecurityUtils.getCurrentUserId();
+            if (currentUserId == null) {
+                return ApiResponse.error(ErrorCode.UNAUTHORIZED, "未登录");
+            }
+            queryWrapper.eq(Task::getUserId, currentUserId);
+        }
         queryWrapper.orderByDesc(Task::getTaskId);
         return ApiResponse.success(taskMapper.selectList(queryWrapper));
     }
@@ -46,6 +54,7 @@ public class TaskController {
         }
 
         try {
+            request.setUserId(SecurityUtils.getCurrentUserId());
             List<Task> tasks = taskService.dispatchTasks(request);
             return ApiResponse.success(tasks);
         } catch (Exception e) {

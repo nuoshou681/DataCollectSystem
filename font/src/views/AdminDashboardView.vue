@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fetchCrawlerNodes, fetchPageResults, fetchTaskLogs, fetchTasks } from '@/api/api'
 import type { CrawlerNode, CrawlerPageResult, Task, TaskLog } from '@/types/entity'
+import { deriveNodeStatus, normalizeTaskStatus } from '@/utils/task'
 
 const loading = ref(false)
 const nodes = ref<CrawlerNode[]>([])
@@ -27,7 +28,10 @@ const highlights = computed(() => [
   },
   {
     label: '在线节点',
-    value: String(nodes.value.filter(node => node.status === 'ONLINE').length),
+    value: String(nodes.value.filter(node => {
+      const status = deriveNodeStatus(node).displayStatus
+      return status === 'ONLINE' || status === 'IDLE'
+    }).length),
     note: '实时节点状态',
     tone: 'text-sky-600',
   },
@@ -39,7 +43,7 @@ const highlights = computed(() => [
   },
   {
     label: '排队任务',
-    value: String(tasks.value.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length),
+    value: String(tasks.value.filter(task => normalizeTaskStatus(task.taskStatus) === 'PENDING').length),
     note: '等待分配',
     tone: 'text-amber-600',
   },
@@ -70,8 +74,11 @@ const activity = computed(() => {
 
 const queueBands = computed(() => {
   const running = tasks.value.filter(task => task.taskStatus === 'RUNNING').length
-  const pending = tasks.value.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length
-  const failed = tasks.value.filter(task => task.taskStatus === 'FAILED' || task.taskStatus === 'PARTIAL_FAILED').length
+  const pending = tasks.value.filter(task => normalizeTaskStatus(task.taskStatus) === 'PENDING').length
+  const failed = tasks.value.filter(task => {
+    const status = normalizeTaskStatus(task.taskStatus)
+    return status === 'FAILED' || status === 'PARTIAL_FAILED'
+  }).length
   const total = Math.max(tasks.value.length, 1)
   return [
     { label: '执行中', value: Math.round((running / total) * 100), color: 'bg-sky-500' },
@@ -137,8 +144,8 @@ onMounted(() => {
             <div class="rounded-xl border border-slate-100 p-4">
               <div class="text-sm font-semibold">路由建议</div>
               <ul class="text-xs text-gray-500 mt-2 space-y-1">
-                <li>• 当前排队任务 {{ tasks.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length }} 个。</li>
-                <li>• 在线节点 {{ nodes.filter(node => node.status === 'ONLINE').length }} 个。</li>
+                <li>• 当前排队任务 {{ tasks.filter(task => normalizeTaskStatus(task.taskStatus) === 'PENDING').length }} 个。</li>
+                <li>• 在线节点 {{ nodes.filter(node => ['ONLINE', 'IDLE'].includes(deriveNodeStatus(node).displayStatus)).length }} 个。</li>
                 <li>• 最近错误日志 {{ logs.filter(log => log.logLevel === 'ERROR').length }} 条。</li>
               </ul>
             </div>
@@ -151,15 +158,15 @@ onMounted(() => {
                 </div>
                 <div class="rounded-lg bg-slate-50 p-3">
                   <div class="font-medium text-gray-700">任务失败</div>
-                  <div class="mt-2">数量: {{ tasks.filter(task => task.taskStatus === 'FAILED' || task.taskStatus === 'PARTIAL_FAILED').length }}</div>
+                  <div class="mt-2">数量: {{ tasks.filter(task => ['FAILED', 'PARTIAL_FAILED'].includes(normalizeTaskStatus(task.taskStatus))).length }}</div>
                 </div>
                 <div class="rounded-lg bg-slate-50 p-3">
                   <div class="font-medium text-gray-700">排队任务</div>
-                  <div class="mt-2">数量: {{ tasks.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length }}</div>
+                  <div class="mt-2">数量: {{ tasks.filter(task => normalizeTaskStatus(task.taskStatus) === 'PENDING').length }}</div>
                 </div>
                 <div class="rounded-lg bg-slate-50 p-3">
                   <div class="font-medium text-gray-700">在线节点</div>
-                  <div class="mt-2">数量: {{ nodes.filter(node => node.status === 'ONLINE').length }}</div>
+                  <div class="mt-2">数量: {{ nodes.filter(node => ['ONLINE', 'IDLE'].includes(deriveNodeStatus(node).displayStatus)).length }}</div>
                 </div>
               </div>
             </div>

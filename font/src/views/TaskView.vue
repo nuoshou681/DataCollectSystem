@@ -11,7 +11,19 @@ import {
   fetchTasks,
 } from '@/api/api'
 import type { CrawlerPageResult, DispatchTaskPayload, Task } from '@/types/entity'
-
+import { getCurrentUserProfile } from '@/utils/auth'
+import {
+  buildSeedLink,
+  calculateTaskRuntime,
+  detectSite,
+  resolveExpectedPages,
+  resolveTaskNodeId,
+  resolveTaskProgress,
+  resolveTaskStatus,
+  siteLabel,
+  statusTagType,
+  statusText,
+} from '@/utils/task'
 type SiteKey = 'sohu' | 'bing' | 'baike' | 'other'
 
 interface SiteOption {
@@ -89,74 +101,6 @@ const cacheLoadingMap = ref<Record<number, boolean>>({})
 const downloadLoadingMap = ref<Record<number, boolean>>({})
 
 const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
-
-function detectSite(url: string): SiteKey {
-  if (url.includes('search.sohu.com')) {
-    return 'sohu'
-  }
-  if (url.includes('www.bing.com')) {
-    return 'bing'
-  }
-  if (url.includes('baike.baidu.com')) {
-    return 'baike'
-  }
-  return 'other'
-}
-
-function siteLabel(key: SiteKey) {
-  if (key === 'other') {
-    return '其他站点'
-  }
-  return siteOptionMap.get(key)?.label ?? key
-}
-
-function statusTagType(status?: string): 'success' | 'danger' | 'warning' | 'info' {
-  if (!status) {
-    return 'info'
-  }
-  if (status === 'FINISHED') {
-    return 'success'
-  }
-  if (status === 'FAILED') {
-    return 'danger'
-  }
-  if (status === 'PARTIAL_FAILED') {
-    return 'warning'
-  }
-  if (status === 'RUNNING') {
-    return 'warning'
-  }
-  if (status === 'PENDING') {
-    return 'info'
-  }
-  return 'info'
-}
-
-function statusText(status?: string) {
-  if (!status) {
-    return '排队中'
-  }
-  if (status === 'FINISHED') {
-    return '已完成'
-  }
-  if (status === 'FAILED') {
-    return '失败'
-  }
-  if (status === 'PARTIAL_FAILED') {
-    return '部分失败'
-  }
-  if (status === 'RUNNING') {
-    return '执行中'
-  }
-  if (status === 'PENDING') {
-    return '排队中'
-  }
-  return status
-}
-
-function buildSeedLink(url: string, keyword: string) {
-  return `${url}${encodeURIComponent(keyword)}`
-}
 
 async function loadTaskData(silent = false) {
   if (!silent) {
@@ -243,12 +187,12 @@ function connectPageResultStream() {
 }
 
 function createPayload(keyword: string, urls: string[]): DispatchTaskPayload {
+  const profile = getCurrentUserProfile()
   return {
-    userId: 1,
+    userId: profile.userId ?? null,
     keyword,
     url: urls.join('\n'),
-    status: 'PENDING',
-    progress: 0,
+    source: 'manual',
   }
 }
 
@@ -331,106 +275,6 @@ async function cacheLinkMhtml(link: LinkRow) {
   }
 }
 
-function normalizeNodeId(value?: string | number | null) {
-  if (value === null || value === undefined) {
-    return ''
-  }
-  return String(value).trim()
-}
-
-function resolveNodeId(task: Task, pageList: CrawlerPageResult[]) {
-  const taskNodeId = normalizeNodeId(task.nodeId ?? task.node_id)
-  if (taskNodeId && taskNodeId !== '-1') {
-    return taskNodeId
-  }
-
-  const pageNodeId = pageList
-    .map(page => normalizeNodeId(page.nodeId ?? page.node_id))
-    .find(nodeId => nodeId && nodeId !== '-1')
-  if (pageNodeId) {
-    return pageNodeId
-  }
-
-  return 'node_id'
-}
-
-function resolveExpectedPages(pageList: CrawlerPageResult[]) {
-  const candidates = pageList
-    .map(page => page.totalPages ?? 0)
-    .filter(value => value && value > 0)
-  if (candidates.length > 0) {
-    return Math.max(...candidates)
-  }
-  return EXPECTED_PAGE_RESULTS_PER_TASK
-}
-
-function resolveTaskStatus(task: Task, runtimeStatus: string) {
-  if (task.taskStatus) {
-    return task.taskStatus
-  }
-  return runtimeStatus
-}
-
-function resolveTaskProgress(task: Task, runtimeProgress: number) {
-  if (typeof task.taskProgress === 'number') {
-    return task.taskProgress
-  }
-  return runtimeProgress
-}
-
-function calculateTaskRuntime(pageList: CrawlerPageResult[], expectedPages: number) {
-  const completedPages = pageList.length
-  const totalPages = expectedPages > 0 ? expectedPages : EXPECTED_PAGE_RESULTS_PER_TASK
-  const pageBasedProgress = Math.min(
-    100,
-    Math.round((completedPages / totalPages) * 100),
-  )
-  const failedPages = pageList.filter(page => !page.success).length
-
-  if (completedPages === 0) {
-    return {
-      status: 'PENDING',
-      progress: 0,
-      completedPages,
-      expectedPages: totalPages,
-    }
-  }
-
-  if (completedPages < totalPages) {
-    return {
-      status: 'RUNNING',
-      progress: pageBasedProgress,
-      completedPages,
-      expectedPages: totalPages,
-    }
-  }
-
-  if (failedPages === 0) {
-    return {
-      status: 'FINISHED',
-      progress: 100,
-      completedPages,
-      expectedPages: totalPages,
-    }
-  }
-
-  if (failedPages >= completedPages) {
-    return {
-      status: 'FAILED',
-      progress: 100,
-      completedPages,
-      expectedPages: totalPages,
-    }
-  }
-
-  return {
-    status: 'PARTIAL_FAILED',
-    progress: 100,
-    completedPages,
-    expectedPages: totalPages,
-  }
-}
-
 function isDownloading(pageResultId?: number) {
   if (!pageResultId) {
     return false
@@ -489,9 +333,9 @@ const taskStats = computed(() => {
 
   for (const task of filteredTasks.value) {
     const pageList = pageMap.get(task.taskId) ?? []
-    const expectedPages = resolveExpectedPages(pageList)
+    const expectedPages = resolveExpectedPages(pageList, EXPECTED_PAGE_RESULTS_PER_TASK)
     const runtime = calculateTaskRuntime(pageList, expectedPages)
-    const status = resolveTaskStatus(task, runtime.status)
+    const status = resolveTaskStatus(task, pageList, EXPECTED_PAGE_RESULTS_PER_TASK)
     if (status === 'FINISHED') {
       finished += 1
       continue
@@ -572,10 +416,10 @@ const groupedSiteTasks = computed(() => {
     const keyword = task.keyword ?? ''
 
     const pageList = pageMap.get(task.taskId) ?? []
-    const expectedPages = resolveExpectedPages(pageList)
+    const expectedPages = resolveExpectedPages(pageList, EXPECTED_PAGE_RESULTS_PER_TASK)
     const runtime = calculateTaskRuntime(pageList, expectedPages)
-    const status = resolveTaskStatus(task, runtime.status)
-    const progress = resolveTaskProgress(task, runtime.progress)
+    const status = resolveTaskStatus(task, pageList, EXPECTED_PAGE_RESULTS_PER_TASK)
+    const progress = resolveTaskProgress(task, pageList, EXPECTED_PAGE_RESULTS_PER_TASK)
     const expected = typeof task.totalPages === 'number' ? task.totalPages : runtime.expectedPages
     const links: LinkRow[] =
       pageList.length > 0
@@ -594,7 +438,7 @@ const groupedSiteTasks = computed(() => {
         : [
           {
             pageUrl: buildSeedLink(task.url, keyword),
-            pageTitle: '种子链接',
+      pageTitle: '种子链接',
             pageIndex: 0,
             success: true,
             isSeed: true,
@@ -604,7 +448,7 @@ const groupedSiteTasks = computed(() => {
     const row: SiteTaskRow = {
       taskId: task.taskId,
       keyword,
-      nodeId: resolveNodeId(task, pageList),
+      nodeId: resolveTaskNodeId(task, pageList) || '未分配',
       taskStatus: status,
       taskProgress: progress,
       completedPages: runtime.completedPages,

@@ -2,6 +2,7 @@ package com.example.server.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.server.common.util.SecurityUtils;
 import com.example.server.entity.CrawlerPageResultRecord;
 import com.example.server.entity.Message.ApiResponse;
 import com.example.server.entity.Message.ErrorCode;
@@ -33,12 +34,13 @@ public class TaskResultController {
 
     @GetMapping("/task/page-results")
     public ApiResponse<List<CrawlerPageResultRecord>> pageResults(@RequestParam(required = false) Long taskId) {
-        return ApiResponse.success(crawlerPageResultService.queryResults(taskId));
+        return ApiResponse.success(
+                crawlerPageResultService.queryResults(taskId, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin()));
     }
 
     @GetMapping(value = "/task/page-results/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter pageResultsStream() {
-        return crawlerPageResultStreamService.subscribe();
+        return crawlerPageResultStreamService.subscribe(SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin());
     }
 
     @PostMapping("/task/cache-mhtml")
@@ -48,9 +50,12 @@ public class TaskResultController {
         }
 
         try {
-            CrawlerPageResultRecord cached = crawlerPageResultService.cacheMhtml(pageResultId);
+            CrawlerPageResultRecord cached = crawlerPageResultService.cacheMhtml(
+                    pageResultId,
+                    SecurityUtils.getCurrentUserId(),
+                    SecurityUtils.isAdmin());
             if (cached == null) {
-                return ApiResponse.error(ErrorCode.NOT_FOUND, "页面结果不存在");
+                return ApiResponse.error(ErrorCode.NOT_FOUND, "页面结果不存在或无权限访问");
             }
             return ApiResponse.success(cached);
         } catch (Exception e) {
@@ -66,9 +71,9 @@ public class TaskResultController {
 
         try {
             CrawlerPageResultService.MhtmlDownloadData downloadData = crawlerPageResultService
-                    .loadMhtmlForDownload(pageResultId);
+                    .loadMhtmlForDownload(pageResultId, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin());
             if (downloadData == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("页面结果不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("页面结果不存在或无权限访问");
             }
 
             HttpHeaders headers = new HttpHeaders();

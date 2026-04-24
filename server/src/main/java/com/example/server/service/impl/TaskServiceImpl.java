@@ -30,6 +30,7 @@ public class TaskServiceImpl implements TaskService {
 
         // 保存任务并派发到MQ
         for (Task task : tasks) {
+            task.setUserId(request.getUserId());
             task.setKeyword(request.getKeyword());
             task.setTaskStatus("PENDING");
             task.setTaskProgress(0);

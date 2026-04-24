@@ -12,6 +12,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchCrawlerNodes, fetchTaskLogs } from '@/api/api'
 import type { CrawlerNode, TaskLog } from '@/types/entity'
+import { clearAuthSession, getCurrentUserProfile } from '@/utils/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,26 +40,12 @@ const logs = ref<TaskLog[]>([])
 const lastSeenLogId = ref(Number(localStorage.getItem('admin.lastSeenLogId') || 0))
 
 const userName = computed(() => {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    return '未登录'
-  }
   const storedName = localStorage.getItem('profileName')
   if (storedName) {
     return storedName
   }
-  try {
-    const payload = token.split('.')[1]
-    if (!payload) {
-      return '管理员'
-    }
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const decoded = atob(normalized)
-    const parsed = JSON.parse(decoded)
-    return parsed.username || parsed.email || '管理员'
-  } catch {
-    return '管理员'
-  }
+  const profile = getCurrentUserProfile()
+  return profile.username || profile.email || '管理员'
 })
 
 const searchResults = computed(() => {
@@ -145,11 +132,7 @@ function handleNodeClick() {
 }
 
 function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('role')
-  localStorage.removeItem('profileName')
-  localStorage.removeItem('profileEmail')
-  localStorage.removeItem('profileRole')
+  clearAuthSession()
   router.push('/login')
 }
 

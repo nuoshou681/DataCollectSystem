@@ -12,6 +12,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchPageResults, fetchTasks } from '@/api/api'
 import type { CrawlerPageResult, Task } from '@/types/entity'
+import { clearAuthSession, getCurrentUserProfile } from '@/utils/auth'
+import { normalizeTaskStatus } from '@/utils/task'
 
 const route = useRoute()
 const router = useRouter()
@@ -40,32 +42,16 @@ const lastSeenPageResultId = ref(Number(localStorage.getItem('user.lastSeenPageR
 
 // 进行中任务数量，支持 taskStatus 为 '进行中' 或 'running'（兼容中英文）
 const runningTaskCount = computed(() => {
-  return tasks.value.filter(
-    t => t.taskStatus === '进行中' || t.taskStatus === 'running'
-  ).length
+  return tasks.value.filter(t => normalizeTaskStatus(t.taskStatus) === 'RUNNING').length
 })
 
 const userName = computed(() => {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    return '未登录'
-  }
   const storedName = localStorage.getItem('profileName')
   if (storedName) {
     return storedName
   }
-  try {
-    const payload = token.split('.')[1]
-    if (!payload) {
-      return '用户'
-    }
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const decoded = atob(normalized)
-    const parsed = JSON.parse(decoded)
-    return parsed.username || parsed.email || '用户'
-  } catch {
-    return '用户'
-  }
+  const profile = getCurrentUserProfile()
+  return profile.username || profile.email || '用户'
 })
 
 const searchResults = computed(() => {
@@ -159,11 +145,7 @@ function handlePageResultClick(url?: string) {
 }
 
 function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('role')
-  localStorage.removeItem('profileName')
-  localStorage.removeItem('profileEmail')
-  localStorage.removeItem('profileRole')
+  clearAuthSession()
   router.push('/login')
 }
 

@@ -18,6 +18,9 @@ public class Task {
     @TableId(value = "task_id", type = IdType.AUTO)
     private Long taskId;
 
+    @TableField("user_id")
+    private Long userId;
+
     // 分配爬虫节点id
     private String nodeId;
     private String url;

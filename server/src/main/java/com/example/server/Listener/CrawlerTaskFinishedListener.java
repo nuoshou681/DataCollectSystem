@@ -35,6 +35,14 @@ public class CrawlerTaskFinishedListener {
             return;
         }
 
+        Task task = taskMapper.selectById(finished.getTaskId());
+        if (task == null) {
+            log.warn("丢弃孤儿任务完成消息: taskId={} 不存在, nodeId={}",
+                    finished.getTaskId(),
+                    finished.getNodeId());
+            return;
+        }
+
         String nextStatus = finished.isSuccess() ? "FINISHED" : "FAILED";
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getTaskId, finished.getTaskId())

@@ -25,12 +25,35 @@ public class JwtUtil {
     }
 
     public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Object rawUserId = getClaims(token).get("userId");
+        if (rawUserId instanceof Number number) {
+            return number.longValue();
+        }
+        if (rawUserId instanceof String value && !value.isBlank()) {
+            try {
+                return Long.parseLong(value);
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public String getRoleFromToken(String token) {
+        Object rawRole = getClaims(token).get("role");
+        return rawRole == null ? null : String.valueOf(rawRole);
+    }
+
+    private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY.getBytes())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
     public boolean validateToken(String token) {

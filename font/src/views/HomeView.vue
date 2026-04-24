@@ -3,44 +3,20 @@ import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fetchPageResults, fetchTasks } from '@/api/api'
 import type { CrawlerPageResult, Task } from '@/types/entity'
-
-type SiteKey = 'sohu' | 'bing' | 'baike' | 'other'
+import { detectSite, normalizeTaskStatus, siteLabel } from '@/utils/task'
 
 const tasks = ref<Task[]>([])
 const pageResults = ref<CrawlerPageResult[]>([])
 const loading = ref(false)
 
-function detectSite(url: string): SiteKey {
-  if (url.includes('search.sohu.com')) {
-    return 'sohu'
-  }
-  if (url.includes('www.bing.com')) {
-    return 'bing'
-  }
-  if (url.includes('baike.baidu.com')) {
-    return 'baike'
-  }
-  return 'other'
-}
-
-function siteLabel(site: SiteKey) {
-  if (site === 'sohu') {
-    return '搜狐'
-  }
-  if (site === 'bing') {
-    return '必应'
-  }
-  if (site === 'baike') {
-    return '百科'
-  }
-  return '其他'
-}
-
 const taskStats = computed(() => {
   const total = tasks.value.length
-  const running = tasks.value.filter(task => task.taskStatus === 'RUNNING').length
-  const pending = tasks.value.filter(task => task.taskStatus === 'PENDING' || !task.taskStatus).length
-  const failed = tasks.value.filter(task => task.taskStatus === 'FAILED' || task.taskStatus === 'PARTIAL_FAILED').length
+  const running = tasks.value.filter(task => normalizeTaskStatus(task.taskStatus) === 'RUNNING').length
+  const pending = tasks.value.filter(task => normalizeTaskStatus(task.taskStatus) === 'PENDING').length
+  const failed = tasks.value.filter(task => {
+    const status = normalizeTaskStatus(task.taskStatus)
+    return status === 'FAILED' || status === 'PARTIAL_FAILED'
+  }).length
   return { total, running, pending, failed }
 })
 

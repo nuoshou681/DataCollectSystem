@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fetchCrawlerNodes } from '@/api/api'
 import type { CrawlerNode } from '@/types/entity'
+import { deriveNodeStatus } from '@/utils/task'
 
 interface NodeRow {
   nodeId: string
@@ -33,31 +34,16 @@ function formatTime(value: number) {
 }
 
 function mapNodeStatus(node: CrawlerNode): NodeRow {
+  const derived = deriveNodeStatus(node)
   const heartbeat = parseHeartbeat(node.lastHeartbeat)
-  const now = Date.now()
-  const delay = heartbeat ? Math.floor((now - heartbeat) / 1000) : Number.POSITIVE_INFINITY
-
-  let displayStatus = node.status || 'UNKNOWN'
-  if (!heartbeat || delay > 15) {
-    displayStatus = 'OFFLINE'
-  }
-
-  let statusType: 'success' | 'warning' | 'danger' | 'info' = 'info'
-  if (displayStatus === 'ONLINE') {
-    statusType = 'success'
-  } else if (displayStatus === 'BUSY') {
-    statusType = 'warning'
-  } else if (displayStatus === 'OFFLINE') {
-    statusType = 'danger'
-  }
 
   return {
     nodeId: node.nodeId,
-    rawStatus: node.status,
-    displayStatus,
-    statusType,
+    rawStatus: derived.rawStatus,
+    displayStatus: derived.displayStatus,
+    statusType: derived.statusType,
     lastHeartbeatText: formatTime(heartbeat),
-    delaySeconds: Number.isFinite(delay) ? delay : -1,
+    delaySeconds: derived.delaySeconds,
   }
 }
 

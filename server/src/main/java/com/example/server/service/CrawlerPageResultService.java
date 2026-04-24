@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CrawlerPageResultService {
@@ -31,6 +32,10 @@ public class CrawlerPageResultService {
         if (message == null || message.getTaskId() == null
                 || message.getPageUrl() == null
                 || message.getPageUrl().isBlank()) {
+            return null;
+        }
+
+        if (!taskExists(message.getTaskId())) {
             return null;
         }
 
@@ -84,6 +89,41 @@ public class CrawlerPageResultService {
         return crawlerPageResultMapper.selectList(queryWrapper);
     }
 
+    public List<CrawlerPageResultRecord> queryResults(Long taskId, Long userId, boolean isAdmin) {
+        if (isAdmin) {
+            return queryResults(taskId);
+        }
+
+        if (userId == null) {
+            return List.of();
+        }
+
+        if (taskId != null) {
+            Task task = taskMapper.selectById(taskId);
+            if (task == null || !userId.equals(task.getUserId())) {
+                return List.of();
+            }
+            return queryResults(taskId);
+        }
+
+        List<Long> taskIds = taskMapper.selectList(new LambdaQueryWrapper<Task>()
+                .eq(Task::getUserId, userId)
+                .select(Task::getTaskId)).stream()
+                .map(Task::getTaskId)
+                .collect(Collectors.toList());
+
+        if (taskIds.isEmpty()) {
+            return List.of();
+        }
+
+        LambdaQueryWrapper<CrawlerPageResultRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(CrawlerPageResultRecord::getTaskId, taskIds)
+                .orderByAsc(CrawlerPageResultRecord::getTaskId)
+                .orderByAsc(CrawlerPageResultRecord::getPageIndex)
+                .orderByAsc(CrawlerPageResultRecord::getPageResultId);
+        return crawlerPageResultMapper.selectList(queryWrapper);
+    }
+
     public CrawlerPageResultRecord cacheMhtml(Long pageResultId) throws IOException {
         CrawlerPageResultRecord pageResult = crawlerPageResultMapper.selectById(pageResultId);
         if (pageResult == null) {
@@ -110,6 +150,13 @@ public class CrawlerPageResultService {
         return crawlerPageResultMapper.selectById(pageResultId);
     }
 
+    public CrawlerPageResultRecord cacheMhtml(Long pageResultId, Long userId, boolean isAdmin) throws IOException {
+        if (!canAccessPageResult(pageResultId, userId, isAdmin)) {
+            return null;
+        }
+        return cacheMhtml(pageResultId);
+    }
+
     public MhtmlDownloadData loadMhtmlForDownload(Long pageResultId) throws IOException {
         CrawlerPageResultRecord pageResult = queryByIdForDownload(pageResultId);
         if (pageResult == null) {
@@ -133,6 +180,13 @@ public class CrawlerPageResultService {
         }
 
         return new MhtmlDownloadData(buildDownloadFileName(pageResult), content);
+    }
+
+    public MhtmlDownloadData loadMhtmlForDownload(Long pageResultId, Long userId, boolean isAdmin) throws IOException {
+        if (!canAccessPageResult(pageResultId, userId, isAdmin)) {
+            return null;
+        }
+        return loadMhtmlForDownload(pageResultId);
     }
 
     private CrawlerPageResultRecord queryByIdForDownload(Long pageResultId) {
@@ -190,5 +244,37 @@ public class CrawlerPageResultService {
         }
 
         taskMapper.update(null, updateWrapper);
+    }
+
+    public boolean taskExists(Long taskId) {
+        if (taskId == null) {
+            return false;
+        }
+        return taskMapper.selectById(taskId) != null;
+    }
+
+    public boolean canAccessTask(Long taskId, Long userId, boolean isAdmin) {
+        if (taskId == null) {
+            return false;
+        }
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) {
+            return false;
+        }
+        if (isAdmin) {
+            return true;
+        }
+        return userId != null && userId.equals(task.getUserId());
+    }
+
+    public boolean canAccessPageResult(Long pageResultId, Long userId, boolean isAdmin) {
+        if (pageResultId == null) {
+            return false;
+        }
+        CrawlerPageResultRecord pageResult = crawlerPageResultMapper.selectById(pageResultId);
+        if (pageResult == null) {
+            return false;
+        }
+        return canAccessTask(pageResult.getTaskId(), userId, isAdmin);
     }
 }

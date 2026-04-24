@@ -1,38 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { RouterLink,useRouter } from 'vue-router';
-import { login } from '@/api/api';
-const email = ref('');
-const password = ref('');
-const error = ref('');
-const router = useRouter();
+import { ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { login } from '@/api/api'
+import { persistAuthSession } from '@/utils/auth'
+
+const email = ref('')
+const password = ref('')
+const error = ref('')
+const router = useRouter()
+
 async function handleLogin() {
   try {
-    error.value = '';
-    const res = await login(email.value, password.value);
-    console.log("token is:",res);
+    error.value = ''
+    const res = await login(email.value, password.value)
     // 登陆失败，清除表单
-    if(res === null) {
-      email.value = '';
+    if (res === null) {
+      email.value = ''
       password.value = ''
-    }else {
-      // res.data就是token
-      if (res && res.data) {
-        localStorage.setItem('token', String(res.data.token))
-        localStorage.setItem('role', String(res.data.role || 'user'))
-        // 跳转首页等后续操作
-        if (res.data.role === 'admin') {
-          router.push('/admin')
-        } else {
-          router.push('/')
-        }
+    } else {
+      persistAuthSession(String(res.token), String(res.role || 'user'))
+      if (res.role === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/')
       }
     }
   } catch (e: unknown) {
     if (typeof e === 'object' && e && 'response' in e) {
-      error.value = (e as { response?: { data?: { msg?: string } } }).response?.data?.msg || '网络错误';
+      error.value = (e as { response?: { data?: { msg?: string } } }).response?.data?.msg || '网络错误'
     } else {
-      error.value = '网络错误';
+      error.value = '网络错误'
     }
   }
 }
