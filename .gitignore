@@ -4,3 +4,4 @@ shared/**
 
 # macOS
 .DS_Store
+server/src/main/resources/schema.sql
