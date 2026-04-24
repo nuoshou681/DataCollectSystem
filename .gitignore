@@ -1,0 +1,6 @@
+# Local data and runtime artifacts
+shared/
+shared/**
+
+# macOS
+.DS_Store
