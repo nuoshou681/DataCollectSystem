@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.example.server.config.RabbitMQConfig;
 import com.example.server.entity.DispatchTaskRequest;
 import com.example.server.entity.Task;
+import com.example.server.entity.Message.CrawlerTaskMessage;
 import com.example.server.mapper.TaskMapper;
 import com.example.server.service.TaskService;
 
@@ -40,7 +41,7 @@ public class TaskServiceImpl implements TaskService {
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.CRAWLER_EXCHANGE,
                     RabbitMQConfig.ROUTING_TASK,
-                    task);
+                    toCrawlerTaskMessage(task));
         }
 
         return tasks;
@@ -64,6 +65,15 @@ public class TaskServiceImpl implements TaskService {
             tasks.add(task);
         }
         return tasks;
+    }
+
+    private CrawlerTaskMessage toCrawlerTaskMessage(Task task) {
+        return new CrawlerTaskMessage(
+                task.getTaskId(),
+                task.getNodeId(),
+                task.getUrl(),
+                task.getKeyword(),
+                task.getMaxLinksPerLevel());
     }
 
 }

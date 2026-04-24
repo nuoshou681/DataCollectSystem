@@ -3,6 +3,8 @@ package com.example.server.controller;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.server.entity.DispatchTaskRequest;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/task")
 public class TaskController {
+    private static final Logger log = LoggerFactory.getLogger(TaskController.class);
+
     @Autowired
     private TaskMapper taskMapper;
 
@@ -45,6 +49,7 @@ public class TaskController {
             List<Task> tasks = taskService.dispatchTasks(request);
             return ApiResponse.success(tasks);
         } catch (Exception e) {
+            log.error("任务分发失败, keyword={}, url={}", request.getKeyword(), request.getUrl(), e);
             return ApiResponse.error(ErrorCode.SERVER_ERROR, "任务分发失败: " + e.getMessage());
         }
     }

@@ -16,6 +16,8 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.example.server.entity.Message.CrawlerTaskMessage;
+
 @Configuration
 public class RabbitMQConfig {
     public static final String CRAWLER_EXCHANGE = "crawler.exchange";
@@ -58,6 +60,7 @@ public class RabbitMQConfig {
     public DefaultClassMapper rabbitClassMapper() {
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
+        idClassMapping.put("crawlerTask", CrawlerTaskMessage.class);
         idClassMapping.put("com.example.crawlernode.entity.CrawlerStatus",
                 com.example.server.entity.Message.CrawlerStatus.class);
         idClassMapping.put("com.example.crawlernode.entity.CrawlerPageResult",
