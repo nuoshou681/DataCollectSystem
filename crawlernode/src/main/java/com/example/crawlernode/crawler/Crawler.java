@@ -23,7 +23,9 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -162,7 +164,9 @@ public class Crawler {
         int limit = task.getMaxLinksPerLevel() == null ? 10 : task.getMaxLinksPerLevel();
 
         try {
-            return firecrawlService.getLinks(seedUrl, keyword, limit);
+            List<String> links = firecrawlService.getLinks(seedUrl, keyword, limit);
+            Set<String> deduped = new LinkedHashSet<>(links);
+            return deduped.stream().limit(limit).toList();
         } catch (Exception e) {
             log.error("【CrawlerNode】{} Firecrawl 解析链接失败: seedUrl={}, keyword={}, error={}",
                     nodeId, seedUrl, keyword, e.getMessage(), e);

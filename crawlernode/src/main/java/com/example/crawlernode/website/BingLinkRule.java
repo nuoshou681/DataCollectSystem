@@ -14,7 +14,7 @@ public class BingLinkRule {
     // 去重，筛选链接
     public List<String> filter(String seedUrl, String keyword, List<String> links, int limit) {
         Set<String> urls = new LinkedHashSet<>();
-        urls.add(seedUrl + keyword);
+        urls.add(seedUrl);
         for (String link : links) {
             if (link == null || link.isBlank()) {
                 continue;

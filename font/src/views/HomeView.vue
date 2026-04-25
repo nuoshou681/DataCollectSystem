@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { fetchTasks } from '@/api/api'
-import type { Task } from '@/types/entity'
+import { fetchTasks, getTaskRuntimeStreamUrl } from '@/api/api'
+import type { Task, TaskRuntime } from '@/types/entity'
 
 const tasks = ref<Task[]>([])
 const loading = ref(false)
+let runtimeStream: EventSource | null = null
 
 async function loadDashboard() {
   loading.value = true
@@ -16,6 +17,23 @@ async function loadDashboard() {
   } finally {
     loading.value = false
   }
+}
+
+function connectRuntimeStream() {
+  runtimeStream?.close()
+  runtimeStream = new EventSource(getTaskRuntimeStreamUrl())
+  runtimeStream.addEventListener('task-runtime', event => {
+    try {
+      const runtime = JSON.parse((event as MessageEvent).data) as TaskRuntime
+      const task = tasks.value.find(item => item.taskId === runtime.taskId)
+      if (task) {
+        task.runtime = { ...(task.runtime ?? {} as TaskRuntime), ...runtime }
+        task.taskStatus = runtime.status
+      }
+    } catch {
+      // ignore malformed events
+    }
+  })
 }
 
 const highlights = computed(() => {
@@ -32,6 +50,11 @@ const highlights = computed(() => {
 
 onMounted(() => {
   void loadDashboard()
+  connectRuntimeStream()
+})
+
+onBeforeUnmount(() => {
+  runtimeStream?.close()
 })
 </script>
 

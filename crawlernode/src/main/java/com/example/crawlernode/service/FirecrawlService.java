@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 
 @Service
@@ -39,17 +43,17 @@ public class FirecrawlService {
             return List.of();
         }
 
-        // 去对应网站规则过滤
+        String normalizedSeed = normalizeSeedUrl(seedUrl, keyword);
         List<String> links = new ArrayList<>();
         if (seedUrl.contains("baike.baidu.com")) {
             links = scrapeLinks(seedUrl, keyword, false);
-            links = baiduBaikeLinkRule.filter(seedUrl, keyword, links, limit);
+            links = baiduBaikeLinkRule.filter(normalizedSeed, keyword, normalizeLinks(links), limit);
         } else if (seedUrl.contains("www.bing.com")) {
             links = scrapeLinks(seedUrl, keyword, false);
-            links = bingLinkRule.filter(seedUrl, keyword, links, limit);
+            links = bingLinkRule.filter(normalizedSeed, keyword, normalizeLinks(links), limit);
         } else if (seedUrl.contains("search.sohu.com")) {
             links = scrapeLinks(seedUrl, keyword, true);
-            links = sohuNewsLinkRule.filter(seedUrl, keyword, links, limit);
+            links = sohuNewsLinkRule.filter(normalizedSeed, keyword, normalizeLinks(links), limit);
         }
         return links;
     }
@@ -72,5 +76,83 @@ public class FirecrawlService {
             log.info("收集到的网页地址:" + link);
         }
         return doc.getLinks();
+    }
+
+    private List<String> normalizeLinks(List<String> links) {
+        if (links == null || links.isEmpty()) {
+            return List.of();
+        }
+        return links.stream()
+                .map(this::canonicalizeUrl)
+                .filter(link -> link != null && !link.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private String normalizeSeedUrl(String seedUrl, String keyword) {
+        return canonicalizeUrl(seedUrl + URLEncoder.encode(keyword == null ? "" : keyword, StandardCharsets.UTF_8));
+    }
+
+    private String canonicalizeUrl(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            return "";
+        }
+        try {
+            URI uri = URI.create(rawUrl.trim());
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (scheme == null || host == null) {
+                return rawUrl.trim();
+            }
+
+            String path = uri.getPath() == null || uri.getPath().isBlank() ? "/" : uri.getPath();
+            String query = normalizeQuery(uri.getRawQuery());
+            URI normalized = new URI(
+                    scheme.toLowerCase(),
+                    uri.getUserInfo(),
+                    host.toLowerCase(),
+                    uri.getPort(),
+                    path,
+                    query,
+                    null);
+            return normalized.toString();
+        } catch (Exception e) {
+            return rawUrl.trim();
+        }
+    }
+
+    private String normalizeQuery(String rawQuery) {
+        if (rawQuery == null || rawQuery.isBlank()) {
+            return null;
+        }
+
+        List<String> kept = new ArrayList<>();
+        for (String pair : rawQuery.split("&")) {
+            if (pair == null || pair.isBlank()) {
+                continue;
+            }
+            String key = pair;
+            int idx = pair.indexOf('=');
+            if (idx >= 0) {
+                key = pair.substring(0, idx);
+            }
+            String lowerKey = key.toLowerCase();
+            if (lowerKey.startsWith("utm_")
+                    || "spm".equals(lowerKey)
+                    || "scm".equals(lowerKey)
+                    || "from".equals(lowerKey)
+                    || "frommodule".equals(lowerKey)
+                    || "refer".equals(lowerKey)
+                    || "src".equals(lowerKey)
+                    || "fr".equals(lowerKey)) {
+                continue;
+            }
+            kept.add(pair);
+        }
+
+        if (kept.isEmpty()) {
+            return null;
+        }
+        return String.join("&", kept);
     }
 }

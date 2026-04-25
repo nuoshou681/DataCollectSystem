@@ -1,21 +1,32 @@
 package com.example.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.server.entity.CrawlerPageResultRecord;
 import com.example.server.entity.Task;
 import com.example.server.entity.TaskRuntime;
+import com.example.server.mapper.CrawlerPageResultMapper;
 import com.example.server.mapper.TaskMapper;
 import com.example.server.mapper.TaskRuntimeMapper;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskRuntimeService {
     private final TaskRuntimeMapper taskRuntimeMapper;
     private final TaskMapper taskMapper;
+    private final CrawlerPageResultMapper crawlerPageResultMapper;
+    private final TaskRuntimeStreamService taskRuntimeStreamService;
 
-    public TaskRuntimeService(TaskRuntimeMapper taskRuntimeMapper, TaskMapper taskMapper) {
+    public TaskRuntimeService(
+            TaskRuntimeMapper taskRuntimeMapper,
+            TaskMapper taskMapper,
+            CrawlerPageResultMapper crawlerPageResultMapper,
+            TaskRuntimeStreamService taskRuntimeStreamService) {
         this.taskRuntimeMapper = taskRuntimeMapper;
         this.taskMapper = taskMapper;
+        this.crawlerPageResultMapper = crawlerPageResultMapper;
+        this.taskRuntimeStreamService = taskRuntimeStreamService;
     }
 
     public void createQueuedRuntime(Task task) {
@@ -36,6 +47,7 @@ public class TaskRuntimeService {
         runtime.setLastErrorMessage(task.getLastErrorMessage());
         runtime.setQueuedAt(LocalDateTime.now());
         taskRuntimeMapper.insert(runtime);
+        taskRuntimeStreamService.publish(runtime);
     }
 
     public TaskRuntime getByTaskId(Long taskId) {
@@ -49,14 +61,19 @@ public class TaskRuntimeService {
         TaskRuntime existing = taskRuntimeMapper.selectById(runtime.getTaskId());
         if (existing == null) {
             taskRuntimeMapper.insert(runtime);
+            taskRuntimeStreamService.publish(runtime);
             return;
         }
         taskRuntimeMapper.updateById(runtime);
+        taskRuntimeStreamService.publish(runtime);
     }
 
     public void markStarted(Long taskId, String nodeId) {
         TaskRuntime runtime = ensureRuntime(taskId);
         if (runtime == null) {
+            return;
+        }
+        if (isTerminalStatus(runtime.getStatus())) {
             return;
         }
         runtime.setStatus("RUNNING");
@@ -65,6 +82,7 @@ public class TaskRuntimeService {
         runtime.setUpdatedAt(LocalDateTime.now());
         taskRuntimeMapper.updateById(runtime);
         syncTaskSnapshot(taskId, runtime);
+        taskRuntimeStreamService.publish(runtime);
     }
 
     public void markProgress(Long taskId, String nodeId, Integer totalPages, boolean success, String errorCode, String errorMessage) {
@@ -73,7 +91,6 @@ public class TaskRuntimeService {
             return;
         }
 
-        runtime.setStatus("RUNNING");
         runtime.setAssignedNodeId(nodeId);
         if (runtime.getStartedAt() == null) {
             runtime.setStartedAt(LocalDateTime.now());
@@ -91,13 +108,85 @@ public class TaskRuntimeService {
         }
 
         int expected = Math.max(safe(runtime.getExpectedPages()), runtime.getCompletedPages());
+        boolean terminal = isTerminalStatus(runtime.getStatus());
         runtime.setProgressPercent(expected <= 0 ? 0 : Math.min(100, Math.round(runtime.getCompletedPages() * 100f / expected)));
+        if (terminal) {
+            runtime.setStatus(resolveFinalStatus(runtime));
+            runtime.setProgressPercent(100);
+        } else {
+            runtime.setStatus("RUNNING");
+        }
         runtime.setUpdatedAt(LocalDateTime.now());
         taskRuntimeMapper.updateById(runtime);
         syncTaskSnapshot(taskId, runtime);
+        taskRuntimeStreamService.publish(runtime);
     }
 
-    public void markFinished(Long taskId, String nodeId, boolean success, Integer totalPages, String errorMessage) {
+    public void syncWithPageResults(
+            Long taskId,
+            String nodeId,
+            Integer totalPages,
+            boolean latestSuccess,
+            String errorCode,
+            String errorMessage) {
+        TaskRuntime runtime = ensureRuntime(taskId);
+        if (runtime == null) {
+            return;
+        }
+
+        runtime.setAssignedNodeId(nodeId);
+        if (runtime.getStartedAt() == null) {
+            runtime.setStartedAt(LocalDateTime.now());
+        }
+        if (totalPages != null && totalPages > 0) {
+            runtime.setExpectedPages(totalPages);
+        }
+
+        List<CrawlerPageResultRecord> results = crawlerPageResultMapper.selectList(new LambdaQueryWrapper<CrawlerPageResultRecord>()
+                .eq(CrawlerPageResultRecord::getTaskId, taskId));
+        int completedPages = results.size();
+        int successPages = (int) results.stream().filter(result -> Boolean.TRUE.equals(result.getSuccess())).count();
+        int failedPages = completedPages - successPages;
+
+        runtime.setCompletedPages(completedPages);
+        runtime.setSuccessPages(successPages);
+        runtime.setFailedPages(failedPages);
+
+        if (!latestSuccess) {
+            runtime.setLastErrorCode(errorCode);
+            runtime.setLastErrorMessage(errorMessage);
+        }
+
+        int expected = Math.max(safe(runtime.getExpectedPages()), completedPages);
+        boolean terminal = isTerminalStatus(runtime.getStatus());
+        runtime.setProgressPercent(expected <= 0 ? 0 : Math.min(100, Math.round(completedPages * 100f / expected)));
+        if (terminal) {
+            runtime.setStatus(resolveFinalStatus(runtime));
+            runtime.setProgressPercent(100);
+        } else if (completedPages > 0) {
+            runtime.setStatus("RUNNING");
+        }
+        runtime.setUpdatedAt(LocalDateTime.now());
+        taskRuntimeMapper.updateById(runtime);
+        syncTaskSnapshot(taskId, runtime);
+        taskRuntimeStreamService.publish(runtime);
+    }
+
+    public void recountFromPageResults(Long taskId) {
+        TaskRuntime runtime = ensureRuntime(taskId);
+        if (runtime == null) {
+            return;
+        }
+        syncWithPageResults(
+                taskId,
+                runtime.getAssignedNodeId(),
+                runtime.getExpectedPages(),
+                safe(runtime.getFailedPages()) == 0,
+                runtime.getLastErrorCode(),
+                runtime.getLastErrorMessage());
+    }
+
+    public void markFinished(Long taskId, String nodeId, boolean success, Integer totalPages, Integer successPages, Integer failedPages, String errorCode, String errorMessage) {
         TaskRuntime runtime = ensureRuntime(taskId);
         if (runtime == null) {
             return;
@@ -106,15 +195,26 @@ public class TaskRuntimeService {
         if (totalPages != null && totalPages > 0) {
             runtime.setExpectedPages(totalPages);
         }
-        runtime.setStatus(success ? (safe(runtime.getFailedPages()) > 0 ? "PARTIAL_FAILED" : "FINISHED") : "FAILED");
+        if (successPages != null) {
+            runtime.setSuccessPages(Math.max(safe(runtime.getSuccessPages()), successPages));
+        }
+        if (failedPages != null) {
+            runtime.setFailedPages(Math.max(safe(runtime.getFailedPages()), failedPages));
+        }
+        runtime.setCompletedPages(Math.max(safe(runtime.getCompletedPages()), safe(runtime.getSuccessPages()) + safe(runtime.getFailedPages())));
+        if (errorCode != null && !errorCode.isBlank()) {
+            runtime.setLastErrorCode(errorCode);
+        }
+        runtime.setStatus(resolveFinalStatus(runtime));
         runtime.setProgressPercent(100);
         runtime.setFinishedAt(LocalDateTime.now());
-        if (!success) {
+        if (safe(runtime.getFailedPages()) > 0 || !success) {
             runtime.setLastErrorMessage(errorMessage);
         }
         runtime.setUpdatedAt(LocalDateTime.now());
         taskRuntimeMapper.updateById(runtime);
         syncTaskSnapshot(taskId, runtime);
+        taskRuntimeStreamService.publish(runtime);
     }
 
     public void markPendingTimeout(LocalDateTime cutoff) {
@@ -129,6 +229,7 @@ public class TaskRuntimeService {
                     runtime.setUpdatedAt(LocalDateTime.now());
                     taskRuntimeMapper.updateById(runtime);
                     syncTaskSnapshot(runtime.getTaskId(), runtime);
+                    taskRuntimeStreamService.publish(runtime);
                 });
     }
 
@@ -183,5 +284,30 @@ public class TaskRuntimeService {
 
     private int safe(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    private boolean isTerminalStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+        return "FINISHED".equalsIgnoreCase(status)
+                || "FAILED".equalsIgnoreCase(status)
+                || "PARTIAL_FAILED".equalsIgnoreCase(status)
+                || "CANCELLED".equalsIgnoreCase(status);
+    }
+
+    private String resolveFinalStatus(TaskRuntime runtime) {
+        int successCount = safe(runtime.getSuccessPages());
+        int failedCount = safe(runtime.getFailedPages());
+        if (failedCount > 0 && successCount > 0) {
+            return "PARTIAL_FAILED";
+        }
+        if (successCount > 0) {
+            return "FINISHED";
+        }
+        if (failedCount > 0) {
+            return "FAILED";
+        }
+        return safe(runtime.getCompletedPages()) > 0 ? "FINISHED" : "PENDING";
     }
 }

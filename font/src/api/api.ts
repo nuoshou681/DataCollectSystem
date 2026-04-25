@@ -287,3 +287,11 @@ export function getPageResultStreamUrl() {
   }
   return `${API_BASE_URL}/task/page-results/stream?token=${encodeURIComponent(token)}`
 }
+
+export function getTaskRuntimeStreamUrl() {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    return `${API_BASE_URL}/task/runtime/stream`
+  }
+  return `${API_BASE_URL}/task/runtime/stream?token=${encodeURIComponent(token)}`
+}

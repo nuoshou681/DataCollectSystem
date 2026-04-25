@@ -60,14 +60,15 @@ public class CrawlerPageResultService {
             insert.setMhtmlCached(false);
             crawlerPageResultMapper.insert(insert);
             CrawlerPageResultRecord saved = crawlerPageResultMapper.selectById(insert.getPageResultId());
-            afterPersist(saved, message);
+            afterPersist(saved, null);
             return saved;
         }
 
+        Boolean previousSuccess = exists.getSuccess();
         CrawlerPageResultRecord update = mapMessageToRecord(message, exists);
         crawlerPageResultMapper.updateById(update);
         CrawlerPageResultRecord saved = crawlerPageResultMapper.selectById(update.getPageResultId());
-        afterPersist(saved, message);
+        afterPersist(saved, previousSuccess);
         return saved;
     }
 
@@ -211,8 +212,8 @@ public class CrawlerPageResultService {
         return canAccessTask(pageResult.getTaskId(), userId, isAdmin);
     }
 
-    private void afterPersist(CrawlerPageResultRecord record, CrawlerPageResult message) {
-        taskRuntimeService.markProgress(
+    private void afterPersist(CrawlerPageResultRecord record, Boolean previousSuccess) {
+        taskRuntimeService.syncWithPageResults(
                 record.getTaskId(),
                 record.getNodeId(),
                 record.getTotalPages(),
@@ -220,13 +221,15 @@ public class CrawlerPageResultService {
                 record.getErrorCode(),
                 record.getErrorMessage());
         taskFileService.upsertFromPageResult(record);
-        taskEventService.recordEvent(
-                record.getTaskId(),
-                record.getNodeId(),
-                Boolean.TRUE.equals(record.getSuccess()) ? "PAGE_CAPTURED" : "PAGE_CAPTURE_FAILED",
-                Boolean.TRUE.equals(record.getSuccess()) ? "INFO" : "ERROR",
-                Boolean.TRUE.equals(record.getSuccess()) ? "页面采集成功" : "页面采集失败",
-                "{\"pageIndex\":" + record.getPageIndex() + ",\"pageUrl\":\"" + escapeJson(record.getPageUrl()) + "\"}");
+        if (previousSuccess == null || previousSuccess.booleanValue() != Boolean.TRUE.equals(record.getSuccess())) {
+            taskEventService.recordEvent(
+                    record.getTaskId(),
+                    record.getNodeId(),
+                    Boolean.TRUE.equals(record.getSuccess()) ? "PAGE_CAPTURED" : "PAGE_CAPTURE_FAILED",
+                    Boolean.TRUE.equals(record.getSuccess()) ? "INFO" : "ERROR",
+                    Boolean.TRUE.equals(record.getSuccess()) ? "页面采集成功" : "页面采集失败",
+                    "{\"pageIndex\":" + record.getPageIndex() + ",\"pageUrl\":\"" + escapeJson(record.getPageUrl()) + "\"}");
+        }
     }
 
     private CrawlerPageResultRecord mapMessageToRecord(CrawlerPageResult message, CrawlerPageResultRecord record) {

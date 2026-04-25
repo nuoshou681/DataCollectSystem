@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { fetchCrawlerNodes, fetchTaskLogs, fetchTasks } from '@/api/api'
-import type { CrawlerNode, Task, TaskLog } from '@/types/entity'
+import { fetchCrawlerNodes, fetchTaskLogs, fetchTasks, getTaskRuntimeStreamUrl } from '@/api/api'
+import type { CrawlerNode, Task, TaskLog, TaskRuntime } from '@/types/entity'
 import { deriveNodeStatus } from '@/utils/task'
 
 const loading = ref(false)
 const nodes = ref<CrawlerNode[]>([])
 const tasks = ref<Task[]>([])
 const logs = ref<TaskLog[]>([])
+let runtimeStream: EventSource | null = null
 
 async function loadDashboard() {
   loading.value = true
@@ -22,6 +23,23 @@ async function loadDashboard() {
   } finally {
     loading.value = false
   }
+}
+
+function connectRuntimeStream() {
+  runtimeStream?.close()
+  runtimeStream = new EventSource(getTaskRuntimeStreamUrl())
+  runtimeStream.addEventListener('task-runtime', event => {
+    try {
+      const runtime = JSON.parse((event as MessageEvent).data) as TaskRuntime
+      const task = tasks.value.find(item => item.taskId === runtime.taskId)
+      if (task) {
+        task.runtime = { ...(task.runtime ?? {} as TaskRuntime), ...runtime }
+        task.taskStatus = runtime.status
+      }
+    } catch {
+      // ignore malformed events
+    }
+  })
 }
 
 const highlights = computed(() => {
@@ -48,6 +66,11 @@ const queueBands = computed(() => {
 
 onMounted(() => {
   void loadDashboard()
+  connectRuntimeStream()
+})
+
+onBeforeUnmount(() => {
+  runtimeStream?.close()
 })
 </script>
 

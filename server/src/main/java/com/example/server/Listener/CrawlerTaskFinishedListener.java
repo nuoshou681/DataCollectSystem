@@ -39,6 +39,9 @@ public class CrawlerTaskFinishedListener {
                 finished.getNodeId(),
                 finished.isSuccess(),
                 finished.getTotalPages(),
+                finished.getSuccessPages(),
+                finished.getFailedPages(),
+                finished.getErrorCode(),
                 finished.getMessage());
         taskEventService.recordEvent(
                 finished.getTaskId(),

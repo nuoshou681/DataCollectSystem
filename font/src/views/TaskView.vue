@@ -8,12 +8,14 @@ import {
   fetchTaskDetail,
   fetchTasks,
   getPageResultStreamUrl,
+  getTaskRuntimeStreamUrl,
 } from '@/api/api'
-import type { CrawlerPageResult, DispatchTaskPayload, Task, TaskDetail, TaskEvent } from '@/types/entity'
+import type { CrawlerPageResult, DispatchTaskPayload, Task, TaskDetail, TaskEvent, TaskRuntime } from '@/types/entity'
 import { getCurrentUserProfile } from '@/utils/auth'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
 
 type SiteKey = 'sohu' | 'bing' | 'baike'
+type StatusFilter = 'ALL' | 'PENDING' | 'RUNNING' | 'FINISHED' | 'PARTIAL_FAILED' | 'FAILED'
 
 interface SiteOption {
   key: SiteKey
@@ -32,14 +34,19 @@ const selectedSites = ref<SiteOption['key'][]>(['sohu'])
 const usePerSiteKeyword = ref(false)
 const commonKeyword = ref('')
 const siteKeywords = ref<Record<SiteOption['key'], string>>({ sohu: '', bing: '', baike: '' })
+const keywordFilter = ref('')
+const statusFilter = ref<StatusFilter>('ALL')
 const loading = ref(false)
 const submitting = ref(false)
 const tasks = ref<Task[]>([])
 const detailMap = ref<Record<number, TaskDetail | undefined>>({})
 const activeTaskId = ref<number | null>(null)
 const streamConnected = ref(false)
+const runtimeStreamConnected = ref(false)
 const streamStatusText = ref('正在连接实时结果流...')
+const runtimeStreamText = ref('正在连接运行态流...')
 let resultStream: EventSource | null = null
+let runtimeStream: EventSource | null = null
 
 const cacheLoadingMap = ref<Record<number, boolean>>({})
 const downloadLoadingMap = ref<Record<number, boolean>>({})
@@ -57,6 +64,13 @@ async function loadTaskData(taskIdToOpen?: number) {
         .filter((entry): entry is readonly [number, TaskDetail] => Boolean(entry[1]))
         .map(([taskId, detail]) => [taskId, detail]),
     )
+
+    for (const task of tasks.value) {
+      const detail = detailMap.value[task.taskId]
+      if (detail?.runtime) {
+        task.runtime = detail.runtime
+      }
+    }
 
     if (taskIdToOpen) {
       activeTaskId.value = taskIdToOpen
@@ -122,10 +136,16 @@ async function submitTask() {
 function parsePageResultEvent(raw: string) {
   try {
     const parsed = JSON.parse(raw) as CrawlerPageResult
-    if (!parsed || parsed.taskId === undefined) {
-      return null
-    }
-    return parsed
+    return parsed && parsed.taskId !== undefined ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function parseRuntimeEvent(raw: string) {
+  try {
+    const parsed = JSON.parse(raw) as TaskRuntime
+    return parsed && parsed.taskId !== undefined ? parsed : null
   } catch {
     return null
   }
@@ -150,12 +170,41 @@ function upsertPageResult(incoming: CrawlerPageResult) {
   }
 }
 
+function upsertRuntime(incoming: TaskRuntime) {
+  const task = tasks.value.find(item => item.taskId === incoming.taskId)
+  if (task) {
+    task.runtime = { ...(task.runtime ?? {} as TaskRuntime), ...incoming }
+    task.taskStatus = incoming.status
+    task.taskProgress = incoming.progressPercent
+    task.totalPages = incoming.expectedPages ?? task.totalPages
+  }
+
+  const detail = detailMap.value[incoming.taskId]
+  if (detail) {
+    detail.runtime = { ...(detail.runtime ?? {} as TaskRuntime), ...incoming }
+    detail.task.runtime = detail.runtime
+    detail.task.taskStatus = incoming.status
+    detail.task.taskProgress = incoming.progressPercent
+    detail.task.totalPages = incoming.expectedPages ?? detail.task.totalPages
+    const alreadyFinished = detail.events.some(event => event.eventType === 'TASK_FINISHED')
+    if (incoming.finishedAt && !alreadyFinished) {
+      detail.events.push({
+        eventId: Date.now(),
+        taskId: incoming.taskId,
+        eventType: 'TASK_RUNTIME_FINISHED',
+        eventLevel: incoming.status === 'FAILED' || incoming.status === 'PARTIAL_FAILED' ? 'ERROR' : 'INFO',
+        eventMessage: `任务运行态已更新为 ${incoming.status}`,
+        createdAt: incoming.finishedAt,
+        nodeId: incoming.assignedNodeId ?? null,
+      })
+    }
+  }
+}
+
 function connectPageResultStream() {
   if (resultStream) {
     resultStream.close()
-    resultStream = null
   }
-
   resultStream = new EventSource(getPageResultStreamUrl())
   resultStream.onopen = () => {
     streamConnected.value = true
@@ -170,6 +219,27 @@ function connectPageResultStream() {
   resultStream.onerror = () => {
     streamConnected.value = false
     streamStatusText.value = '实时结果流重连中...'
+  }
+}
+
+function connectRuntimeStream() {
+  if (runtimeStream) {
+    runtimeStream.close()
+  }
+  runtimeStream = new EventSource(getTaskRuntimeStreamUrl())
+  runtimeStream.onopen = () => {
+    runtimeStreamConnected.value = true
+    runtimeStreamText.value = '运行态流已连接'
+  }
+  runtimeStream.addEventListener('task-runtime', event => {
+    const payload = parseRuntimeEvent((event as MessageEvent).data)
+    if (payload) {
+      upsertRuntime(payload)
+    }
+  })
+  runtimeStream.onerror = () => {
+    runtimeStreamConnected.value = false
+    runtimeStreamText.value = '运行态流重连中...'
   }
 }
 
@@ -213,17 +283,31 @@ async function downloadMhtml(pageResultId?: number) {
   }
 }
 
+const filteredTasks = computed(() => {
+  const keyword = keywordFilter.value.trim().toLowerCase()
+  return tasks.value.filter(task => {
+    const status = task.runtime?.status ?? task.taskStatus
+    const matchesStatus = statusFilter.value === 'ALL' || status === statusFilter.value
+    const matchesKeyword = !keyword
+      || String(task.taskId).includes(keyword)
+      || task.keyword.toLowerCase().includes(keyword)
+      || task.url.toLowerCase().includes(keyword)
+    return matchesStatus && matchesKeyword
+  })
+})
+
 const taskStats = computed(() => {
   const total = tasks.value.length
-  const pending = tasks.value.filter(task => task.runtime?.status === 'PENDING' || task.taskStatus === 'PENDING').length
+  const pending = tasks.value.filter(task => (task.runtime?.status ?? task.taskStatus) === 'PENDING').length
   const running = tasks.value.filter(task => (task.runtime?.status ?? task.taskStatus) === 'RUNNING').length
   const finished = tasks.value.filter(task => (task.runtime?.status ?? task.taskStatus) === 'FINISHED').length
-  const failed = tasks.value.filter(task => ['FAILED', 'PARTIAL_FAILED'].includes(task.runtime?.status ?? task.taskStatus)).length
-  return { total, pending, running, finished, failed }
+  const partialFailed = tasks.value.filter(task => (task.runtime?.status ?? task.taskStatus) === 'PARTIAL_FAILED').length
+  const failed = tasks.value.filter(task => (task.runtime?.status ?? task.taskStatus) === 'FAILED').length
+  return { total, pending, running, finished, partialFailed, failed }
 })
 
 const taskRows = computed(() => {
-  return tasks.value.map(task => {
+  return filteredTasks.value.map(task => {
     const detail = detailMap.value[task.taskId]
     const runtime = detail?.runtime ?? task.runtime
     return {
@@ -244,22 +328,23 @@ const activeTaskDetail = computed(() => {
 onMounted(() => {
   void loadTaskData()
   connectPageResultStream()
+  connectRuntimeStream()
 })
 
 onBeforeUnmount(() => {
-  if (resultStream) {
-    resultStream.close()
-  }
+  resultStream?.close()
+  runtimeStream?.close()
 })
 </script>
 
 <template>
   <div class="p-6 space-y-6">
-    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
       <el-card><div class="text-sm text-gray-500">任务总数</div><div class="text-2xl font-semibold mt-2">{{ taskStats.total }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">待开始</div><div class="text-2xl font-semibold mt-2 text-slate-600">{{ taskStats.pending }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">执行中</div><div class="text-2xl font-semibold mt-2 text-blue-600">{{ taskStats.running }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">完成/异常</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ taskStats.finished }}</div><div class="text-xs text-red-500 mt-1">异常 {{ taskStats.failed }}</div></el-card>
+      <el-card><div class="text-sm text-gray-500">已完成</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ taskStats.finished }}</div></el-card>
+      <el-card><div class="text-sm text-gray-500">部分失败/失败</div><div class="text-2xl font-semibold mt-2 text-rose-600">{{ taskStats.partialFailed + taskStats.failed }}</div></el-card>
     </section>
 
     <el-card>
@@ -268,6 +353,7 @@ onBeforeUnmount(() => {
           <span class="font-semibold">创建采集任务</span>
           <div class="flex items-center gap-3">
             <el-tag :type="streamConnected ? 'success' : 'warning'" size="small">{{ streamStatusText }}</el-tag>
+            <el-tag :type="runtimeStreamConnected ? 'success' : 'warning'" size="small">{{ runtimeStreamText }}</el-tag>
             <el-button type="primary" :loading="submitting" @click="submitTask">提交任务</el-button>
           </div>
         </div>
@@ -295,7 +381,18 @@ onBeforeUnmount(() => {
         <template #header>
           <div class="flex items-center justify-between">
             <span class="font-semibold">任务概览</span>
-            <el-button text type="primary" :loading="loading" @click="loadTaskData(activeTaskId ?? undefined)">刷新</el-button>
+            <div class="flex items-center gap-3">
+              <el-input v-model="keywordFilter" size="small" placeholder="搜索任务/关键词/URL" style="width: 220px" />
+              <el-select v-model="statusFilter" size="small" style="width: 160px">
+                <el-option label="全部状态" value="ALL" />
+                <el-option label="排队中" value="PENDING" />
+                <el-option label="执行中" value="RUNNING" />
+                <el-option label="已完成" value="FINISHED" />
+                <el-option label="部分失败" value="PARTIAL_FAILED" />
+                <el-option label="失败" value="FAILED" />
+              </el-select>
+              <el-button text type="primary" :loading="loading" @click="loadTaskData(activeTaskId ?? undefined)">刷新</el-button>
+            </div>
           </div>
         </template>
         <el-table :data="taskRows" border stripe highlight-current-row @current-change="(row: { taskId?: number } | undefined) => activeTaskId = row?.taskId ?? null">
@@ -305,7 +402,7 @@ onBeforeUnmount(() => {
           <el-table-column label="状态" width="120">
             <template #default="scope"><el-tag :type="statusTagType(scope.row.runtime?.status ?? scope.row.taskStatus)">{{ statusText(scope.row.runtime?.status ?? scope.row.taskStatus) }}</el-tag></template>
           </el-table-column>
-          <el-table-column label="进度" min-width="220">
+          <el-table-column label="进度" min-width="230">
             <template #default="scope">
               <el-progress :percentage="scope.row.runtime?.progressPercent ?? scope.row.taskProgress" :stroke-width="10" />
               <div class="text-xs text-gray-500 mt-1">
@@ -331,7 +428,8 @@ onBeforeUnmount(() => {
             <div><span class="text-gray-500">创建时间:</span> {{ activeTaskDetail.task.createdAt || '-' }}</div>
             <div><span class="text-gray-500">开始时间:</span> {{ activeTaskDetail.runtime?.startedAt || '-' }}</div>
             <div><span class="text-gray-500">结束时间:</span> {{ activeTaskDetail.runtime?.finishedAt || '-' }}</div>
-            <div><span class="text-gray-500">最后错误:</span> {{ activeTaskDetail.runtime?.lastErrorMessage || activeTaskDetail.task.lastErrorMessage || '-' }}</div>
+            <div><span class="text-gray-500">文件数:</span> {{ activeTaskDetail.files.length }}</div>
+            <div class="col-span-2"><span class="text-gray-500">最后错误:</span> {{ activeTaskDetail.runtime?.lastErrorMessage || activeTaskDetail.task.lastErrorMessage || '-' }}</div>
           </div>
 
           <el-divider>页面结果</el-divider>
