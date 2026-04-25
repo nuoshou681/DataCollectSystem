@@ -2,6 +2,7 @@
 import {
   HomeIcon,
   RectangleStackIcon,
+  ArchiveBoxIcon,
   MagnifyingGlassIcon,
   BellIcon,
   RocketLaunchIcon,
@@ -21,6 +22,7 @@ const router = useRouter()
 const navItems = [
   { path: '/', label: '工作台概览', icon: HomeIcon },
   { path: '/tasks', label: '我的任务', icon: RectangleStackIcon },
+  { path: '/results', label: '结果中心', icon: ArchiveBoxIcon },
 ]
 
 function isPathActive(path: string) {

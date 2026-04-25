@@ -10,6 +10,8 @@ import type {
   TaskEvent,
   TaskLog,
   TaskRuntime,
+  TaskBatch,
+  TaskBatchDetail,
   UserInfo,
 } from '@/types/entity'
 import type { ApiResponse } from '@/types/apiResponse'
@@ -20,12 +22,17 @@ type RawCrawlerPageResult = Partial<CrawlerPageResult> & { node_id?: string }
 type RawCrawlerNode = Partial<CrawlerNode>
 type RawTaskLog = Partial<TaskLog> & { node_key?: string }
 type RawTaskEvent = Partial<TaskEvent> & { node_id?: string; event_type?: string; event_level?: string; event_message?: string; payload_json?: string }
+type RawTaskBatch = Partial<TaskBatch> & { batch_id?: string; batch_name?: string; created_by?: number; task_count?: number }
 type RawTaskDetail = {
   task?: RawTask
   runtime?: RawTaskRuntime | null
   events?: RawTaskEvent[]
   files?: TaskDetail['files']
   pageResults?: RawCrawlerPageResult[]
+}
+type RawTaskBatchDetail = {
+  batch?: RawTaskBatch
+  tasks?: RawTask[]
 }
 
 function unwrapResponse<T>(res: unknown): T | null {
@@ -202,6 +209,19 @@ function mapTaskEvent(raw: RawTaskEvent): TaskEvent {
   }
 }
 
+function mapTaskBatch(raw: RawTaskBatch): TaskBatch {
+  return {
+    batchId: String(raw.batchId ?? raw.batch_id ?? ''),
+    batchName: raw.batchName ?? raw.batch_name ?? null,
+    createdBy: raw.createdBy ?? raw.created_by ?? null,
+    taskCount: Number(raw.taskCount ?? raw.task_count ?? 0),
+    status: String(raw.status ?? 'PENDING'),
+    notes: raw.notes ?? null,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  }
+}
+
 export async function login(email: string, password: string) {
   const res = await request.post<ApiResponse<AuthResponse>>('/login', { email, password })
   return unwrapResponse<AuthResponse>(res)
@@ -214,6 +234,10 @@ export async function register(username: string, email: string, password: string
 
 export async function dispatchTask(payload: DispatchTaskPayload) {
   return request.post<ApiResponse<Task[]>>('/task/dispatch', payload)
+}
+
+export async function dispatchBatchTask(payload: DispatchTaskPayload & { keywordsText: string; batchName?: string; batchNotes?: string }) {
+  return request.post<ApiResponse<Task[]>>('/task/dispatch-batch', payload)
 }
 
 export async function fetchTasks() {
@@ -251,6 +275,21 @@ export async function fetchPageResults(taskId?: number) {
   return (unwrapResponse<RawCrawlerPageResult[]>(res) ?? []).map(mapPageResult)
 }
 
+export async function exportPageResults(taskId?: number) {
+  const response = await request.get('/task/page-results/export', {
+    params: taskId ? { taskId } : {},
+    responseType: 'blob',
+  })
+  const blobResponse = response as AxiosResponse<Blob>
+  const fileName = parseDownloadFileName(
+    blobResponse.headers?.['content-disposition'] as string | undefined,
+  )
+  return {
+    blob: blobResponse.data,
+    fileName: fileName || 'page-results.csv',
+  }
+}
+
 export async function cachePageResultMhtml(pageResultId: number) {
   const res = await request.post<ApiResponse<CrawlerPageResult>>('/task/cache-mhtml', null, {
     params: { pageResultId },
@@ -278,6 +317,47 @@ export async function fetchCrawlerNodes() {
 export async function fetchTaskLogs() {
   const res = await request.get<ApiResponse<TaskLog[]>>('/log')
   return (unwrapResponse<RawTaskLog[]>(res) ?? []).map(mapTaskLog)
+}
+
+export async function fetchTaskBatches() {
+  const res = await request.get<ApiResponse<TaskBatch[]>>('/task/batches')
+  return (unwrapResponse<RawTaskBatch[]>(res) ?? []).map(mapTaskBatch)
+}
+
+export async function fetchTaskBatchDetail(batchId: string) {
+  const res = await request.get<ApiResponse<TaskBatchDetail>>(`/task/batches/${batchId}`)
+  const raw = unwrapResponse<RawTaskBatchDetail>(res)
+  if (!raw?.batch) {
+    return null
+  }
+  return {
+    batch: mapTaskBatch(raw.batch),
+    tasks: (raw.tasks ?? []).map(task => mapTask(task)),
+  } as TaskBatchDetail
+}
+
+export async function fetchBookmarks() {
+  const res = await request.get<ApiResponse<CrawlerPageResult[]>>('/task/bookmarks')
+  return (unwrapResponse<RawCrawlerPageResult[]>(res) ?? []).map(mapPageResult)
+}
+
+export async function fetchBookmarkIds() {
+  const res = await request.get<ApiResponse<number[]>>('/task/bookmarks/ids')
+  return new Set(unwrapResponse<number[]>(res) ?? [])
+}
+
+export async function addBookmark(pageResultId: number) {
+  const res = await request.post<ApiResponse<boolean>>('/task/bookmarks', null, {
+    params: { pageResultId },
+  })
+  return unwrapResponse<boolean>(res)
+}
+
+export async function removeBookmark(pageResultId: number) {
+  const res = await request.delete<ApiResponse<boolean>>('/task/bookmarks', {
+    params: { pageResultId },
+  })
+  return unwrapResponse<boolean>(res)
 }
 
 export function getPageResultStreamUrl() {

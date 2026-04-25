@@ -136,6 +136,23 @@ CREATE TABLE `task` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
+-- Table structure for task_batch
+-- ----------------------------
+DROP TABLE IF EXISTS `task_batch`;
+CREATE TABLE `task_batch` (
+  `batch_id` varchar(64) NOT NULL,
+  `batch_name` varchar(255) DEFAULT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `task_count` int NOT NULL DEFAULT '0',
+  `status` varchar(32) NOT NULL DEFAULT 'PENDING',
+  `notes` text,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`batch_id`),
+  KEY `idx_task_batch_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
 -- Records of task
 -- ----------------------------
 BEGIN;

@@ -11,10 +11,13 @@ public class DispatchTaskRequest {
     private Long userId;
     private String keyword;
     private String url;
+    private String keywordsText;
     private Integer maxLinksPerLevel;
     private String siteType;
     private Integer priority;
     private String source;
     private String batchId;
+    private String batchName;
+    private String batchNotes;
     private String idempotencyKey;
 }

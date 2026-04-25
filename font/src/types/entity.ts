@@ -147,3 +147,19 @@ export interface TaskLog {
   createdAt?: string
   updatedAt?: string
 }
+
+export interface TaskBatch {
+  batchId: string
+  batchName?: string | null
+  createdBy?: number | null
+  taskCount: number
+  status: string
+  notes?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface TaskBatchDetail {
+  batch: TaskBatch
+  tasks: Task[]
+}

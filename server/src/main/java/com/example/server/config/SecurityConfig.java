@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .csrf(crsf -> crsf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register").permitAll()
-                        .requestMatchers("/client", "/log").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/client", "/log", "/task/maintenance/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/task/**").authenticated()
                         .anyRequest().authenticated() // 其他接口需要认证
                 )

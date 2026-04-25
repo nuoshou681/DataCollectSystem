@@ -11,6 +11,7 @@ import com.example.server.entity.TaskFile;
 import com.example.server.entity.TaskRuntime;
 import com.example.server.entity.Message.CrawlerTaskMessage;
 import com.example.server.mapper.CrawlerPageResultMapper;
+import com.example.server.service.TaskBatchService;
 import com.example.server.mapper.TaskMapper;
 import com.example.server.service.TaskEventService;
 import com.example.server.service.TaskFileService;
@@ -31,6 +32,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskEventService taskEventService;
     private final TaskFileService taskFileService;
     private final CrawlerPageResultMapper crawlerPageResultMapper;
+    private final TaskBatchService taskBatchService;
 
     public TaskServiceImpl(
             TaskMapper taskMapper,
@@ -38,18 +40,21 @@ public class TaskServiceImpl implements TaskService {
             TaskRuntimeService taskRuntimeService,
             TaskEventService taskEventService,
             TaskFileService taskFileService,
-            CrawlerPageResultMapper crawlerPageResultMapper) {
+            CrawlerPageResultMapper crawlerPageResultMapper,
+            TaskBatchService taskBatchService) {
         this.taskMapper = taskMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.taskRuntimeService = taskRuntimeService;
         this.taskEventService = taskEventService;
         this.taskFileService = taskFileService;
         this.crawlerPageResultMapper = crawlerPageResultMapper;
+        this.taskBatchService = taskBatchService;
     }
 
     @Override
     public List<Task> dispatchTasks(DispatchTaskRequest request) {
         List<Task> tasks = buildTasks(request);
+        taskBatchService.createBatchIfAbsent(resolveBatchId(request), request.getBatchName(), request.getUserId(), tasks.size(), request.getBatchNotes());
         for (Task task : tasks) {
             taskMapper.insert(task);
             taskRuntimeService.createQueuedRuntime(task);
@@ -59,6 +64,23 @@ public class TaskServiceImpl implements TaskService {
                     RabbitMQConfig.ROUTING_TASK,
                     toCrawlerTaskMessage(task));
             taskEventService.recordEvent(task.getTaskId(), task.getNodeId(), "TASK_DISPATCHED", "INFO", "任务已派发到消息队列", null);
+        }
+        return tasks;
+    }
+
+    @Override
+    public List<Task> dispatchBatchTasks(DispatchTaskRequest request) {
+        List<Task> tasks = buildTasksForKeywords(request);
+        taskBatchService.createBatchIfAbsent(resolveBatchId(request), request.getBatchName(), request.getUserId(), tasks.size(), request.getBatchNotes());
+        for (Task task : tasks) {
+            taskMapper.insert(task);
+            taskRuntimeService.createQueuedRuntime(task);
+            taskEventService.recordEvent(task.getTaskId(), task.getNodeId(), "TASK_CREATED", "INFO", "批量任务已创建", null);
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.CRAWLER_EXCHANGE,
+                    RabbitMQConfig.ROUTING_TASK,
+                    toCrawlerTaskMessage(task));
+            taskEventService.recordEvent(task.getTaskId(), task.getNodeId(), "TASK_DISPATCHED", "INFO", "批量任务已派发到消息队列", null);
         }
         return tasks;
     }
@@ -105,10 +127,7 @@ public class TaskServiceImpl implements TaskService {
 
         String[] urls = request.getUrl().split("[,;\\n\\r]+");
         List<Task> tasks = new ArrayList<>();
-        String batchId = blankToNull(request.getBatchId());
-        if (batchId == null) {
-            batchId = UUID.randomUUID().toString().replace("-", "");
-        }
+        String batchId = resolveBatchId(request);
 
         for (String rawUrl : urls) {
             String url = rawUrl.trim();
@@ -137,6 +156,53 @@ public class TaskServiceImpl implements TaskService {
             tasks.add(task);
         }
         return tasks;
+    }
+
+    private List<Task> buildTasksForKeywords(DispatchTaskRequest request) {
+        if (request == null || request.getUrl() == null || request.getUrl().isBlank()) {
+            throw new IllegalArgumentException("批量任务种子链接不能为空");
+        }
+        if (request.getKeywordsText() == null || request.getKeywordsText().isBlank()) {
+            throw new IllegalArgumentException("批量关键词不能为空");
+        }
+
+        String[] keywords = request.getKeywordsText().split("[,;\\n\\r]+");
+        List<Task> tasks = new ArrayList<>();
+        String batchId = resolveBatchId(request);
+        for (String rawKeyword : keywords) {
+            String keyword = rawKeyword.trim();
+            if (keyword.isEmpty()) {
+                continue;
+            }
+            Task task = new Task();
+            LocalDateTime now = LocalDateTime.now();
+            task.setUserId(request.getUserId());
+            task.setUrl(request.getUrl().trim());
+            task.setKeyword(keyword);
+            task.setSiteType(blankToNull(request.getSiteType()));
+            task.setTaskStatus("PENDING");
+            task.setTaskProgress(0);
+            task.setTotalPages(0);
+            task.setMaxLinksPerLevel(request.getMaxLinksPerLevel() == null ? 10 : request.getMaxLinksPerLevel());
+            task.setPriority(request.getPriority() == null ? 0 : request.getPriority());
+            task.setSource(blankToNull(request.getSource()) == null ? "manual" : request.getSource());
+            task.setBatchId(batchId);
+            task.setIdempotencyKey(UUID.randomUUID().toString());
+            task.setRetryCount(0);
+            task.setCancelRequested(false);
+            task.setCreatedAt(now);
+            task.setUpdatedAt(now);
+            tasks.add(task);
+        }
+        return tasks;
+    }
+
+    private String resolveBatchId(DispatchTaskRequest request) {
+        String batchId = blankToNull(request.getBatchId());
+        if (batchId == null) {
+            batchId = UUID.randomUUID().toString().replace("-", "");
+        }
+        return batchId;
     }
 
     private CrawlerTaskMessage toCrawlerTaskMessage(Task task) {

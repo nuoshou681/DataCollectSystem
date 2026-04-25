@@ -5,9 +5,11 @@ import TaskView from '@/views/TaskView.vue'
 import LogView from '@/views/LogView.vue'
 import AdminNodeView from '@/views/AdminNodeView.vue'
 import AdminDashboardView from '@/views/AdminDashboardView.vue'
+import AdminBatchView from '@/views/AdminBatchView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import ResultCenterView from '@/views/ResultCenterView.vue'
 import UserLayout from '@/views/layouts/UserLayout.vue'
 import AdminLayout from '@/views/layouts/AdminLayout.vue'
 const routes = [
@@ -18,6 +20,7 @@ const routes = [
     children: [
       { path: '', component: HomeView },
       { path: 'tasks', component: TaskView },
+      { path: 'results', component: ResultCenterView },
       { path: 'profile', component: ProfileView },
     ]
   },
@@ -28,6 +31,7 @@ const routes = [
     children: [
       { path: '', component: AdminDashboardView },
       { path: 'nodes', component: AdminNodeView },
+      { path: 'batches', component: AdminBatchView },
       { path: 'logs', component: LogView },
       { path: 'profile', component: ProfileView },
     ]

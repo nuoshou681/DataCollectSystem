@@ -10,6 +10,7 @@ import com.example.server.service.CrawlerPageResultService;
 import com.example.server.service.CrawlerPageResultStreamService;
 
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,46 @@ public class TaskResultController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @GetMapping(value = "/task/page-results/export", produces = "text/csv;charset=UTF-8")
+    public ResponseEntity<?> exportPageResults(@RequestParam(required = false) Long taskId) {
+        List<CrawlerPageResultRecord> records = crawlerPageResultService.queryResults(
+                taskId,
+                SecurityUtils.getCurrentUserId(),
+                SecurityUtils.isAdmin());
+
+        String csv = buildCsv(records);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
+        headers.setContentDisposition(
+                ContentDisposition.attachment().filename("page-results.csv", StandardCharsets.UTF_8).build());
+        return new ResponseEntity<>(csv.getBytes(StandardCharsets.UTF_8), headers, HttpStatus.OK);
+    }
+
+    private String buildCsv(List<CrawlerPageResultRecord> records) {
+        String header = "pageResultId,taskId,pageIndex,success,siteType,pageTitle,pageUrl,errorCode,errorMessage";
+        String body = records.stream()
+                .map(record -> String.join(",",
+                        csv(record.getPageResultId()),
+                        csv(record.getTaskId()),
+                        csv(record.getPageIndex()),
+                        csv(record.getSuccess()),
+                        csv(record.getSiteType()),
+                        csv(record.getPageTitle()),
+                        csv(record.getPageUrl()),
+                        csv(record.getErrorCode()),
+                        csv(record.getErrorMessage())))
+                .collect(Collectors.joining("\n"));
+        return body.isBlank() ? header + "\n" : header + "\n" + body + "\n";
+    }
+
+    private String csv(Object value) {
+        if (value == null) {
+            return "\"\"";
+        }
+        String text = String.valueOf(value).replace("\"", "\"\"");
+        return "\"" + text + "\"";
     }
 
 }

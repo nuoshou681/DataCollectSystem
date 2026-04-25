@@ -58,4 +58,21 @@ public class TaskController {
             return ApiResponse.error(ErrorCode.SERVER_ERROR, "任务分发失败: " + e.getMessage());
         }
     }
+
+    @PostMapping("/dispatch-batch")
+    public ApiResponse<?> dispatchBatchTask(@RequestBody DispatchTaskRequest request) {
+        if (request == null || request.getUrl() == null || request.getUrl().isBlank()
+                || request.getKeywordsText() == null || request.getKeywordsText().isBlank()) {
+            return ApiResponse.error(ErrorCode.PARAM_ERROR, "种子链接和批量关键词不能为空");
+        }
+
+        try {
+            request.setUserId(SecurityUtils.getCurrentUserId());
+            List<Task> tasks = taskService.dispatchBatchTasks(request);
+            return ApiResponse.success(tasks);
+        } catch (Exception e) {
+            log.error("批量任务分发失败, url={}", request.getUrl(), e);
+            return ApiResponse.error(ErrorCode.SERVER_ERROR, "批量任务分发失败: " + e.getMessage());
+        }
+    }
 }

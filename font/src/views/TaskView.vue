@@ -2,13 +2,18 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
+  addBookmark,
   cachePageResultMhtml,
+  dispatchBatchTask,
   dispatchTask,
   downloadPageResultMhtml,
+  exportPageResults,
+  fetchBookmarkIds,
   fetchTaskDetail,
   fetchTasks,
   getPageResultStreamUrl,
   getTaskRuntimeStreamUrl,
+  removeBookmark,
 } from '@/api/api'
 import type { CrawlerPageResult, DispatchTaskPayload, Task, TaskDetail, TaskEvent, TaskRuntime } from '@/types/entity'
 import { getCurrentUserProfile } from '@/utils/auth'
@@ -31,15 +36,19 @@ const siteOptions: SiteOption[] = [
 ]
 
 const selectedSites = ref<SiteOption['key'][]>(['sohu'])
-const usePerSiteKeyword = ref(false)
 const commonKeyword = ref('')
-const siteKeywords = ref<Record<SiteOption['key'], string>>({ sohu: '', bing: '', baike: '' })
+const batchKeywordsText = ref('')
+const batchName = ref('')
+const batchNotes = ref('')
+const batchMode = ref(false)
 const keywordFilter = ref('')
 const statusFilter = ref<StatusFilter>('ALL')
 const loading = ref(false)
 const submitting = ref(false)
+const exporting = ref(false)
 const tasks = ref<Task[]>([])
 const detailMap = ref<Record<number, TaskDetail | undefined>>({})
+const bookmarkIds = ref<Set<number>>(new Set())
 const activeTaskId = ref<number | null>(null)
 const streamConnected = ref(false)
 const runtimeStreamConnected = ref(false)
@@ -55,8 +64,9 @@ const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
 async function loadTaskData(taskIdToOpen?: number) {
   loading.value = true
   try {
-    const taskData = await fetchTasks()
+    const [taskData, bookmarkedIds] = await Promise.all([fetchTasks(), fetchBookmarkIds()])
     tasks.value = taskData
+    bookmarkIds.value = bookmarkedIds
 
     const detailEntries = await Promise.all(taskData.map(async task => [task.taskId, await fetchTaskDetail(task.taskId)] as const))
     detailMap.value = Object.fromEntries(
@@ -105,8 +115,49 @@ async function submitTask() {
     return
   }
 
-  if (!usePerSiteKeyword.value && !commonKeyword.value.trim()) {
+  if (batchMode.value) {
+    if (selectedSites.value.length !== 1) {
+      ElMessage.error('批量创建任务时请只选择一个站点')
+      return
+    }
+    if (!batchKeywordsText.value.trim()) {
+      ElMessage.error('请填写批量关键词')
+      return
+    }
+  } else if (!commonKeyword.value.trim()) {
     ElMessage.error('请填写关键词')
+    return
+  }
+
+  if (batchMode.value) {
+    submitting.value = true
+    try {
+      const firstSelectedSite = selectedSites.value[0]
+      if (!firstSelectedSite) {
+        throw new Error('请选择站点')
+      }
+      const selectedSite = siteOptionMap.get(firstSelectedSite)
+      if (!selectedSite) {
+        throw new Error('站点配置不存在')
+      }
+      await dispatchBatchTask({
+        userId: getCurrentUserProfile().userId ?? null,
+        url: selectedSite.seedUrl,
+        siteType: selectedSite.siteType,
+        source: 'manual',
+        maxLinksPerLevel: 10,
+        keywordsText: batchKeywordsText.value,
+        batchName: batchName.value.trim(),
+        batchNotes: batchNotes.value.trim(),
+        keyword: '',
+      })
+      ElMessage.success('批量任务创建成功')
+      await loadTaskData()
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : '批量任务创建失败')
+    } finally {
+      submitting.value = false
+    }
     return
   }
 
@@ -117,11 +168,7 @@ async function submitTask() {
       if (!option) {
         return Promise.resolve(null)
       }
-      const keyword = usePerSiteKeyword.value ? siteKeywords.value[site].trim() : commonKeyword.value.trim()
-      if (!keyword) {
-        throw new Error(`${option.label} 的关键词不能为空`)
-      }
-      return dispatchTask(createPayload(option, keyword))
+      return dispatchTask(createPayload(option, commonKeyword.value.trim()))
     })
     await Promise.all(requests)
     ElMessage.success('任务创建成功')
@@ -202,9 +249,7 @@ function upsertRuntime(incoming: TaskRuntime) {
 }
 
 function connectPageResultStream() {
-  if (resultStream) {
-    resultStream.close()
-  }
+  resultStream?.close()
   resultStream = new EventSource(getPageResultStreamUrl())
   resultStream.onopen = () => {
     streamConnected.value = true
@@ -223,9 +268,7 @@ function connectPageResultStream() {
 }
 
 function connectRuntimeStream() {
-  if (runtimeStream) {
-    runtimeStream.close()
-  }
+  runtimeStream?.close()
   runtimeStream = new EventSource(getTaskRuntimeStreamUrl())
   runtimeStream.onopen = () => {
     runtimeStreamConnected.value = true
@@ -280,6 +323,36 @@ async function downloadMhtml(pageResultId?: number) {
     triggerBrowserDownload(result.blob, result.fileName)
   } finally {
     delete downloadLoadingMap.value[pageResultId]
+  }
+}
+
+async function toggleBookmark(pageResultId?: number) {
+  if (!pageResultId) {
+    return
+  }
+  try {
+    if (bookmarkIds.value.has(pageResultId)) {
+      await removeBookmark(pageResultId)
+      bookmarkIds.value.delete(pageResultId)
+      ElMessage.success('已取消收藏')
+    } else {
+      await addBookmark(pageResultId)
+      bookmarkIds.value.add(pageResultId)
+      ElMessage.success('已加入收藏')
+    }
+  } catch {
+    ElMessage.error('收藏操作失败')
+  }
+}
+
+async function exportCurrentResults() {
+  exporting.value = true
+  try {
+    const result = await exportPageResults(activeTaskId.value ?? undefined)
+    triggerBrowserDownload(result.blob, result.fileName)
+    ElMessage.success('导出成功')
+  } finally {
+    exporting.value = false
   }
 }
 
@@ -359,20 +432,22 @@ onBeforeUnmount(() => {
         </div>
       </template>
       <el-form label-width="130px" class="max-w-4xl">
+        <el-form-item label="批量创建模式"><el-switch v-model="batchMode" /></el-form-item>
         <el-form-item label="选择站点">
           <el-checkbox-group v-model="selectedSites">
             <el-checkbox v-for="site in siteOptions" :key="site.key" :label="site.key">{{ site.label }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="分别指定关键词"><el-switch v-model="usePerSiteKeyword" /></el-form-item>
-        <el-form-item v-if="!usePerSiteKeyword" label="关键词">
-          <el-input v-model="commonKeyword" maxlength="80" show-word-limit placeholder="输入统一关键词" />
-        </el-form-item>
-        <template v-else>
-          <el-form-item v-for="site in siteOptions" :key="site.key" :label="`${site.label}关键词`">
-            <el-input v-model="siteKeywords[site.key]" :disabled="!selectedSites.includes(site.key)" maxlength="80" show-word-limit />
+        <template v-if="batchMode">
+          <el-form-item label="批次名称"><el-input v-model="batchName" placeholder="例如：4月热点人物批次" /></el-form-item>
+          <el-form-item label="批次备注"><el-input v-model="batchNotes" placeholder="可选" /></el-form-item>
+          <el-form-item label="批量关键词">
+            <el-input v-model="batchKeywordsText" type="textarea" :rows="6" placeholder="每行一个关键词，或用逗号分隔" />
           </el-form-item>
         </template>
+        <el-form-item v-else label="关键词">
+          <el-input v-model="commonKeyword" maxlength="80" show-word-limit placeholder="输入统一关键词" />
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -391,6 +466,7 @@ onBeforeUnmount(() => {
                 <el-option label="部分失败" value="PARTIAL_FAILED" />
                 <el-option label="失败" value="FAILED" />
               </el-select>
+              <el-button size="small" type="success" :loading="exporting" @click="exportCurrentResults">导出结果</el-button>
               <el-button text type="primary" :loading="loading" @click="loadTaskData(activeTaskId ?? undefined)">刷新</el-button>
             </div>
           </div>
@@ -445,6 +521,9 @@ onBeforeUnmount(() => {
               </div>
               <div class="text-xs text-red-500 mt-1" v-if="page.errorCode || page.errorMessage">{{ page.errorCode || '-' }} {{ page.errorMessage || '' }}</div>
               <div class="flex items-center gap-2 mt-2">
+                <el-button size="small" plain type="warning" :disabled="!page.pageResultId" @click="toggleBookmark(page.pageResultId)">
+                  {{ page.pageResultId && bookmarkIds.has(page.pageResultId) ? '取消收藏' : '收藏结果' }}
+                </el-button>
                 <el-button size="small" plain type="primary" :disabled="!page.pageResultId || !page.filePath || Boolean(page.mhtmlCached)" :loading="Boolean(cacheLoadingMap[page.pageResultId || 0])" @click="cacheMhtml(page.pageResultId)">
                   {{ page.mhtmlCached ? '已缓存' : '缓存MHTML' }}
                 </el-button>
