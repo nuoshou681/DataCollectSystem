@@ -132,6 +132,9 @@ export function calculateTaskRuntime(pageList: CrawlerPageResult[], expectedPage
 }
 
 export function resolveTaskStatus(task: Task, pageList: CrawlerPageResult[], fallbackExpectedPages = 10) {
+  if (task.runtime?.status) {
+    return normalizeTaskStatus(task.runtime.status)
+  }
   const normalized = normalizeTaskStatus(task.taskStatus)
   if (normalized !== 'PENDING' || pageList.length === 0) {
     return normalized
@@ -141,6 +144,9 @@ export function resolveTaskStatus(task: Task, pageList: CrawlerPageResult[], fal
 }
 
 export function resolveTaskProgress(task: Task, pageList: CrawlerPageResult[], fallbackExpectedPages = 10) {
+  if (typeof task.runtime?.progressPercent === 'number') {
+    return task.runtime.progressPercent
+  }
   if (typeof task.taskProgress === 'number' && task.taskProgress > 0) {
     return task.taskProgress
   }
@@ -149,6 +155,10 @@ export function resolveTaskProgress(task: Task, pageList: CrawlerPageResult[], f
 }
 
 export function resolveTaskNodeId(task: Task, pageList: CrawlerPageResult[]) {
+  const runtimeNodeId = normalizeNodeId(task.runtime?.assignedNodeId)
+  if (runtimeNodeId) {
+    return runtimeNodeId
+  }
   const taskNodeId = normalizeNodeId(task.nodeId)
   if (taskNodeId && taskNodeId !== '-1') {
     return taskNodeId

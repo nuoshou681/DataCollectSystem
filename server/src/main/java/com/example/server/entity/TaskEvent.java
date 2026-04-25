@@ -12,29 +12,29 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("task_log")
-public class TaskLog {
-    @TableId(value = "log_id", type = IdType.AUTO)
-    private Long logId;
+@TableName("task_event")
+public class TaskEvent {
+    @TableId(value = "event_id", type = IdType.AUTO)
+    private Long eventId;
 
     @TableField("task_id")
     private Long taskId;
 
     @TableField("node_id")
-    private Long nodeId;
+    private String nodeId;
 
-    @TableField("node_key")
-    private String nodeKey;
+    @TableField("event_type")
+    private String eventType;
 
-    @TableField("log_message")
-    private String logMessage;
+    @TableField("event_level")
+    private String eventLevel;
 
-    @TableField("log_level")
-    private String logLevel;
+    @TableField("event_message")
+    private String eventMessage;
+
+    @TableField("payload_json")
+    private String payloadJson;
 
     @TableField("created_at")
     private LocalDateTime createdAt;
-
-    @TableField("updated_at")
-    private LocalDateTime updatedAt;
 }

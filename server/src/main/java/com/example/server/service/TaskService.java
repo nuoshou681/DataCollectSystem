@@ -1,13 +1,14 @@
 package com.example.server.service;
 
-import java.util.List;
-
 import com.example.server.entity.DispatchTaskRequest;
 import com.example.server.entity.Task;
+import com.example.server.entity.TaskDetailView;
+import java.util.List;
 
 public interface TaskService {
-    // 拆分请求并派发任务
-    public List<Task> dispatchTasks(DispatchTaskRequest request);
+    List<Task> dispatchTasks(DispatchTaskRequest request);
 
-    public List<Task> buildTasks(DispatchTaskRequest request);
+    List<Task> queryTasks(Long userId, boolean isAdmin);
+
+    TaskDetailView queryTaskDetail(Long taskId, Long userId, boolean isAdmin);
 }

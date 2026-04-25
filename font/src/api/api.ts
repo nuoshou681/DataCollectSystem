@@ -1,28 +1,31 @@
 import request, { API_BASE_URL } from '@/api/axiosConfig'
 import type { AxiosResponse } from 'axios'
 import type {
-  UserInfo,
-  Task,
-  CrawlerPageResult,
-  CrawlerNode,
-  DispatchTaskPayload,
   AuthResponse,
+  CrawlerNode,
+  CrawlerPageResult,
+  DispatchTaskPayload,
+  Task,
+  TaskDetail,
+  TaskEvent,
   TaskLog,
+  TaskRuntime,
+  UserInfo,
 } from '@/types/entity'
-import type { ApiResponse  } from '@/types/apiResponse'
+import type { ApiResponse } from '@/types/apiResponse'
 
-type RawTask = Partial<Task> & {
-  node_id?: string
-}
-
-type RawCrawlerPageResult = Partial<CrawlerPageResult> & {
-  node_id?: string
-}
-
+type RawTask = Partial<Task> & { node_id?: string }
+type RawTaskRuntime = Partial<TaskRuntime> & { assigned_node_id?: string }
+type RawCrawlerPageResult = Partial<CrawlerPageResult> & { node_id?: string }
 type RawCrawlerNode = Partial<CrawlerNode>
-
-type RawTaskLog = Partial<TaskLog> & {
-  node_key?: string
+type RawTaskLog = Partial<TaskLog> & { node_key?: string }
+type RawTaskEvent = Partial<TaskEvent> & { node_id?: string; event_type?: string; event_level?: string; event_message?: string; payload_json?: string }
+type RawTaskDetail = {
+  task?: RawTask
+  runtime?: RawTaskRuntime | null
+  events?: RawTaskEvent[]
+  files?: TaskDetail['files']
+  pageResults?: RawCrawlerPageResult[]
 }
 
 function unwrapResponse<T>(res: unknown): T | null {
@@ -66,27 +69,65 @@ function parseDownloadFileName(contentDisposition?: string) {
   return 'crawler-page.mhtml'
 }
 
-function mapTask(raw: RawTask): Task {
+function tryParseJsonArray(value?: string | null) {
+  if (!value) {
+    return []
+  }
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed.map(item => String(item)) : []
+  } catch {
+    return []
+  }
+}
+
+function mapTaskRuntime(raw?: RawTaskRuntime | null): TaskRuntime | null {
+  if (!raw) {
+    return null
+  }
+  return {
+    taskId: Number(raw.taskId ?? 0),
+    status: String(raw.status ?? 'PENDING').toUpperCase(),
+    assignedNodeId: String(raw.assignedNodeId ?? raw.assigned_node_id ?? '').trim() || null,
+    progressPercent: Number(raw.progressPercent ?? 0),
+    expectedPages: raw.expectedPages ?? null,
+    completedPages: Number(raw.completedPages ?? 0),
+    successPages: Number(raw.successPages ?? 0),
+    failedPages: Number(raw.failedPages ?? 0),
+    retryCount: Number(raw.retryCount ?? 0),
+    lastErrorCode: raw.lastErrorCode ?? null,
+    lastErrorMessage: raw.lastErrorMessage ?? null,
+    queuedAt: raw.queuedAt ?? null,
+    startedAt: raw.startedAt ?? null,
+    finishedAt: raw.finishedAt ?? null,
+    updatedAt: raw.updatedAt,
+  }
+}
+
+function mapTask(raw: RawTask, runtime?: TaskRuntime | null): Task {
   return {
     taskId: Number(raw.taskId ?? 0),
     userId: raw.userId ?? null,
     nodeId: String(raw.nodeId ?? raw.node_id ?? '').trim() || undefined,
+    batchId: raw.batchId ?? null,
     url: String(raw.url ?? ''),
     keyword: String(raw.keyword ?? ''),
     siteType: raw.siteType ?? null,
-    taskStatus: String(raw.taskStatus ?? 'PENDING').toUpperCase(),
-    taskProgress: Number(raw.taskProgress ?? 0),
-    totalPages: Number(raw.totalPages ?? 0),
+    taskStatus: String(raw.taskStatus ?? runtime?.status ?? 'PENDING').toUpperCase(),
+    taskProgress: Number(raw.taskProgress ?? runtime?.progressPercent ?? 0),
+    totalPages: Number(raw.totalPages ?? runtime?.expectedPages ?? 0),
     maxLinksPerLevel: raw.maxLinksPerLevel,
     priority: raw.priority,
     source: raw.source,
+    idempotencyKey: raw.idempotencyKey ?? null,
     retryCount: raw.retryCount,
     cancelRequested: Boolean(raw.cancelRequested),
-    lastErrorMessage: raw.lastErrorMessage ?? null,
+    lastErrorMessage: raw.lastErrorMessage ?? runtime?.lastErrorMessage ?? null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
-    startedAt: raw.startedAt ?? null,
-    finishedAt: raw.finishedAt ?? null,
+    startedAt: raw.startedAt ?? runtime?.startedAt ?? null,
+    finishedAt: raw.finishedAt ?? runtime?.finishedAt ?? null,
+    runtime: runtime ?? null,
   }
 }
 
@@ -116,11 +157,17 @@ function mapPageResult(raw: RawCrawlerPageResult): CrawlerPageResult {
 }
 
 function mapCrawlerNode(raw: RawCrawlerNode): CrawlerNode {
+  const capabilities = raw.capabilities?.length ? raw.capabilities : tryParseJsonArray(raw.capabilitiesJson)
+  const tags = raw.tags?.length ? raw.tags : tryParseJsonArray(raw.tagsJson)
   return {
     nodeId: String(raw.nodeId ?? ''),
     nodeName: raw.nodeName,
     status: String(raw.status ?? 'UNKNOWN').toUpperCase(),
     version: raw.version,
+    capabilitiesJson: raw.capabilitiesJson ?? null,
+    tagsJson: raw.tagsJson ?? null,
+    capabilities,
+    tags,
     maxConcurrency: raw.maxConcurrency,
     currentLoad: raw.currentLoad,
     heartbeatTimeoutSec: raw.heartbeatTimeoutSec,
@@ -142,6 +189,19 @@ function mapTaskLog(raw: RawTaskLog): TaskLog {
   }
 }
 
+function mapTaskEvent(raw: RawTaskEvent): TaskEvent {
+  return {
+    eventId: Number(raw.eventId ?? 0),
+    taskId: Number(raw.taskId ?? 0),
+    nodeId: String(raw.nodeId ?? raw.node_id ?? '').trim() || null,
+    eventType: String(raw.eventType ?? raw.event_type ?? 'UNKNOWN'),
+    eventLevel: String(raw.eventLevel ?? raw.event_level ?? 'INFO').toUpperCase(),
+    eventMessage: String(raw.eventMessage ?? raw.event_message ?? ''),
+    payloadJson: raw.payloadJson ?? raw.payload_json ?? null,
+    createdAt: raw.createdAt,
+  }
+}
+
 export async function login(email: string, password: string) {
   const res = await request.post<ApiResponse<AuthResponse>>('/login', { email, password })
   return unwrapResponse<AuthResponse>(res)
@@ -157,8 +217,29 @@ export async function dispatchTask(payload: DispatchTaskPayload) {
 }
 
 export async function fetchTasks() {
-  const res = await request.get<ApiResponse<Task[]>>('/task/task')
-  return (unwrapResponse<RawTask[]>(res) ?? []).map(mapTask)
+  const res = await request.get<ApiResponse<Task[]>>('/task')
+  return (unwrapResponse<RawTask[]>(res) ?? []).map(raw => mapTask(raw))
+}
+
+export async function fetchTaskDetail(taskId: number) {
+  const res = await request.get<ApiResponse<TaskDetail>>(`/task/${taskId}`)
+  const raw = unwrapResponse<RawTaskDetail>(res)
+  if (!raw?.task) {
+    return null
+  }
+  const runtime = mapTaskRuntime(raw.runtime)
+  return {
+    task: mapTask(raw.task, runtime),
+    runtime,
+    events: (raw.events ?? []).map(mapTaskEvent),
+    files: raw.files ?? [],
+    pageResults: (raw.pageResults ?? []).map(mapPageResult),
+  } as TaskDetail
+}
+
+export async function fetchTaskEvents(taskId: number) {
+  const res = await request.get<ApiResponse<TaskEvent[]>>('/task/events', { params: { taskId } })
+  return (unwrapResponse<RawTaskEvent[]>(res) ?? []).map(mapTaskEvent)
 }
 
 export async function fetchPageResults(taskId?: number) {
@@ -185,14 +266,8 @@ export async function downloadPageResultMhtml(pageResultId: number) {
   })
 
   const blobResponse = response as AxiosResponse<Blob>
-  const fileName = parseDownloadFileName(
-    blobResponse.headers?.['content-disposition'] as string | undefined,
-  )
-
-  return {
-    blob: blobResponse.data,
-    fileName,
-  }
+  const fileName = parseDownloadFileName(blobResponse.headers?.['content-disposition'] as string | undefined)
+  return { blob: blobResponse.data, fileName }
 }
 
 export async function fetchCrawlerNodes() {

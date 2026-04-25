@@ -5,10 +5,29 @@ export interface UserInfo {
   role?: string
 }
 
+export interface TaskRuntime {
+  taskId: number
+  status: string
+  assignedNodeId?: string | null
+  progressPercent: number
+  expectedPages?: number | null
+  completedPages: number
+  successPages: number
+  failedPages: number
+  retryCount?: number
+  lastErrorCode?: string | null
+  lastErrorMessage?: string | null
+  queuedAt?: string | null
+  startedAt?: string | null
+  finishedAt?: string | null
+  updatedAt?: string
+}
+
 export interface Task {
   taskId: number
   userId?: number | null
   nodeId?: string
+  batchId?: string | null
   url: string
   keyword: string
   siteType?: string | null
@@ -18,6 +37,7 @@ export interface Task {
   maxLinksPerLevel?: number
   priority?: number
   source?: string
+  idempotencyKey?: string | null
   retryCount?: number
   cancelRequested?: boolean
   lastErrorMessage?: string | null
@@ -25,6 +45,7 @@ export interface Task {
   updatedAt?: string
   startedAt?: string | null
   finishedAt?: string | null
+  runtime?: TaskRuntime | null
 }
 
 export interface CrawlerPageResult {
@@ -50,11 +71,48 @@ export interface CrawlerPageResult {
   updatedAt?: string
 }
 
+export interface TaskEvent {
+  eventId: number
+  taskId: number
+  nodeId?: string | null
+  eventType: string
+  eventLevel: string
+  eventMessage: string
+  payloadJson?: string | null
+  createdAt?: string
+}
+
+export interface TaskFile {
+  fileId: number
+  taskId: number
+  pageResultId?: number | null
+  fileType: string
+  storageType?: string
+  mimeType?: string
+  filePath?: string | null
+  contentSha256?: string | null
+  sizeBytes?: number | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface TaskDetail {
+  task: Task
+  runtime?: TaskRuntime | null
+  events: TaskEvent[]
+  files: TaskFile[]
+  pageResults: CrawlerPageResult[]
+}
+
 export interface CrawlerNode {
   nodeId: string
   nodeName?: string
   status: string
   version?: string
+  capabilitiesJson?: string | null
+  tagsJson?: string | null
+  capabilities?: string[]
+  tags?: string[]
   maxConcurrency?: number
   currentLoad?: number
   heartbeatTimeoutSec?: number
@@ -70,6 +128,8 @@ export interface DispatchTaskPayload {
   siteType?: string | null
   priority?: number
   source?: string
+  batchId?: string
+  idempotencyKey?: string
 }
 
 export interface AuthResponse {

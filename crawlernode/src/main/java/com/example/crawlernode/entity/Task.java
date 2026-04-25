@@ -9,10 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Task {
     private Long taskId;
-    // 分配爬虫节点id
+    private Long userId;
     private String nodeId;
+    private String batchId;
     private String url;
     private String keyword;
-    // 每层最多爬多少个链接，防止爆炸
-    private int maxLinksPerLevel = 10;
+    private String siteType;
+    private Integer maxLinksPerLevel = 10;
+    private Integer priority = 0;
+    private String source;
+    private String idempotencyKey;
 }

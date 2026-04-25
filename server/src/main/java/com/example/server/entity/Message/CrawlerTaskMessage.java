@@ -9,8 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CrawlerTaskMessage {
     private Long taskId;
+    private Long userId;
     private String nodeId;
+    private String batchId;
     private String url;
     private String keyword;
-    private int maxLinksPerLevel = 10;
+    private String siteType;
+    private Integer maxLinksPerLevel;
+    private Integer priority;
+    private String source;
+    private String idempotencyKey;
 }

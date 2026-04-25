@@ -7,8 +7,6 @@ import com.example.server.entity.Task;
 import com.example.server.entity.Message.CrawlerPageResult;
 import com.example.server.mapper.CrawlerPageResultMapper;
 import com.example.server.mapper.TaskMapper;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,16 +14,28 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CrawlerPageResultService {
 
     private final CrawlerPageResultMapper crawlerPageResultMapper;
     private final TaskMapper taskMapper;
+    private final TaskRuntimeService taskRuntimeService;
+    private final TaskEventService taskEventService;
+    private final TaskFileService taskFileService;
 
-    public CrawlerPageResultService(CrawlerPageResultMapper crawlerPageResultMapper, TaskMapper taskMapper) {
+    public CrawlerPageResultService(
+            CrawlerPageResultMapper crawlerPageResultMapper,
+            TaskMapper taskMapper,
+            TaskRuntimeService taskRuntimeService,
+            TaskEventService taskEventService,
+            TaskFileService taskFileService) {
         this.crawlerPageResultMapper = crawlerPageResultMapper;
         this.taskMapper = taskMapper;
+        this.taskRuntimeService = taskRuntimeService;
+        this.taskEventService = taskEventService;
+        this.taskFileService = taskFileService;
     }
 
     public CrawlerPageResultRecord saveOrUpdateFromMessage(CrawlerPageResult message) {
@@ -45,37 +55,20 @@ public class CrawlerPageResultService {
                 .eq(CrawlerPageResultRecord::getPageUrl, message.getPageUrl());
 
         CrawlerPageResultRecord exists = crawlerPageResultMapper.selectOne(queryWrapper);
-
         if (exists == null) {
-            CrawlerPageResultRecord insert = new CrawlerPageResultRecord();
-            insert.setTaskId(message.getTaskId());
-            insert.setNodeId(message.getNodeId());
-            insert.setPageUrl(message.getPageUrl());
-            insert.setPageTitle(message.getPageTitle());
-            insert.setPageIndex(message.getPageIndex());
-            insert.setTotalPages(message.getTotalPages());
-            insert.setSuccess(message.isSuccess());
-            insert.setFilePath(message.getFilePath());
-            insert.setErrorMessage(message.getErrorMessage());
+            CrawlerPageResultRecord insert = mapMessageToRecord(message, new CrawlerPageResultRecord());
             insert.setMhtmlCached(false);
             crawlerPageResultMapper.insert(insert);
-            updateTaskRuntimeFromResult(message);
-            return crawlerPageResultMapper.selectById(insert.getPageResultId());
+            CrawlerPageResultRecord saved = crawlerPageResultMapper.selectById(insert.getPageResultId());
+            afterPersist(saved, message);
+            return saved;
         }
 
-        LambdaUpdateWrapper<CrawlerPageResultRecord> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(CrawlerPageResultRecord::getPageResultId, exists.getPageResultId())
-                .set(CrawlerPageResultRecord::getTaskId, message.getTaskId())
-                .set(CrawlerPageResultRecord::getNodeId, message.getNodeId())
-                .set(CrawlerPageResultRecord::getPageTitle, message.getPageTitle())
-                .set(CrawlerPageResultRecord::getTotalPages, message.getTotalPages())
-                .set(CrawlerPageResultRecord::getSuccess, message.isSuccess())
-                .set(CrawlerPageResultRecord::getFilePath, message.getFilePath())
-                .set(CrawlerPageResultRecord::getErrorMessage, message.getErrorMessage());
-
-        crawlerPageResultMapper.update(null, updateWrapper);
-        updateTaskRuntimeFromResult(message);
-        return crawlerPageResultMapper.selectById(exists.getPageResultId());
+        CrawlerPageResultRecord update = mapMessageToRecord(message, exists);
+        crawlerPageResultMapper.updateById(update);
+        CrawlerPageResultRecord saved = crawlerPageResultMapper.selectById(update.getPageResultId());
+        afterPersist(saved, message);
+        return saved;
     }
 
     public List<CrawlerPageResultRecord> queryResults(Long taskId) {
@@ -107,8 +100,9 @@ public class CrawlerPageResultService {
         }
 
         List<Long> taskIds = taskMapper.selectList(new LambdaQueryWrapper<Task>()
-                .eq(Task::getUserId, userId)
-                .select(Task::getTaskId)).stream()
+                        .eq(Task::getUserId, userId)
+                        .select(Task::getTaskId))
+                .stream()
                 .map(Task::getTaskId)
                 .collect(Collectors.toList());
 
@@ -139,7 +133,6 @@ public class CrawlerPageResultService {
         }
 
         String content = Files.readString(mhtmlPath, StandardCharsets.UTF_8);
-
         LambdaUpdateWrapper<CrawlerPageResultRecord> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(CrawlerPageResultRecord::getPageResultId, pageResultId)
                 .set(CrawlerPageResultRecord::getMhtmlContent, content)
@@ -147,7 +140,10 @@ public class CrawlerPageResultService {
                 .set(CrawlerPageResultRecord::getMhtmlCachedAt, LocalDateTime.now());
         crawlerPageResultMapper.update(null, updateWrapper);
 
-        return crawlerPageResultMapper.selectById(pageResultId);
+        CrawlerPageResultRecord saved = crawlerPageResultMapper.selectById(pageResultId);
+        taskFileService.upsertFromPageResult(saved);
+        taskEventService.recordEvent(saved.getTaskId(), saved.getNodeId(), "PAGE_MHTML_CACHED", "INFO", "页面 MHTML 已缓存到数据库", null);
+        return saved;
     }
 
     public CrawlerPageResultRecord cacheMhtml(Long pageResultId, Long userId, boolean isAdmin) throws IOException {
@@ -189,6 +185,69 @@ public class CrawlerPageResultService {
         return loadMhtmlForDownload(pageResultId);
     }
 
+    public boolean taskExists(Long taskId) {
+        return taskId != null && taskMapper.selectById(taskId) != null;
+    }
+
+    public boolean canAccessTask(Long taskId, Long userId, boolean isAdmin) {
+        if (taskId == null) {
+            return false;
+        }
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) {
+            return false;
+        }
+        return isAdmin || (userId != null && userId.equals(task.getUserId()));
+    }
+
+    public boolean canAccessPageResult(Long pageResultId, Long userId, boolean isAdmin) {
+        if (pageResultId == null) {
+            return false;
+        }
+        CrawlerPageResultRecord pageResult = crawlerPageResultMapper.selectById(pageResultId);
+        if (pageResult == null) {
+            return false;
+        }
+        return canAccessTask(pageResult.getTaskId(), userId, isAdmin);
+    }
+
+    private void afterPersist(CrawlerPageResultRecord record, CrawlerPageResult message) {
+        taskRuntimeService.markProgress(
+                record.getTaskId(),
+                record.getNodeId(),
+                record.getTotalPages(),
+                Boolean.TRUE.equals(record.getSuccess()),
+                record.getErrorCode(),
+                record.getErrorMessage());
+        taskFileService.upsertFromPageResult(record);
+        taskEventService.recordEvent(
+                record.getTaskId(),
+                record.getNodeId(),
+                Boolean.TRUE.equals(record.getSuccess()) ? "PAGE_CAPTURED" : "PAGE_CAPTURE_FAILED",
+                Boolean.TRUE.equals(record.getSuccess()) ? "INFO" : "ERROR",
+                Boolean.TRUE.equals(record.getSuccess()) ? "页面采集成功" : "页面采集失败",
+                "{\"pageIndex\":" + record.getPageIndex() + ",\"pageUrl\":\"" + escapeJson(record.getPageUrl()) + "\"}");
+    }
+
+    private CrawlerPageResultRecord mapMessageToRecord(CrawlerPageResult message, CrawlerPageResultRecord record) {
+        record.setTaskId(message.getTaskId());
+        record.setNodeId(message.getNodeId());
+        record.setSiteType(message.getSiteType());
+        record.setPageUrl(message.getPageUrl());
+        record.setPageTitle(message.getPageTitle());
+        record.setPageIndex(message.getPageIndex());
+        record.setTotalPages(message.getTotalPages());
+        record.setSuccess(message.isSuccess());
+        record.setFilePath(message.getFilePath());
+        record.setStorageType(message.getStorageType() == null ? "FILE" : message.getStorageType());
+        record.setMimeType(message.getMimeType() == null ? "multipart/related" : message.getMimeType());
+        record.setFileSizeBytes(message.getFileSizeBytes());
+        record.setContentSha256(message.getContentSha256());
+        record.setErrorCode(message.getErrorCode());
+        record.setErrorMessage(message.getErrorMessage());
+        return record;
+    }
+
     private CrawlerPageResultRecord queryByIdForDownload(Long pageResultId) {
         LambdaQueryWrapper<CrawlerPageResultRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CrawlerPageResultRecord::getPageResultId, pageResultId)
@@ -207,6 +266,13 @@ public class CrawlerPageResultService {
         return String.format("task-%d-page-%02d.mhtml", taskId, pageIndex);
     }
 
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     public static class MhtmlDownloadData {
         private final String fileName;
         private final byte[] content;
@@ -223,58 +289,5 @@ public class CrawlerPageResultService {
         public byte[] getContent() {
             return content;
         }
-    }
-
-    private void updateTaskRuntimeFromResult(CrawlerPageResult message) {
-        if (message == null || message.getTaskId() == null) {
-            return;
-        }
-
-        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(Task::getTaskId, message.getTaskId())
-                .and(wrapper -> wrapper.isNull(Task::getTaskStatus)
-                        .or()
-                        .eq(Task::getTaskStatus, "PENDING"))
-                .set(Task::getTaskStatus, "RUNNING")
-                .set(Task::getTotalPages, message.getTotalPages())
-                .set(Task::getUpdatedAt, LocalDateTime.now());
-
-        if (message.getNodeId() != null && !message.getNodeId().isBlank()) {
-            updateWrapper.set(Task::getNodeId, message.getNodeId());
-        }
-
-        taskMapper.update(null, updateWrapper);
-    }
-
-    public boolean taskExists(Long taskId) {
-        if (taskId == null) {
-            return false;
-        }
-        return taskMapper.selectById(taskId) != null;
-    }
-
-    public boolean canAccessTask(Long taskId, Long userId, boolean isAdmin) {
-        if (taskId == null) {
-            return false;
-        }
-        Task task = taskMapper.selectById(taskId);
-        if (task == null) {
-            return false;
-        }
-        if (isAdmin) {
-            return true;
-        }
-        return userId != null && userId.equals(task.getUserId());
-    }
-
-    public boolean canAccessPageResult(Long pageResultId, Long userId, boolean isAdmin) {
-        if (pageResultId == null) {
-            return false;
-        }
-        CrawlerPageResultRecord pageResult = crawlerPageResultMapper.selectById(pageResultId);
-        if (pageResult == null) {
-            return false;
-        }
-        return canAccessTask(pageResult.getTaskId(), userId, isAdmin);
     }
 }
