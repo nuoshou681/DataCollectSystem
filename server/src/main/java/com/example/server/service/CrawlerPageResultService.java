@@ -179,6 +179,21 @@ public class CrawlerPageResultService {
         return new MhtmlDownloadData(buildDownloadFileName(pageResult), content);
     }
 
+    public List<MhtmlDownloadData> loadMhtmlFilesForExport(Long taskId, Long userId, boolean isAdmin) throws IOException {
+        List<CrawlerPageResultRecord> records = queryResults(taskId, userId, isAdmin).stream()
+                .filter(record -> Boolean.TRUE.equals(record.getSuccess()))
+                .filter(record -> record.getPageResultId() != null)
+                .toList();
+        List<MhtmlDownloadData> result = new java.util.ArrayList<>();
+        for (CrawlerPageResultRecord record : records) {
+            MhtmlDownloadData item = loadMhtmlForDownload(record.getPageResultId(), userId, isAdmin);
+            if (item != null) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
     public MhtmlDownloadData loadMhtmlForDownload(Long pageResultId, Long userId, boolean isAdmin) throws IOException {
         if (!canAccessPageResult(pageResultId, userId, isAdmin)) {
             return null;
@@ -259,6 +274,7 @@ public class CrawlerPageResultService {
                         CrawlerPageResultRecord::getTaskId,
                         CrawlerPageResultRecord::getPageIndex,
                         CrawlerPageResultRecord::getFilePath,
+                        CrawlerPageResultRecord::getPageTitle,
                         CrawlerPageResultRecord::getMhtmlContent);
         return crawlerPageResultMapper.selectOne(queryWrapper);
     }

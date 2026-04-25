@@ -12,6 +12,7 @@ import type {
   TaskRuntime,
   TaskBatch,
   TaskBatchDetail,
+  ResultTag,
   UserInfo,
 } from '@/types/entity'
 import type { ApiResponse } from '@/types/apiResponse'
@@ -23,6 +24,7 @@ type RawCrawlerNode = Partial<CrawlerNode>
 type RawTaskLog = Partial<TaskLog> & { node_key?: string }
 type RawTaskEvent = Partial<TaskEvent> & { node_id?: string; event_type?: string; event_level?: string; event_message?: string; payload_json?: string }
 type RawTaskBatch = Partial<TaskBatch> & { batch_id?: string; batch_name?: string; created_by?: number; task_count?: number }
+type RawResultTag = Partial<ResultTag> & { tag_id?: number; tag_name?: string; tag_color?: string; category_name?: string; binding_count?: number; page_result_ids?: number[] }
 type RawTaskDetail = {
   task?: RawTask
   runtime?: RawTaskRuntime | null
@@ -222,6 +224,20 @@ function mapTaskBatch(raw: RawTaskBatch): TaskBatch {
   }
 }
 
+function mapResultTag(raw: RawResultTag): ResultTag {
+  return {
+    tagId: Number(raw.tagId ?? raw.tag_id ?? 0),
+    tagName: String(raw.tagName ?? raw.tag_name ?? ''),
+    tagColor: raw.tagColor ?? raw.tag_color ?? null,
+    categoryName: raw.categoryName ?? raw.category_name ?? null,
+    description: raw.description ?? null,
+    bindingCount: raw.bindingCount ?? raw.binding_count ?? null,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+    pageResultIds: raw.pageResultIds ?? raw.page_result_ids ?? [],
+  }
+}
+
 export async function login(email: string, password: string) {
   const res = await request.post<ApiResponse<AuthResponse>>('/login', { email, password })
   return unwrapResponse<AuthResponse>(res)
@@ -287,6 +303,21 @@ export async function exportPageResults(taskId?: number) {
   return {
     blob: blobResponse.data,
     fileName: fileName || 'page-results.csv',
+  }
+}
+
+export async function exportPageResultMhtml(taskId?: number) {
+  const response = await request.get('/task/page-results/export-mhtml', {
+    params: taskId ? { taskId } : {},
+    responseType: 'blob',
+  })
+  const blobResponse = response as AxiosResponse<Blob>
+  const fileName = parseDownloadFileName(
+    blobResponse.headers?.['content-disposition'] as string | undefined,
+  )
+  return {
+    blob: blobResponse.data,
+    fileName: fileName || 'page-results-mhtml.zip',
   }
 }
 
@@ -358,6 +389,55 @@ export async function removeBookmark(pageResultId: number) {
     params: { pageResultId },
   })
   return unwrapResponse<boolean>(res)
+}
+
+export async function fetchResultTags() {
+  const res = await request.get<ApiResponse<ResultTag[]>>('/task/result-tags')
+  return (unwrapResponse<RawResultTag[]>(res) ?? []).map(mapResultTag)
+}
+
+export async function createResultTag(payload: ResultTag) {
+  const res = await request.post<ApiResponse<ResultTag>>('/task/result-tags', payload)
+  const raw = unwrapResponse<RawResultTag>(res)
+  return raw ? mapResultTag(raw) : null
+}
+
+export async function updateResultTag(tagId: number, payload: ResultTag) {
+  const res = await request.put<ApiResponse<ResultTag>>(`/task/result-tags/${tagId}`, payload)
+  const raw = unwrapResponse<RawResultTag>(res)
+  return raw ? mapResultTag(raw) : null
+}
+
+export async function deleteResultTag(tagId: number) {
+  const res = await request.delete<ApiResponse<boolean>>(`/task/result-tags/${tagId}`)
+  return unwrapResponse<boolean>(res)
+}
+
+export async function bindResultTag(tagId: number, pageResultId: number) {
+  const res = await request.post<ApiResponse<boolean>>(`/task/result-tags/${tagId}/bindings`, null, {
+    params: { pageResultId },
+  })
+  return unwrapResponse<boolean>(res)
+}
+
+export async function unbindResultTag(tagId: number, pageResultId: number) {
+  const res = await request.delete<ApiResponse<boolean>>(`/task/result-tags/${tagId}/bindings`, {
+    params: { pageResultId },
+  })
+  return unwrapResponse<boolean>(res)
+}
+
+export async function fetchPageResultTagBindings(pageResultIds: number[]) {
+  const res = await request.get<ApiResponse<Record<number, ResultTag[]>>>('/task/result-tags/bindings', {
+    params: { pageResultIds },
+    paramsSerializer: {
+      serialize: params => (params.pageResultIds as number[]).map(id => `pageResultIds=${id}`).join('&'),
+    },
+  })
+  const raw = unwrapResponse<Record<string, RawResultTag[]>>(res) ?? {}
+  return Object.fromEntries(
+    Object.entries(raw).map(([key, value]) => [Number(key), (value ?? []).map(mapResultTag)]),
+  ) as Record<number, ResultTag[]>
 }
 
 export function getPageResultStreamUrl() {

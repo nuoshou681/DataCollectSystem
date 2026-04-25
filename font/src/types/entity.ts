@@ -69,6 +69,7 @@ export interface CrawlerPageResult {
   mhtmlCachedAt?: string
   createdAt?: string
   updatedAt?: string
+  tags?: ResultTag[]
 }
 
 export interface TaskEvent {
@@ -162,4 +163,16 @@ export interface TaskBatch {
 export interface TaskBatchDetail {
   batch: TaskBatch
   tasks: Task[]
+}
+
+export interface ResultTag {
+  tagId?: number
+  tagName: string
+  tagColor?: string | null
+  categoryName?: string | null
+  description?: string | null
+  bindingCount?: number | null
+  createdAt?: string
+  updatedAt?: string
+  pageResultIds?: number[]
 }

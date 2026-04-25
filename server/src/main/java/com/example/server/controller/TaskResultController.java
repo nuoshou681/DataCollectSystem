@@ -10,6 +10,10 @@ import com.example.server.service.CrawlerPageResultService;
 import com.example.server.service.CrawlerPageResultStreamService;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -106,6 +110,29 @@ public class TaskResultController {
         return new ResponseEntity<>(csv.getBytes(StandardCharsets.UTF_8), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/task/page-results/export-mhtml")
+    public ResponseEntity<?> exportPageResultMhtmlFiles(@RequestParam(required = false) Long taskId) {
+        try {
+            List<CrawlerPageResultService.MhtmlDownloadData> files = crawlerPageResultService.loadMhtmlFilesForExport(
+                    taskId,
+                    SecurityUtils.getCurrentUserId(),
+                    SecurityUtils.isAdmin());
+            if (files.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("没有可导出的 MHTML 文件");
+            }
+            byte[] zipContent = buildZip(files);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment()
+                    .filename(taskId == null ? "page-results-mhtml.zip" : "task-" + taskId + "-mhtml.zip", StandardCharsets.UTF_8)
+                    .build());
+            headers.setContentLength(zipContent.length);
+            return new ResponseEntity<>(zipContent, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     private String buildCsv(List<CrawlerPageResultRecord> records) {
         String header = "pageResultId,taskId,pageIndex,success,siteType,pageTitle,pageUrl,errorCode,errorMessage";
         String body = records.stream()
@@ -129,6 +156,20 @@ public class TaskResultController {
         }
         String text = String.valueOf(value).replace("\"", "\"\"");
         return "\"" + text + "\"";
+    }
+
+    private byte[] buildZip(List<CrawlerPageResultService.MhtmlDownloadData> files) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
+            for (CrawlerPageResultService.MhtmlDownloadData file : files) {
+                ZipEntry entry = new ZipEntry(file.getFileName());
+                zipOutputStream.putNextEntry(entry);
+                zipOutputStream.write(file.getContent());
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.finish();
+        }
+        return outputStream.toByteArray();
     }
 
 }
