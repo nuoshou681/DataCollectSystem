@@ -2,17 +2,19 @@
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
+  fetchExportRecords,
   fetchTaskGroups,
   fetchTaskGroupBindings,
   fetchTaskNotes,
   fetchTasks,
 } from '@/api/api'
-import type { Task, TaskGroup, TaskGroupBinding, TaskNote } from '@/types/entity'
+import type { ExportRecord, Task, TaskGroup, TaskGroupBinding, TaskNote } from '@/types/entity'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
 
 const loading = ref(false)
 const tasks = ref<Task[]>([])
 const taskGroups = ref<TaskGroup[]>([])
+const exportRecords = ref<ExportRecord[]>([])
 const taskNotesMap = ref<Record<number, TaskNote[]>>({})
 const taskGroupBindingMap = ref<Record<number, TaskGroupBinding[]>>({})
 const statusFilter = ref('ALL')
@@ -20,6 +22,8 @@ const siteFilter = ref('ALL')
 const archiveFilter = ref('ALL')
 const selectedGroupId = ref<number | 'ALL'>('ALL')
 const keywordFilter = ref('')
+const groupDetailVisible = ref(false)
+const activeGroup = ref<TaskGroup | null>(null)
 
 async function loadData() {
   loading.value = true
@@ -27,12 +31,14 @@ async function loadData() {
     const taskData = await fetchTasks()
     tasks.value = taskData
     const taskIds = taskData.map(item => item.taskId)
-    const [groups, noteEntries, bindingEntries] = await Promise.all([
+    const [groups, exports, noteEntries, bindingEntries] = await Promise.all([
       fetchTaskGroups(),
+      fetchExportRecords(),
       Promise.all(taskIds.map(async taskId => [taskId, await fetchTaskNotes(taskId)] as const)),
       Promise.all(taskIds.map(async taskId => [taskId, await fetchTaskGroupBindings(taskId)] as const)),
     ])
     taskGroups.value = groups
+    exportRecords.value = exports
     taskNotesMap.value = Object.fromEntries(noteEntries)
     taskGroupBindingMap.value = Object.fromEntries(bindingEntries)
   } catch {
@@ -78,6 +84,24 @@ const stats = computed(() => ({
   noted: tasks.value.filter(item => (taskNotesMap.value[item.taskId] ?? []).length > 0).length,
 }))
 
+function formatDayLabel(offset: number) {
+  const date = new Date()
+  date.setDate(date.getDate() - offset)
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+function sameDay(dateText?: string | null, offset = 0) {
+  if (!dateText) {
+    return false
+  }
+  const target = new Date(dateText)
+  const current = new Date()
+  current.setDate(current.getDate() - offset)
+  return target.getFullYear() === current.getFullYear()
+    && target.getMonth() === current.getMonth()
+    && target.getDate() === current.getDate()
+}
+
 const siteStats = computed(() => {
   const map = new Map<string, number>()
   for (const task of tasks.value) {
@@ -96,6 +120,22 @@ const statusStats = computed(() => {
   return Array.from(map.entries()).map(([label, value]) => ({ label, value }))
 })
 
+const trendStats = computed(() => {
+  return Array.from({ length: 7 }, (_, index) => {
+    const offset = 6 - index
+    const created = tasks.value.filter(task => sameDay(task.createdAt, offset)).length
+    const archived = tasks.value.filter(task => sameDay(task.archivedAt, offset)).length
+    const exported = exportRecords.value.filter(record => sameDay(record.createdAt, offset)).length
+    return {
+      label: formatDayLabel(offset),
+      created,
+      archived,
+      exported,
+      peak: Math.max(created, archived, exported, 1),
+    }
+  })
+})
+
 const groupRanking = computed(() => {
   return taskGroups.value
     .map(group => ({
@@ -104,6 +144,27 @@ const groupRanking = computed(() => {
     }))
     .sort((a, b) => b.taskCount - a.taskCount)
 })
+
+const activeGroupTasks = computed(() => {
+  if (!activeGroup.value?.groupId) {
+    return []
+  }
+  return tasks.value.filter(task => resolveTaskGroups(task.taskId).some(group => group.groupId === activeGroup.value?.groupId))
+})
+
+const activeGroupNoteCount = computed(() => {
+  return activeGroupTasks.value.reduce((sum, task) => sum + (taskNotesMap.value[task.taskId]?.length ?? 0), 0)
+})
+
+const activeGroupExportCount = computed(() => {
+  const taskIds = new Set(activeGroupTasks.value.map(task => task.taskId))
+  return exportRecords.value.filter(record => record.taskId && taskIds.has(record.taskId)).length
+})
+
+function openGroupDetail(group: TaskGroup) {
+  activeGroup.value = group
+  groupDetailVisible.value = true
+}
 
 onMounted(() => {
   void loadData()
@@ -146,6 +207,29 @@ onMounted(() => {
         </div>
       </el-card>
     </section>
+
+    <el-card>
+      <template #header><span class="font-semibold">最近 7 天任务趋势</span></template>
+      <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+        <div v-for="item in trendStats" :key="item.label" class="rounded-xl border border-slate-200 p-4 bg-white">
+          <div class="text-xs text-slate-500">{{ item.label }}</div>
+          <div class="mt-4 space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>新建</span><span>{{ item.created }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-sky-500" :style="{ width: `${Math.round((item.created / item.peak) * 100)}%` }" /></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>归档</span><span>{{ item.archived }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-emerald-500" :style="{ width: `${Math.round((item.archived / item.peak) * 100)}%` }" /></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>导出</span><span>{{ item.exported }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-amber-500" :style="{ width: `${Math.round((item.exported / item.peak) * 100)}%` }" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-card>
 
     <section class="grid grid-cols-1 xl:grid-cols-[1.35fr_0.95fr] gap-6">
       <el-card>
@@ -225,7 +309,7 @@ onMounted(() => {
       <el-card>
         <template #header><span class="font-semibold">任务分组热度</span></template>
         <div class="space-y-3">
-          <div v-for="group in groupRanking" :key="group.groupId" class="rounded-xl border border-slate-200 p-4">
+          <button v-for="group in groupRanking" :key="group.groupId" type="button" class="w-full text-left rounded-xl border border-slate-200 p-4 hover:border-sky-300 transition" @click="openGroupDetail(group)">
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="inline-block h-3 w-3 rounded-full" :style="{ backgroundColor: group.groupColor || '#94a3b8' }" />
@@ -236,10 +320,50 @@ onMounted(() => {
               </div>
               <el-tag type="info">{{ group.taskCount }} 个任务</el-tag>
             </div>
-          </div>
+          </button>
           <el-empty v-if="!groupRanking.length" description="还没有任务分组" />
         </div>
       </el-card>
     </section>
+
+    <el-drawer v-model="groupDetailVisible" :title="activeGroup ? `${activeGroup.groupName} · 分组详情` : '分组详情'" size="48%">
+      <div v-if="activeGroup" class="space-y-5">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="分组名称">{{ activeGroup.groupName }}</el-descriptions-item>
+          <el-descriptions-item label="颜色">
+            <span class="inline-flex items-center gap-2">
+              <span class="inline-block h-3 w-3 rounded-full" :style="{ backgroundColor: activeGroup.groupColor || '#94a3b8' }" />
+              {{ activeGroup.groupColor || '-' }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="任务数量">{{ activeGroupTasks.length }}</el-descriptions-item>
+          <el-descriptions-item label="备注数量">{{ activeGroupNoteCount }}</el-descriptions-item>
+          <el-descriptions-item label="导出记录">{{ activeGroupExportCount }}</el-descriptions-item>
+          <el-descriptions-item label="说明">{{ activeGroup.description || '-' }}</el-descriptions-item>
+        </el-descriptions>
+
+        <el-table :data="activeGroupTasks" border stripe>
+          <el-table-column prop="taskId" label="任务ID" width="90" />
+          <el-table-column label="站点" width="110">
+            <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
+          </el-table-column>
+          <el-table-column prop="keyword" label="关键词" min-width="130" />
+          <el-table-column label="状态" width="120">
+            <template #default="scope">
+              <el-tag :type="statusTagType(scope.row.runtime?.status ?? scope.row.taskStatus)">
+                {{ statusText(scope.row.runtime?.status ?? scope.row.taskStatus) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="备注" width="90">
+            <template #default="scope">{{ taskNotesMap[scope.row.taskId]?.length ?? 0 }}</template>
+          </el-table-column>
+          <el-table-column label="归档" width="100">
+            <template #default="scope">{{ scope.row.archived ? '是' : '否' }}</template>
+          </el-table-column>
+          <el-table-column prop="createdAt" label="创建时间" min-width="170" />
+        </el-table>
+      </div>
+    </el-drawer>
   </div>
 </template>

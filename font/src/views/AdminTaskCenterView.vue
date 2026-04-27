@@ -50,6 +50,40 @@ const siteDist = computed(() => {
 
 const recentTasks = computed(() => tasks.value.slice(0, 10))
 
+function formatDayLabel(offset: number) {
+  const date = new Date()
+  date.setDate(date.getDate() - offset)
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+function sameDay(dateText?: string | null, offset = 0) {
+  if (!dateText) {
+    return false
+  }
+  const target = new Date(dateText)
+  const current = new Date()
+  current.setDate(current.getDate() - offset)
+  return target.getFullYear() === current.getFullYear()
+    && target.getMonth() === current.getMonth()
+    && target.getDate() === current.getDate()
+}
+
+const trendStats = computed(() => {
+  return Array.from({ length: 7 }, (_, index) => {
+    const offset = 6 - index
+    const created = tasks.value.filter(task => sameDay(task.createdAt, offset)).length
+    const archived = tasks.value.filter(task => sameDay(task.archivedAt, offset)).length
+    const exported = exportsData.value.filter(record => sameDay(record.createdAt, offset)).length
+    return {
+      label: formatDayLabel(offset),
+      created,
+      archived,
+      exported,
+      peak: Math.max(created, archived, exported, 1),
+    }
+  })
+})
+
 onMounted(() => {
   void loadCenter()
 })
@@ -98,5 +132,28 @@ onMounted(() => {
         </el-table>
       </el-card>
     </section>
+
+    <el-card>
+      <template #header><span class="font-semibold">最近 7 天任务治理趋势</span></template>
+      <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+        <div v-for="item in trendStats" :key="item.label" class="rounded-xl border border-slate-200 p-4 bg-white">
+          <div class="text-xs text-slate-500">{{ item.label }}</div>
+          <div class="mt-4 space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>新建</span><span>{{ item.created }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-sky-500" :style="{ width: `${Math.round((item.created / item.peak) * 100)}%` }" /></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>归档</span><span>{{ item.archived }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-emerald-500" :style="{ width: `${Math.round((item.archived / item.peak) * 100)}%` }" /></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs"><span>导出</span><span>{{ item.exported }}</span></div>
+              <div class="mt-1 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-amber-500" :style="{ width: `${Math.round((item.exported / item.peak) * 100)}%` }" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-card>
   </div>
 </template>
