@@ -449,7 +449,7 @@ onMounted(() => {
         </div>
       </template>
 
-      <el-table :data="filteredBookmarks" border stripe v-loading="loading" @selection-change="handleSelectionChange">
+        <el-table :data="filteredBookmarks" border stripe v-loading="loading" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="48" />
         <el-table-column prop="pageResultId" label="结果ID" width="100" />
         <el-table-column prop="taskId" label="任务ID" width="100" />
@@ -540,6 +540,7 @@ onMounted(() => {
         </el-card>
       </div>
     </el-dialog>
+
   </div>
 </template>
 

@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { fetchExportRecords } from '@/api/api'
+import type { ExportRecord } from '@/types/entity'
+
+const loading = ref(false)
+const records = ref<ExportRecord[]>([])
+const typeFilter = ref('ALL')
+
+async function loadRecords() {
+  loading.value = true
+  try {
+    records.value = await fetchExportRecords()
+  } catch {
+    ElMessage.error('导出历史加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const stats = computed(() => ({
+  total: records.value.length,
+  csv: records.value.filter(item => item.exportType === 'CSV').length,
+  mhtml: records.value.filter(item => item.exportType === 'MHTML_ZIP').length,
+  taskScoped: records.value.filter(item => item.exportScope === 'TASK').length,
+}))
+
+const filteredRecords = computed(() => {
+  if (typeFilter.value === 'ALL') {
+    return records.value
+  }
+  return records.value.filter(item => item.exportType === typeFilter.value)
+})
+
+onMounted(() => {
+  void loadRecords()
+})
+</script>
+
+<template>
+  <div class="space-y-6">
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <el-card><div class="text-sm text-slate-500">导出总次数</div><div class="mt-2 text-2xl font-semibold">{{ stats.total }}</div></el-card>
+      <el-card><div class="text-sm text-slate-500">CSV 导出</div><div class="mt-2 text-2xl font-semibold text-sky-600">{{ stats.csv }}</div></el-card>
+      <el-card><div class="text-sm text-slate-500">MHTML 打包</div><div class="mt-2 text-2xl font-semibold text-amber-600">{{ stats.mhtml }}</div></el-card>
+      <el-card><div class="text-sm text-slate-500">任务级导出</div><div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.taskScoped }}</div></el-card>
+    </section>
+
+    <el-card>
+      <template #header>
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <span class="font-semibold">导出历史中心</span>
+          <div class="flex items-center gap-3">
+            <el-select v-model="typeFilter" size="small" style="width: 160px">
+              <el-option label="全部类型" value="ALL" />
+              <el-option label="CSV" value="CSV" />
+              <el-option label="MHTML_ZIP" value="MHTML_ZIP" />
+            </el-select>
+            <el-button text type="primary" @click="loadRecords">刷新</el-button>
+          </div>
+        </div>
+      </template>
+
+      <el-table :data="filteredRecords" border stripe v-loading="loading">
+        <el-table-column prop="exportId" label="导出ID" width="100" />
+        <el-table-column prop="taskId" label="任务ID" width="100" />
+        <el-table-column prop="exportScope" label="范围" width="130" />
+        <el-table-column prop="exportType" label="类型" width="140" />
+        <el-table-column prop="fileName" label="文件名" min-width="220" />
+        <el-table-column prop="recordCount" label="记录数" width="100" />
+        <el-table-column prop="status" label="状态" width="100" />
+        <el-table-column prop="createdAt" label="导出时间" min-width="180" />
+      </el-table>
+    </el-card>
+  </div>
+</template>

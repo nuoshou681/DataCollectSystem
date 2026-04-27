@@ -121,6 +121,8 @@ CREATE TABLE `task` (
   `last_error_message` text,
   `started_at` datetime DEFAULT NULL,
   `finished_at` datetime DEFAULT NULL,
+  `archived` tinyint(1) NOT NULL DEFAULT '0',
+  `archived_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`task_id`),
@@ -272,6 +274,74 @@ CREATE TABLE `task_runtime` (
 -- ----------------------------
 BEGIN;
 COMMIT;
+
+-- ----------------------------
+-- Table structure for export_record
+-- ----------------------------
+DROP TABLE IF EXISTS `export_record`;
+CREATE TABLE `export_record` (
+  `export_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `task_id` bigint unsigned DEFAULT NULL,
+  `export_scope` varchar(32) NOT NULL DEFAULT 'TASK',
+  `export_type` varchar(32) NOT NULL DEFAULT 'CSV',
+  `file_name` varchar(255) DEFAULT NULL,
+  `record_count` int NOT NULL DEFAULT '0',
+  `status` varchar(32) NOT NULL DEFAULT 'SUCCESS',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`export_id`),
+  KEY `idx_export_record_user_created` (`user_id`,`created_at`),
+  KEY `idx_export_record_task_created` (`task_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Table structure for task_note
+-- ----------------------------
+DROP TABLE IF EXISTS `task_note`;
+CREATE TABLE `task_note` (
+  `note_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `task_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `note_content` text NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`note_id`),
+  KEY `idx_task_note_task_created` (`task_id`,`created_at`),
+  CONSTRAINT `fk_task_note_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Table structure for task_group
+-- ----------------------------
+DROP TABLE IF EXISTS `task_group`;
+CREATE TABLE `task_group` (
+  `group_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `group_name` varchar(64) NOT NULL,
+  `group_color` varchar(32) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`group_id`),
+  KEY `idx_task_group_user_name` (`user_id`,`group_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Table structure for task_group_binding
+-- ----------------------------
+DROP TABLE IF EXISTS `task_group_binding`;
+CREATE TABLE `task_group_binding` (
+  `binding_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `task_id` bigint unsigned NOT NULL,
+  `group_id` bigint unsigned NOT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`binding_id`),
+  UNIQUE KEY `uk_task_group_binding` (`task_id`,`group_id`),
+  KEY `idx_task_group_binding_group` (`group_id`,`created_at`),
+  CONSTRAINT `fk_task_group_binding_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_task_group_binding_group` FOREIGN KEY (`group_id`) REFERENCES `task_group` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for user

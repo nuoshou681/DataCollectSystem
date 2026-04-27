@@ -126,6 +126,33 @@ public class TaskServiceImpl implements TaskService {
         return new TaskDetailView(task, runtime, events, files, pageResults);
     }
 
+    @Override
+    public boolean updateArchived(Long taskId, boolean archived, Long userId, boolean isAdmin) {
+        if (taskId == null) {
+            return false;
+        }
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) {
+            return false;
+        }
+        if (!isAdmin && (userId == null || !userId.equals(task.getUserId()))) {
+            return false;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        task.setArchived(archived);
+        task.setArchivedAt(archived ? now : null);
+        task.setUpdatedAt(now);
+        taskMapper.updateById(task);
+        taskEventService.recordEvent(
+                taskId,
+                task.getNodeId(),
+                archived ? "TASK_ARCHIVED" : "TASK_UNARCHIVED",
+                "INFO",
+                archived ? "任务已归档" : "任务已取消归档",
+                null);
+        return true;
+    }
+
     private List<Task> buildTasks(DispatchTaskRequest request) {
         if (request == null || request.getUrl() == null) {
             throw new IllegalArgumentException("task 或 url 不能为空");
@@ -157,6 +184,8 @@ public class TaskServiceImpl implements TaskService {
             task.setIdempotencyKey(blankToNull(request.getIdempotencyKey()));
             task.setRetryCount(0);
             task.setCancelRequested(false);
+            task.setArchived(false);
+            task.setArchivedAt(null);
             task.setTagIds(request.getTagIds());
             task.setCreatedAt(now);
             task.setUpdatedAt(now);
@@ -197,6 +226,8 @@ public class TaskServiceImpl implements TaskService {
             task.setIdempotencyKey(UUID.randomUUID().toString());
             task.setRetryCount(0);
             task.setCancelRequested(false);
+            task.setArchived(false);
+            task.setArchivedAt(null);
             task.setTagIds(request.getTagIds());
             task.setCreatedAt(now);
             task.setUpdatedAt(now);

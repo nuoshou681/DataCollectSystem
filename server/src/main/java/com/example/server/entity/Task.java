@@ -65,6 +65,12 @@ public class Task {
     @TableField("finished_at")
     private LocalDateTime finishedAt;
 
+    @TableField("archived")
+    private Boolean archived;
+
+    @TableField("archived_at")
+    private LocalDateTime archivedAt;
+
     @TableField("created_at")
     private LocalDateTime createdAt;
 

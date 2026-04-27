@@ -3,6 +3,7 @@ import {
   HomeIcon,
   RectangleStackIcon,
   ArchiveBoxIcon,
+  PresentationChartBarIcon,
   MagnifyingGlassIcon,
   BellIcon,
   RocketLaunchIcon,
@@ -22,6 +23,7 @@ const router = useRouter()
 const navItems = [
   { path: '/', label: '工作台概览', icon: HomeIcon },
   { path: '/tasks', label: '我的任务', icon: RectangleStackIcon },
+  { path: '/task-center', label: '任务管理中心', icon: PresentationChartBarIcon },
   { path: '/results', label: '结果中心', icon: ArchiveBoxIcon },
 ]
 
@@ -184,15 +186,15 @@ onMounted(() => {
       </div>
 
       <div class="nav-section">
-        <div class="nav-title">快捷操作</div>
-        <div class="quick-actions">
-          <button class="chip">
+      <div class="nav-title">快捷操作</div>
+      <div class="quick-actions">
+          <button class="chip" @click="router.push('/tasks')">
             <RocketLaunchIcon class="chip-icon" />
             新建任务批次
           </button>
-          <button class="chip">
+          <button class="chip" @click="router.push('/task-center')">
             <SparklesIcon class="chip-icon" />
-            保存关键词组
+            任务整理中心
           </button>
         </div>
       </div>

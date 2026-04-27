@@ -13,4 +13,6 @@ public interface TaskService {
     TaskDetailView queryTaskDetail(Long taskId, Long userId, boolean isAdmin);
 
     List<Task> dispatchBatchTasks(DispatchTaskRequest request);
+
+    boolean updateArchived(Long taskId, boolean archived, Long userId, boolean isAdmin);
 }

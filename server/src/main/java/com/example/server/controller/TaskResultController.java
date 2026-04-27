@@ -8,6 +8,7 @@ import com.example.server.entity.Message.ApiResponse;
 import com.example.server.entity.Message.ErrorCode;
 import com.example.server.service.CrawlerPageResultService;
 import com.example.server.service.CrawlerPageResultStreamService;
+import com.example.server.service.ExportRecordService;
 
 import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
@@ -36,6 +37,9 @@ public class TaskResultController {
 
     @Autowired
     private CrawlerPageResultStreamService crawlerPageResultStreamService;
+
+    @Autowired
+    private ExportRecordService exportRecordService;
 
     @GetMapping("/task/page-results")
     public ApiResponse<List<CrawlerPageResultRecord>> pageResults(@RequestParam(required = false) Long taskId) {
@@ -107,6 +111,12 @@ public class TaskResultController {
         headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
         headers.setContentDisposition(
                 ContentDisposition.attachment().filename("page-results.csv", StandardCharsets.UTF_8).build());
+        exportRecordService.create(
+                SecurityUtils.getCurrentUserId(),
+                taskId,
+                "CSV",
+                "page-results.csv",
+                records.size());
         return new ResponseEntity<>(csv.getBytes(StandardCharsets.UTF_8), headers, HttpStatus.OK);
     }
 
@@ -123,10 +133,17 @@ public class TaskResultController {
             byte[] zipContent = buildZip(files);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            String fileName = taskId == null ? "page-results-mhtml.zip" : "task-" + taskId + "-mhtml.zip";
             headers.setContentDisposition(ContentDisposition.attachment()
-                    .filename(taskId == null ? "page-results-mhtml.zip" : "task-" + taskId + "-mhtml.zip", StandardCharsets.UTF_8)
+                    .filename(fileName, StandardCharsets.UTF_8)
                     .build());
             headers.setContentLength(zipContent.length);
+            exportRecordService.create(
+                    SecurityUtils.getCurrentUserId(),
+                    taskId,
+                    "MHTML_ZIP",
+                    fileName,
+                    files.size());
             return new ResponseEntity<>(zipContent, headers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

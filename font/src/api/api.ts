@@ -13,6 +13,10 @@ import type {
   TaskBatch,
   TaskBatchDetail,
   ResultTag,
+  ExportRecord,
+  TaskNote,
+  TaskGroup,
+  TaskGroupBinding,
   UserInfo,
 } from '@/types/entity'
 import type { ApiResponse } from '@/types/apiResponse'
@@ -25,6 +29,10 @@ type RawTaskLog = Partial<TaskLog> & { node_key?: string }
 type RawTaskEvent = Partial<TaskEvent> & { node_id?: string; event_type?: string; event_level?: string; event_message?: string; payload_json?: string }
 type RawTaskBatch = Partial<TaskBatch> & { batch_id?: string; batch_name?: string; created_by?: number; task_count?: number }
 type RawResultTag = Partial<ResultTag> & { tag_id?: number; tag_name?: string; tag_color?: string; category_name?: string; binding_count?: number; page_result_ids?: number[] }
+type RawExportRecord = Partial<ExportRecord> & { export_id?: number; user_id?: number | null; task_id?: number | null; export_scope?: string; export_type?: string; file_name?: string | null; record_count?: number | null }
+type RawTaskNote = Partial<TaskNote> & { note_id?: number; task_id?: number; user_id?: number | null; note_content?: string }
+type RawTaskGroup = Partial<TaskGroup> & { group_id?: number; user_id?: number | null; group_name?: string; group_color?: string | null }
+type RawTaskGroupBinding = Partial<TaskGroupBinding> & { binding_id?: number; task_id?: number; group_id?: number; created_by?: number | null }
 type RawTaskDetail = {
   task?: RawTask
   runtime?: RawTaskRuntime | null
@@ -132,6 +140,8 @@ function mapTask(raw: RawTask, runtime?: TaskRuntime | null): Task {
     retryCount: raw.retryCount,
     cancelRequested: Boolean(raw.cancelRequested),
     lastErrorMessage: raw.lastErrorMessage ?? runtime?.lastErrorMessage ?? null,
+    archived: Boolean(raw.archived),
+    archivedAt: raw.archivedAt ?? null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     startedAt: raw.startedAt ?? runtime?.startedAt ?? null,
@@ -236,6 +246,53 @@ function mapResultTag(raw: RawResultTag): ResultTag {
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     pageResultIds: raw.pageResultIds ?? raw.page_result_ids ?? [],
+  }
+}
+
+function mapExportRecord(raw: RawExportRecord): ExportRecord {
+  return {
+    exportId: raw.exportId ?? raw.export_id ?? undefined,
+    userId: raw.userId ?? raw.user_id ?? null,
+    taskId: raw.taskId ?? raw.task_id ?? null,
+    exportScope: String(raw.exportScope ?? raw.export_scope ?? 'TASK'),
+    exportType: String(raw.exportType ?? raw.export_type ?? 'CSV'),
+    fileName: raw.fileName ?? raw.file_name ?? null,
+    recordCount: raw.recordCount ?? raw.record_count ?? null,
+    status: raw.status ?? null,
+    createdAt: raw.createdAt,
+  }
+}
+
+function mapTaskNote(raw: RawTaskNote): TaskNote {
+  return {
+    noteId: raw.noteId ?? raw.note_id ?? undefined,
+    taskId: Number(raw.taskId ?? raw.task_id ?? 0),
+    userId: raw.userId ?? raw.user_id ?? null,
+    noteContent: String(raw.noteContent ?? raw.note_content ?? ''),
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  }
+}
+
+function mapTaskGroup(raw: RawTaskGroup): TaskGroup {
+  return {
+    groupId: raw.groupId ?? raw.group_id ?? undefined,
+    userId: raw.userId ?? raw.user_id ?? null,
+    groupName: String(raw.groupName ?? raw.group_name ?? ''),
+    groupColor: raw.groupColor ?? raw.group_color ?? null,
+    description: raw.description ?? null,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  }
+}
+
+function mapTaskGroupBinding(raw: RawTaskGroupBinding): TaskGroupBinding {
+  return {
+    bindingId: raw.bindingId ?? raw.binding_id ?? undefined,
+    taskId: Number(raw.taskId ?? raw.task_id ?? 0),
+    groupId: Number(raw.groupId ?? raw.group_id ?? 0),
+    createdBy: raw.createdBy ?? raw.created_by ?? null,
+    createdAt: raw.createdAt,
   }
 }
 
@@ -439,6 +496,57 @@ export async function fetchPageResultTagBindings(pageResultIds: number[]) {
   return Object.fromEntries(
     Object.entries(raw).map(([key, value]) => [Number(key), (value ?? []).map(mapResultTag)]),
   ) as Record<number, ResultTag[]>
+}
+
+export async function fetchExportRecords() {
+  const res = await request.get<ApiResponse<ExportRecord[]>>('/task/exports')
+  return (unwrapResponse<RawExportRecord[]>(res) ?? []).map(mapExportRecord)
+}
+
+export async function fetchTaskNotes(taskId: number) {
+  const res = await request.get<ApiResponse<TaskNote[]>>(`/task/metadata/${taskId}/notes`)
+  return (unwrapResponse<RawTaskNote[]>(res) ?? []).map(mapTaskNote)
+}
+
+export async function createTaskNote(taskId: number, noteContent: string) {
+  const res = await request.post<ApiResponse<TaskNote>>(`/task/metadata/${taskId}/notes`, { noteContent })
+  const raw = unwrapResponse<RawTaskNote>(res)
+  return raw ? mapTaskNote(raw) : null
+}
+
+export async function fetchTaskGroups() {
+  const res = await request.get<ApiResponse<TaskGroup[]>>('/task/metadata/groups')
+  return (unwrapResponse<RawTaskGroup[]>(res) ?? []).map(mapTaskGroup)
+}
+
+export async function createTaskGroup(payload: TaskGroup) {
+  const res = await request.post<ApiResponse<TaskGroup>>('/task/metadata/groups', payload)
+  const raw = unwrapResponse<RawTaskGroup>(res)
+  return raw ? mapTaskGroup(raw) : null
+}
+
+export async function fetchTaskGroupBindings(taskId: number) {
+  const res = await request.get<ApiResponse<TaskGroupBinding[]>>(`/task/metadata/${taskId}/groups`)
+  return (unwrapResponse<RawTaskGroupBinding[]>(res) ?? []).map(mapTaskGroupBinding)
+}
+
+export async function fetchAllTaskGroupBindings() {
+  const res = await request.get<ApiResponse<TaskGroupBinding[]>>('/task/metadata/groups/bindings')
+  return (unwrapResponse<RawTaskGroupBinding[]>(res) ?? []).map(mapTaskGroupBinding)
+}
+
+export async function bindTaskGroup(taskId: number, groupId: number) {
+  const res = await request.post<ApiResponse<boolean>>(`/task/metadata/${taskId}/groups`, null, {
+    params: { groupId },
+  })
+  return unwrapResponse<boolean>(res)
+}
+
+export async function updateTaskArchived(taskId: number, archived: boolean) {
+  const res = await request.post<ApiResponse<boolean>>(`/task/${taskId}/archive`, null, {
+    params: { archived },
+  })
+  return unwrapResponse<boolean>(res)
 }
 
 export function getPageResultStreamUrl() {

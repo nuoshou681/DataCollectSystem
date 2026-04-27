@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -74,5 +75,14 @@ public class TaskController {
             log.error("批量任务分发失败, url={}", request.getUrl(), e);
             return ApiResponse.error(ErrorCode.SERVER_ERROR, "批量任务分发失败: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/{taskId}/archive")
+    public ApiResponse<?> updateArchive(@PathVariable Long taskId, @RequestParam boolean archived) {
+        boolean updated = taskService.updateArchived(taskId, archived, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin());
+        if (!updated) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "任务不存在或无权限归档");
+        }
+        return ApiResponse.success(true);
     }
 }

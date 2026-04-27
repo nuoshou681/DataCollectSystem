@@ -7,6 +7,7 @@ import {
   ShieldCheckIcon,
   BoltIcon,
   BellIcon,
+  ClipboardDocumentCheckIcon,
 } from '@heroicons/vue/24/outline'
 import { BugAntIcon } from '@heroicons/vue/24/solid'
 import { computed, onMounted, ref } from 'vue'
@@ -20,6 +21,7 @@ const router = useRouter()
 
 const navItems = [
   { path: '/admin', label: '控制台', icon: Squares2X2Icon },
+  { path: '/admin/task-center', label: '任务治理', icon: ClipboardDocumentCheckIcon },
   { path: '/admin/nodes', label: '节点管理', icon: ServerStackIcon },
   { path: '/admin/batches', label: '任务批次', icon: QueueListIcon },
   { path: '/admin/logs', label: '审计日志', icon: DocumentIcon },

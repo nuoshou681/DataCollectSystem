@@ -47,8 +47,8 @@ const highlights = computed(() => {
   return [
     { label: '任务总量', value: String(tasks.value.length), note: '主任务表' },
     { label: '运行中', value: String(runtimes.filter(runtime => runtime?.status === 'RUNNING').length), note: 'task_runtime' },
+    { label: '已归档', value: String(tasks.value.filter(task => task.archived).length), note: 'task.archived' },
     { label: '在线节点', value: String(nodes.value.filter(node => ['ONLINE', 'IDLE'].includes(deriveNodeStatus(node).displayStatus)).length), note: 'crawler' },
-    { label: '错误事件', value: String(logs.value.filter(log => log.logLevel === 'ERROR').length), note: 'task_event/task_log 镜像' },
   ]
 })
 
@@ -62,6 +62,15 @@ const queueBands = computed(() => {
     { label: '执行中', value: Math.round((running / total) * 100), color: 'bg-sky-500' },
     { label: '异常', value: Math.round((failed / total) * 100), color: 'bg-rose-500' },
   ]
+})
+
+const siteStats = computed(() => {
+  const map = new Map<string, number>()
+  for (const task of tasks.value) {
+    const site = task.siteType || 'OTHER'
+    map.set(site, (map.get(site) ?? 0) + 1)
+  }
+  return Array.from(map.entries()).slice(0, 4)
 })
 
 onMounted(() => {
@@ -96,14 +105,14 @@ onBeforeUnmount(() => {
         </div>
       </el-card>
       <el-card>
-        <template #header><span class="font-semibold">最近异常</span></template>
+        <template #header><span class="font-semibold">站点任务分布</span></template>
         <div class="space-y-3">
-          <div v-for="log in logs.slice(0, 4)" :key="log.logId" class="rounded-xl border border-slate-100 p-3">
+          <div v-for="item in siteStats" :key="item[0]" class="rounded-xl border border-slate-100 p-3">
             <div class="flex items-center justify-between">
-              <div class="font-medium">任务 #{{ log.taskId }}</div>
-              <el-tag :type="log.logLevel === 'ERROR' ? 'danger' : log.logLevel === 'WARN' ? 'warning' : 'info'" size="small">{{ log.logLevel }}</el-tag>
+              <div class="font-medium">{{ item[0] }}</div>
+              <el-tag type="info" size="small">{{ item[1] }}</el-tag>
             </div>
-            <div class="text-xs text-gray-500 mt-2">{{ log.logMessage }}</div>
+            <div class="text-xs text-gray-500 mt-2">当前站点下的累计任务数量</div>
           </div>
         </div>
       </el-card>

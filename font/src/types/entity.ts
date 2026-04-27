@@ -41,6 +41,8 @@ export interface Task {
   retryCount?: number
   cancelRequested?: boolean
   lastErrorMessage?: string | null
+  archived?: boolean
+  archivedAt?: string | null
   createdAt?: string
   updatedAt?: string
   startedAt?: string | null
@@ -177,4 +179,43 @@ export interface ResultTag {
   createdAt?: string
   updatedAt?: string
   pageResultIds?: number[]
+}
+
+export interface ExportRecord {
+  exportId?: number
+  userId?: number | null
+  taskId?: number | null
+  exportScope: string
+  exportType: string
+  fileName?: string | null
+  recordCount?: number | null
+  status?: string | null
+  createdAt?: string
+}
+
+export interface TaskNote {
+  noteId?: number
+  taskId: number
+  userId?: number | null
+  noteContent: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface TaskGroup {
+  groupId?: number
+  userId?: number | null
+  groupName: string
+  groupColor?: string | null
+  description?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface TaskGroupBinding {
+  bindingId?: number
+  taskId: number
+  groupId: number
+  createdBy?: number | null
+  createdAt?: string
 }

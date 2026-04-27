@@ -3,20 +3,27 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   addBookmark,
+  bindTaskGroup,
   cachePageResultMhtml,
+  createTaskGroup,
+  createTaskNote,
   dispatchBatchTask,
   dispatchTask,
   downloadPageResultMhtml,
   exportPageResults,
   fetchResultTags,
   fetchBookmarkIds,
+  fetchTaskGroupBindings,
+  fetchTaskGroups,
+  fetchTaskNotes,
   fetchTaskDetail,
   fetchTasks,
   getPageResultStreamUrl,
   getTaskRuntimeStreamUrl,
   removeBookmark,
+  updateTaskArchived,
 } from '@/api/api'
-import type { CrawlerPageResult, DispatchTaskPayload, ResultTag, Task, TaskDetail, TaskEvent, TaskRuntime } from '@/types/entity'
+import type { CrawlerPageResult, DispatchTaskPayload, ResultTag, Task, TaskDetail, TaskEvent, TaskGroup, TaskGroupBinding, TaskNote, TaskRuntime } from '@/types/entity'
 import { getCurrentUserProfile } from '@/utils/auth'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
 
@@ -52,6 +59,9 @@ const tasks = ref<Task[]>([])
 const detailMap = ref<Record<number, TaskDetail | undefined>>({})
 const bookmarkIds = ref<Set<number>>(new Set())
 const resultTags = ref<ResultTag[]>([])
+const taskNotesMap = ref<Record<number, TaskNote[]>>({})
+const taskGroups = ref<TaskGroup[]>([])
+const taskGroupBindingMap = ref<Record<number, TaskGroupBinding[]>>({})
 const activeTaskId = ref<number | null>(null)
 const streamConnected = ref(false)
 const runtimeStreamConnected = ref(false)
@@ -62,6 +72,14 @@ let runtimeStream: EventSource | null = null
 
 const cacheLoadingMap = ref<Record<number, boolean>>({})
 const downloadLoadingMap = ref<Record<number, boolean>>({})
+const noteDraft = ref('')
+const selectedGroupId = ref<number | null>(null)
+const taskGroupDialogVisible = ref(false)
+const groupForm = ref<TaskGroup>({
+  groupName: '',
+  groupColor: '#2563eb',
+  description: '',
+})
 const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
 
 async function loadTaskData(taskIdToOpen?: number) {
@@ -105,6 +123,25 @@ async function loadResultTags() {
     resultTags.value = await fetchResultTags()
   } catch {
     ElMessage.error('任务标签加载失败')
+  }
+}
+
+async function loadTaskMetadata(taskIds?: number[]) {
+  const ids = taskIds ?? tasks.value.map(task => task.taskId)
+  if (!ids.length) {
+    return
+  }
+  try {
+    const [groups, noteEntries, bindingEntries] = await Promise.all([
+      fetchTaskGroups(),
+      Promise.all(ids.map(async taskId => [taskId, await fetchTaskNotes(taskId)] as const)),
+      Promise.all(ids.map(async taskId => [taskId, await fetchTaskGroupBindings(taskId)] as const)),
+    ])
+    taskGroups.value = groups
+    taskNotesMap.value = Object.fromEntries(noteEntries)
+    taskGroupBindingMap.value = Object.fromEntries(bindingEntries)
+  } catch {
+    ElMessage.error('任务元数据加载失败')
   }
 }
 
@@ -166,6 +203,7 @@ async function submitTask() {
       })
       ElMessage.success('批量任务创建成功')
       await loadTaskData()
+      await loadTaskMetadata()
     } catch (error) {
       ElMessage.error(error instanceof Error ? error.message : '批量任务创建失败')
     } finally {
@@ -186,6 +224,7 @@ async function submitTask() {
     await Promise.all(requests)
     ElMessage.success('任务创建成功')
     await loadTaskData()
+    await loadTaskMetadata()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '任务创建失败')
   } finally {
@@ -369,6 +408,71 @@ async function exportCurrentResults() {
   }
 }
 
+async function submitTaskNote() {
+  if (!activeTaskId.value || !noteDraft.value.trim()) {
+    ElMessage.error('请输入备注内容')
+    return
+  }
+  try {
+    await createTaskNote(activeTaskId.value, noteDraft.value.trim())
+    taskNotesMap.value[activeTaskId.value] = await fetchTaskNotes(activeTaskId.value)
+    noteDraft.value = ''
+    ElMessage.success('任务备注已添加')
+  } catch {
+    ElMessage.error('任务备注添加失败')
+  }
+}
+
+async function submitTaskGroup() {
+  if (!groupForm.value.groupName.trim()) {
+    ElMessage.error('分组名称不能为空')
+    return
+  }
+  try {
+    await createTaskGroup(groupForm.value)
+    taskGroups.value = await fetchTaskGroups()
+    groupForm.value = {
+      groupName: '',
+      groupColor: '#2563eb',
+      description: '',
+    }
+    taskGroupDialogVisible.value = false
+    ElMessage.success('任务分组创建成功')
+  } catch {
+    ElMessage.error('任务分组创建失败')
+  }
+}
+
+async function bindCurrentTaskGroup() {
+  if (!activeTaskId.value || !selectedGroupId.value) {
+    ElMessage.error('请选择任务分组')
+    return
+  }
+  try {
+    await bindTaskGroup(activeTaskId.value, selectedGroupId.value)
+    taskGroupBindingMap.value[activeTaskId.value] = await fetchTaskGroupBindings(activeTaskId.value)
+    ElMessage.success('任务已加入分组')
+  } catch {
+    ElMessage.error('任务分组绑定失败')
+  }
+}
+
+async function toggleTaskArchive(task: Task) {
+  try {
+    await updateTaskArchived(task.taskId, !task.archived)
+    task.archived = !task.archived
+    task.archivedAt = task.archived ? new Date().toISOString() : null
+    const detail = detailMap.value[task.taskId]
+    if (detail) {
+      detail.task.archived = task.archived
+      detail.task.archivedAt = task.archivedAt
+    }
+    ElMessage.success(task.archived ? '任务已归档' : '任务已取消归档')
+  } catch {
+    ElMessage.error('任务归档操作失败')
+  }
+}
+
 const filteredTasks = computed(() => {
   const keyword = keywordFilter.value.trim().toLowerCase()
   return tasks.value.filter(task => {
@@ -411,9 +515,26 @@ const activeTaskDetail = computed(() => {
   return activeTaskId.value ? detailMap.value[activeTaskId.value] ?? null : null
 })
 
+const activeTaskNotes = computed(() => {
+  if (!activeTaskId.value) {
+    return []
+  }
+  return taskNotesMap.value[activeTaskId.value] ?? []
+})
+
+const activeTaskGroups = computed(() => {
+  if (!activeTaskId.value) {
+    return []
+  }
+  const bindings = taskGroupBindingMap.value[activeTaskId.value] ?? []
+  const groupMap = new Map(taskGroups.value.map(group => [group.groupId, group]))
+  return bindings.map(binding => groupMap.get(binding.groupId)).filter((group): group is TaskGroup => Boolean(group))
+})
+
 onMounted(() => {
   void loadResultTags()
   void loadTaskData()
+  void loadTaskMetadata()
   connectPageResultStream()
   connectRuntimeStream()
 })
@@ -491,6 +612,9 @@ onBeforeUnmount(() => {
                 <el-option label="失败" value="FAILED" />
               </el-select>
               <el-button size="small" type="success" :loading="exporting" @click="exportCurrentResults">导出结果</el-button>
+              <el-button size="small" plain type="warning" :disabled="!activeTaskId" @click="activeTaskDetail && toggleTaskArchive(activeTaskDetail.task)">
+                {{ activeTaskDetail?.task.archived ? '取消归档' : '归档任务' }}
+              </el-button>
               <el-button text type="primary" :loading="loading" @click="loadTaskData(activeTaskId ?? undefined)">刷新</el-button>
             </div>
           </div>
@@ -514,6 +638,11 @@ onBeforeUnmount(() => {
           <el-table-column label="节点" min-width="160">
             <template #default="scope">{{ scope.row.runtime?.assignedNodeId || scope.row.nodeId || '未分配' }}</template>
           </el-table-column>
+          <el-table-column label="归档" width="110">
+            <template #default="scope">
+              <el-tag :type="scope.row.archived ? 'info' : 'success'">{{ scope.row.archived ? '已归档' : '活跃' }}</el-tag>
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
 
@@ -529,7 +658,43 @@ onBeforeUnmount(() => {
             <div><span class="text-gray-500">开始时间:</span> {{ activeTaskDetail.runtime?.startedAt || '-' }}</div>
             <div><span class="text-gray-500">结束时间:</span> {{ activeTaskDetail.runtime?.finishedAt || '-' }}</div>
             <div><span class="text-gray-500">文件数:</span> {{ activeTaskDetail.files.length }}</div>
+            <div><span class="text-gray-500">归档状态:</span> {{ activeTaskDetail.task.archived ? '已归档' : '未归档' }}</div>
+            <div><span class="text-gray-500">归档时间:</span> {{ activeTaskDetail.task.archivedAt || '-' }}</div>
             <div class="col-span-2"><span class="text-gray-500">最后错误:</span> {{ activeTaskDetail.runtime?.lastErrorMessage || activeTaskDetail.task.lastErrorMessage || '-' }}</div>
+          </div>
+
+          <el-divider>任务整理</el-divider>
+          <div class="space-y-4">
+            <div class="flex items-center gap-3 flex-wrap">
+              <el-select v-model="selectedGroupId" clearable placeholder="选择任务分组" style="width: 220px">
+                <el-option v-for="group in taskGroups" :key="group.groupId" :label="group.groupName" :value="group.groupId!" />
+              </el-select>
+              <el-button type="primary" plain @click="bindCurrentTaskGroup">加入分组</el-button>
+              <el-button plain @click="taskGroupDialogVisible = true">新建分组</el-button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <el-tag
+                v-for="group in activeTaskGroups"
+                :key="group.groupId"
+                effect="dark"
+                :color="group.groupColor || undefined"
+              >
+                {{ group.groupName }}
+              </el-tag>
+              <span v-if="!activeTaskGroups.length" class="text-sm text-slate-500">当前任务尚未加入分组</span>
+            </div>
+            <el-input v-model="noteDraft" type="textarea" :rows="3" placeholder="补充任务备注、异常说明、结果整理结论" />
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div class="text-sm text-slate-500">备注用于答辩展示任务整理过程、异常记录和人工结论。</div>
+              <el-button type="primary" @click="submitTaskNote">添加备注</el-button>
+            </div>
+            <div class="space-y-2 max-h-48 overflow-auto">
+              <div v-for="note in activeTaskNotes" :key="note.noteId" class="rounded-lg border border-slate-200 p-3">
+                <div class="text-sm text-slate-700">{{ note.noteContent }}</div>
+                <div class="mt-2 text-xs text-slate-400">{{ note.updatedAt || note.createdAt || '-' }}</div>
+              </div>
+              <span v-if="!activeTaskNotes.length" class="text-sm text-slate-500">还没有任务备注</span>
+            </div>
           </div>
 
           <el-divider>页面结果</el-divider>
@@ -569,5 +734,25 @@ onBeforeUnmount(() => {
         </div>
       </el-card>
     </section>
+
+    <el-dialog v-model="taskGroupDialogVisible" title="新建任务分组" width="520px">
+      <el-form label-width="90px">
+        <el-form-item label="分组名称">
+          <el-input v-model="groupForm.groupName" maxlength="40" />
+        </el-form-item>
+        <el-form-item label="分组颜色">
+          <el-color-picker v-model="groupForm.groupColor" />
+        </el-form-item>
+        <el-form-item label="分组说明">
+          <el-input v-model="groupForm.description" type="textarea" :rows="3" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <el-button @click="taskGroupDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitTaskGroup">创建</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
