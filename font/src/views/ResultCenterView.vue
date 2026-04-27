@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   bindResultTag,
   createResultTag,
@@ -22,9 +22,11 @@ const tagLoading = ref(false)
 const tagDialogVisible = ref(false)
 const selectedTagId = ref<number | null>(null)
 const categoryFilter = ref('')
+const bulkOperating = ref(false)
 const bookmarks = ref<CrawlerPageResult[]>([])
 const resultTags = ref<ResultTag[]>([])
 const tagBindingMap = ref<Record<number, ResultTag[]>>({})
+const selectedRows = ref<CrawlerPageResult[]>([])
 const tagForm = reactive<ResultTag>({
   tagName: '',
   tagColor: '#2563eb',
@@ -168,6 +170,63 @@ async function removeTagFromResult(tagId?: number, pageResultId?: number) {
   }
 }
 
+function handleSelectionChange(rows: CrawlerPageResult[]) {
+  selectedRows.value = rows
+}
+
+async function bulkBindTag() {
+  if (!selectedTagId.value || selectedRows.value.length === 0) {
+    ElMessage.error('请先选择结果和标签')
+    return
+  }
+  bulkOperating.value = true
+  try {
+    await Promise.all(
+      selectedRows.value
+        .map(item => item.pageResultId)
+        .filter((id): id is number => Boolean(id))
+        .map(pageResultId => bindResultTag(selectedTagId.value as number, pageResultId)),
+    )
+    ElMessage.success(`已批量打标签 ${selectedRows.value.length} 条`)
+    await loadBookmarks()
+  } catch {
+    ElMessage.error('批量打标签失败')
+  } finally {
+    bulkOperating.value = false
+  }
+}
+
+async function bulkUnbookmark() {
+  if (selectedRows.value.length === 0) {
+    ElMessage.error('请先选择要取消收藏的结果')
+    return
+  }
+  try {
+    await ElMessageBox.confirm(`确定取消收藏 ${selectedRows.value.length} 条结果吗？`, '批量取消收藏', {
+      type: 'warning',
+    })
+  } catch {
+    return
+  }
+
+  bulkOperating.value = true
+  try {
+    await Promise.all(
+      selectedRows.value
+        .map(item => item.pageResultId)
+        .filter((id): id is number => Boolean(id))
+        .map(pageResultId => removeBookmark(pageResultId)),
+    )
+    ElMessage.success(`已取消收藏 ${selectedRows.value.length} 条`)
+    selectedRows.value = []
+    await loadBookmarks()
+  } catch {
+    ElMessage.error('批量取消收藏失败')
+  } finally {
+    bulkOperating.value = false
+  }
+}
+
 const filteredBookmarks = computed(() => {
   return bookmarks.value.filter(item => {
     const tags = item.pageResultId ? tagBindingMap.value[item.pageResultId] ?? [] : []
@@ -181,11 +240,65 @@ const filteredBookmarks = computed(() => {
   })
 })
 
+const activeCategoryGroups = computed(() => {
+  const groups = new Map<string, number>()
+  for (const tag of resultTags.value) {
+    const key = tag.categoryName || '未分类'
+    groups.set(key, (groups.get(key) ?? 0) + (tag.bindingCount ?? 0))
+  }
+  return Array.from(groups.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+})
+
+const topTags = computed(() => {
+  return [...resultTags.value]
+    .sort((a, b) => (b.bindingCount ?? 0) - (a.bindingCount ?? 0))
+    .slice(0, 6)
+})
+
+const selectedCount = computed(() => selectedRows.value.length)
+
+const hotspotSlices = computed(() => {
+  const total = activeCategoryGroups.value.reduce((sum, item) => sum + item.count, 0)
+  if (total <= 0) {
+    return []
+  }
+  const palette = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
+  let cursor = 0
+  return activeCategoryGroups.value.map((group, index) => {
+    const ratio = group.count / total
+    const start = cursor
+    const end = cursor + ratio * 360
+    cursor = end
+    return {
+      ...group,
+      color: palette[index % palette.length],
+      start,
+      end,
+      percent: Math.round(ratio * 1000) / 10,
+    }
+  })
+})
+
+const hotspotChartStyle = computed(() => {
+  if (!hotspotSlices.value.length) {
+    return {
+      background: 'conic-gradient(#e2e8f0 0deg 360deg)',
+    }
+  }
+  const segments = hotspotSlices.value.map(item => `${item.color} ${item.start}deg ${item.end}deg`)
+  return {
+    background: `conic-gradient(${segments.join(', ')})`,
+  }
+})
+
 const stats = computed(() => ({
   total: bookmarks.value.length,
   success: bookmarks.value.filter(item => item.success).length,
   failed: bookmarks.value.filter(item => !item.success).length,
   categories: new Set(resultTags.value.map(item => item.categoryName || '未分类')).size,
+  taggedResults: filteredBookmarks.value.filter(item => (item.tags?.length ?? 0) > 0).length,
 }))
 
 onMounted(() => {
@@ -195,19 +308,129 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
       <el-card><div class="text-sm text-gray-500">收藏结果</div><div class="text-2xl font-semibold mt-2">{{ stats.total }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">成功结果</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ stats.success }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">失败结果</div><div class="text-2xl font-semibold mt-2 text-rose-600">{{ stats.failed }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">标签分类</div><div class="text-2xl font-semibold mt-2 text-sky-600">{{ stats.categories }}</div></el-card>
+      <el-card><div class="text-sm text-gray-500">已打标签结果</div><div class="text-2xl font-semibold mt-2 text-amber-600">{{ stats.taggedResults }}</div></el-card>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-6">
+      <el-card>
+        <template #header><span class="font-semibold">标签使用榜</span></template>
+        <div class="space-y-3">
+          <div
+            v-for="tag in topTags"
+            :key="tag.tagId"
+            class="rounded-xl border border-slate-200 px-4 py-3"
+          >
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <span class="inline-block h-3 w-3 rounded-full" :style="{ backgroundColor: tag.tagColor || '#94a3b8' }" />
+                <div>
+                  <div class="font-medium">{{ tag.tagName }}</div>
+                  <div class="text-xs text-slate-500">{{ tag.categoryName || '未分类' }}</div>
+                </div>
+              </div>
+              <el-tag type="info">{{ tag.bindingCount || 0 }} 次</el-tag>
+            </div>
+          </div>
+          <el-empty v-if="!topTags.length" description="还没有标签使用数据" />
+        </div>
+      </el-card>
+
+      <el-card>
+        <template #header><span class="font-semibold">分类分布</span></template>
+        <div class="space-y-4">
+          <div
+            v-for="group in activeCategoryGroups"
+            :key="group.name"
+            class="space-y-2"
+          >
+            <div class="flex items-center justify-between text-sm">
+              <span>{{ group.name }}</span>
+              <span class="text-slate-500">{{ group.count }}</span>
+            </div>
+            <el-progress
+              :percentage="stats.total ? Math.min(100, Math.round((group.count / Math.max(stats.total, 1)) * 100)) : 0"
+              :stroke-width="10"
+              status="success"
+            />
+          </div>
+          <el-empty v-if="!activeCategoryGroups.length" description="还没有分类数据" />
+        </div>
+      </el-card>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-[1fr_1.2fr] gap-6">
+      <el-card>
+        <template #header><span class="font-semibold">采集热点方向分析</span></template>
+        <div class="hotspot-panel">
+          <div class="hotspot-chart-wrap">
+            <div class="hotspot-chart" :style="hotspotChartStyle">
+              <div class="hotspot-hole">
+                <strong>{{ activeCategoryGroups.length }}</strong>
+                <span>主题方向</span>
+              </div>
+            </div>
+          </div>
+          <div class="hotspot-legend">
+            <div
+              v-for="slice in hotspotSlices"
+              :key="slice.name"
+              class="hotspot-legend-item"
+            >
+              <span class="hotspot-dot" :style="{ backgroundColor: slice.color }" />
+              <div class="hotspot-text">
+                <div class="hotspot-name">{{ slice.name }}</div>
+                <div class="hotspot-meta">{{ slice.count }} 条 · {{ slice.percent }}%</div>
+              </div>
+            </div>
+            <el-empty v-if="!hotspotSlices.length" description="暂无热点方向数据" />
+          </div>
+        </div>
+      </el-card>
+
+      <el-card>
+        <template #header><span class="font-semibold">大数据主题解读</span></template>
+        <div class="insight-grid">
+          <div class="insight-card">
+            <div class="insight-label">主题聚类</div>
+            <div class="insight-value">{{ activeCategoryGroups[0]?.name || '未形成' }}</div>
+            <p class="insight-desc">当前标签分类中占比最高的采集主题，可作为热点方向的主类目展示。</p>
+          </div>
+          <div class="insight-card">
+            <div class="insight-label">热点覆盖率</div>
+            <div class="insight-value">{{ stats.total ? Math.round((stats.taggedResults / stats.total) * 100) : 0 }}%</div>
+            <p class="insight-desc">已打标签结果占收藏结果的比例，可包装为“已完成语义归类的数据覆盖率”。</p>
+          </div>
+          <div class="insight-card">
+            <div class="insight-label">分类离散度</div>
+            <div class="insight-value">{{ stats.categories }}</div>
+            <p class="insight-desc">当前采集结果被划分出的主题类别数量，可用来体现数据分布的广度。</p>
+          </div>
+          <div class="insight-card">
+            <div class="insight-label">标签活跃度</div>
+            <div class="insight-value">{{ topTags[0]?.bindingCount || 0 }}</div>
+            <p class="insight-desc">最活跃标签的使用次数，可以解释为当前热点主题下的高频内容聚集度。</p>
+          </div>
+        </div>
+      </el-card>
     </section>
 
     <el-card>
       <template #header>
-        <div class="flex items-center justify-between">
+        <div class="result-toolbar">
           <span class="font-semibold">结果中心</span>
-          <div class="flex items-center gap-3">
-            <el-input v-model="categoryFilter" size="small" placeholder="按标签/分类筛选" style="width: 220px" />
+          <div class="result-toolbar-actions">
+            <el-input v-model="categoryFilter" size="small" placeholder="按标签/分类筛选" class="toolbar-search" />
+            <el-tag type="info" size="small">已选 {{ selectedCount }}</el-tag>
+            <el-select v-model="selectedTagId" size="small" placeholder="批量选标签" class="toolbar-select">
+              <el-option v-for="tag in resultTags" :key="tag.tagId" :label="tag.tagName" :value="tag.tagId" />
+            </el-select>
+            <el-button size="small" type="primary" plain :loading="bulkOperating" @click="bulkBindTag">批量打标签</el-button>
+            <el-button size="small" type="danger" plain :loading="bulkOperating" @click="bulkUnbookmark">批量取消收藏</el-button>
             <el-button text type="primary" @click="loadBookmarks">刷新</el-button>
             <el-button type="success" :loading="exporting" @click="exportAll">导出 CSV</el-button>
             <el-button type="warning" :loading="exportingMhtml" @click="exportAllMhtml">导出 MHTML</el-button>
@@ -216,7 +439,8 @@ onMounted(() => {
         </div>
       </template>
 
-      <el-table :data="filteredBookmarks" border stripe v-loading="loading">
+      <el-table :data="filteredBookmarks" border stripe v-loading="loading" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="48" />
         <el-table-column prop="pageResultId" label="结果ID" width="100" />
         <el-table-column prop="taskId" label="任务ID" width="100" />
         <el-table-column prop="pageTitle" label="标题" min-width="200" />
@@ -299,3 +523,171 @@ onMounted(() => {
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.result-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.result-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.toolbar-search {
+  width: 220px;
+  max-width: 100%;
+}
+
+.toolbar-select {
+  width: 128px;
+  max-width: 100%;
+}
+
+.hotspot-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.hotspot-chart-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.hotspot-chart {
+  width: min(260px, 58vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+}
+
+.hotspot-hole {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8);
+}
+
+.hotspot-hole strong {
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1;
+}
+
+.hotspot-hole span {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hotspot-legend {
+  display: grid;
+  gap: 12px;
+}
+
+.hotspot-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.hotspot-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.hotspot-text {
+  min-width: 0;
+}
+
+.hotspot-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.hotspot-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.insight-card {
+  min-height: 150px;
+  padding: 18px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+}
+
+.insight-label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.insight-value {
+  margin-top: 10px;
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.insight-desc {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+@media (max-width: 1024px) {
+  .hotspot-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .result-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .toolbar-search,
+  .toolbar-select {
+    width: 100%;
+  }
+}
+</style>

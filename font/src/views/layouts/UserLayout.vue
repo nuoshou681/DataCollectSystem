@@ -461,6 +461,7 @@ onMounted(() => {
 .main-panel {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .topbar {
@@ -470,6 +471,8 @@ onMounted(() => {
   justify-content: space-between;
   border-bottom: 1px solid #e2e8f0;
   background: #ffffff;
+  gap: 18px;
+  flex-wrap: wrap;
 }
 
 .search {
@@ -568,6 +571,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .dropdown-wrap {
@@ -685,6 +690,7 @@ onMounted(() => {
 
 .content {
   padding: 28px;
+  min-width: 0;
 }
 
 @media (max-width: 1024px) {
@@ -694,6 +700,37 @@ onMounted(() => {
 
   .side-panel {
     display: none;
+  }
+
+  .topbar {
+    padding: 18px 20px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search {
+    width: 100%;
+  }
+
+  .search-panel {
+    width: min(100%, 92vw);
+  }
+
+  .top-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-pill {
+    max-width: 100%;
+  }
+
+  .content {
+    padding: 16px;
   }
 }
 </style>
