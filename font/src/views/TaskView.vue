@@ -106,6 +106,8 @@ async function loadTaskData(taskIdToOpen?: number) {
       }
     }
 
+    await loadTaskMetadata(taskData.map(task => task.taskId))
+
     if (taskIdToOpen) {
       activeTaskId.value = taskIdToOpen
     } else if (!activeTaskId.value && taskData.length > 0) {
@@ -552,14 +554,6 @@ const activeTaskNotes = computed(() => {
   return taskNotesMap.value[activeTaskId.value] ?? []
 })
 
-const activeTaskNoteSummary = computed(() => {
-  const notes = activeTaskNotes.value
-  const total = notes.length
-  const latest = notes[0]?.updatedAt || notes[0]?.createdAt || '-'
-  const longNotes = notes.filter(note => note.noteContent.length >= 20).length
-  return { total, latest, longNotes }
-})
-
 const activeTaskGroups = computed(() => {
   if (!activeTaskId.value) {
     return []
@@ -572,7 +566,6 @@ const activeTaskGroups = computed(() => {
 onMounted(() => {
   void loadResultTags()
   void loadTaskData()
-  void loadTaskMetadata()
   connectPageResultStream()
   connectRuntimeStream()
 })
@@ -721,23 +714,9 @@ onBeforeUnmount(() => {
               </el-tag>
               <span v-if="!activeTaskGroups.length" class="text-sm text-slate-500">当前任务尚未加入分组</span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div class="rounded-lg border border-slate-200 p-3">
-                <div class="text-xs text-slate-500">备注总数</div>
-                <div class="mt-2 text-xl font-semibold">{{ activeTaskNoteSummary.total }}</div>
-              </div>
-              <div class="rounded-lg border border-slate-200 p-3">
-                <div class="text-xs text-slate-500">长备注数</div>
-                <div class="mt-2 text-xl font-semibold">{{ activeTaskNoteSummary.longNotes }}</div>
-              </div>
-              <div class="rounded-lg border border-slate-200 p-3">
-                <div class="text-xs text-slate-500">最近更新时间</div>
-                <div class="mt-2 text-sm font-medium break-all">{{ activeTaskNoteSummary.latest }}</div>
-              </div>
-            </div>
             <el-input v-model="noteDraft" type="textarea" :rows="3" placeholder="补充任务备注、异常说明、结果整理结论" />
             <div class="flex items-center justify-between gap-3 flex-wrap">
-              <div class="text-sm text-slate-500">备注用于答辩展示任务整理过程、异常记录和人工结论。</div>
+              <div class="text-sm text-slate-500">备注用于记录任务异常、结果整理结论和后续说明。</div>
               <div class="flex items-center gap-2">
                 <el-button v-if="editingNoteId" @click="editingNoteId = null; noteDraft = ''">取消编辑</el-button>
                 <el-button type="primary" @click="submitTaskNote">{{ editingNoteId ? '保存修改' : '添加备注' }}</el-button>
