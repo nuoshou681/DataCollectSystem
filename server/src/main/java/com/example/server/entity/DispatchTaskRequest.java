@@ -12,6 +12,7 @@ public class DispatchTaskRequest {
     private String keyword;
     private String url;
     private String keywordsText;
+    private java.util.List<Long> tagIds;
     private Integer maxLinksPerLevel;
     private String siteType;
     private Integer priority;

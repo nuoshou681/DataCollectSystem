@@ -19,4 +19,5 @@ public class CrawlerTaskMessage {
     private Integer priority;
     private String source;
     private String idempotencyKey;
+    private java.util.List<Long> tagIds;
 }

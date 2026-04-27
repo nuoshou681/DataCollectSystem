@@ -130,6 +130,16 @@ async function submitTag() {
   }
 }
 
+const categoryColorHints = computed(() => {
+  const map = new Map<string, string>()
+  for (const tag of resultTags.value) {
+    if (tag.categoryName && tag.tagColor && !map.has(tag.categoryName)) {
+      map.set(tag.categoryName, tag.tagColor)
+    }
+  }
+  return Array.from(map.entries()).map(([categoryName, tagColor]) => ({ categoryName, tagColor }))
+})
+
 async function removeTag(tagId?: number) {
   if (!tagId) {
     return
@@ -316,14 +326,14 @@ onMounted(() => {
       <el-card><div class="text-sm text-gray-500">已打标签结果</div><div class="text-2xl font-semibold mt-2 text-amber-600">{{ stats.taggedResults }}</div></el-card>
     </section>
 
-    <section class="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-6">
+    <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_1fr] gap-6">
       <el-card>
         <template #header><span class="font-semibold">标签使用榜</span></template>
         <div class="space-y-3">
           <div
             v-for="tag in topTags"
             :key="tag.tagId"
-            class="rounded-xl border border-slate-200 px-4 py-3"
+            class="rounded-lg border border-slate-200 px-4 py-3 bg-white"
           >
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3">
@@ -365,7 +375,7 @@ onMounted(() => {
 
     <section class="grid grid-cols-1 xl:grid-cols-[1fr_1.2fr] gap-6">
       <el-card>
-        <template #header><span class="font-semibold">采集热点方向分析</span></template>
+        <template #header><span class="font-semibold">采集主题分布</span></template>
         <div class="hotspot-panel">
           <div class="hotspot-chart-wrap">
             <div class="hotspot-chart" :style="hotspotChartStyle">
@@ -393,27 +403,27 @@ onMounted(() => {
       </el-card>
 
       <el-card>
-        <template #header><span class="font-semibold">大数据主题解读</span></template>
+        <template #header><span class="font-semibold">数据解读</span></template>
         <div class="insight-grid">
           <div class="insight-card">
             <div class="insight-label">主题聚类</div>
             <div class="insight-value">{{ activeCategoryGroups[0]?.name || '未形成' }}</div>
-            <p class="insight-desc">当前标签分类中占比最高的采集主题，可作为热点方向的主类目展示。</p>
+            <p class="insight-desc">当前标签分类中占比最高的采集主题，可作为当前数据主题聚类的主方向。</p>
           </div>
           <div class="insight-card">
             <div class="insight-label">热点覆盖率</div>
             <div class="insight-value">{{ stats.total ? Math.round((stats.taggedResults / stats.total) * 100) : 0 }}%</div>
-            <p class="insight-desc">已打标签结果占收藏结果的比例，可包装为“已完成语义归类的数据覆盖率”。</p>
+            <p class="insight-desc">已打标签结果占收藏结果的比例，可用于说明已完成主题归类的数据覆盖范围。</p>
           </div>
           <div class="insight-card">
             <div class="insight-label">分类离散度</div>
             <div class="insight-value">{{ stats.categories }}</div>
-            <p class="insight-desc">当前采集结果被划分出的主题类别数量，可用来体现数据分布的广度。</p>
+            <p class="insight-desc">当前采集结果被划分出的主题类别数量，可用来体现数据覆盖面的广度。</p>
           </div>
           <div class="insight-card">
             <div class="insight-label">标签活跃度</div>
             <div class="insight-value">{{ topTags[0]?.bindingCount || 0 }}</div>
-            <p class="insight-desc">最活跃标签的使用次数，可以解释为当前热点主题下的高频内容聚集度。</p>
+            <p class="insight-desc">最活跃标签的使用次数，可用于说明当前主题下内容聚集的活跃程度。</p>
           </div>
         </div>
       </el-card>
@@ -491,7 +501,16 @@ onMounted(() => {
               <el-input v-model="tagForm.categoryName" placeholder="例如：内容质量" />
             </el-form-item>
             <el-form-item label="颜色">
-              <el-color-picker v-model="tagForm.tagColor" />
+              <div class="space-y-2 w-full">
+                <el-color-picker v-model="tagForm.tagColor" />
+                <div class="text-xs text-slate-500">同一分类会自动复用同一种颜色，颜色以分类为准。</div>
+                <div v-if="categoryColorHints.length" class="category-hints">
+                  <div v-for="item in categoryColorHints" :key="item.categoryName" class="category-hint">
+                    <span class="hotspot-dot" :style="{ backgroundColor: item.tagColor }" />
+                    <span>{{ item.categoryName }}</span>
+                  </div>
+                </div>
+              </div>
             </el-form-item>
             <el-form-item label="说明">
               <el-input v-model="tagForm.description" type="textarea" :rows="3" />
@@ -575,7 +594,7 @@ onMounted(() => {
   position: absolute;
   inset: 18%;
   border-radius: 50%;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -607,7 +626,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 14px;
+  border-radius: 10px;
   background: #f8fafc;
 }
 
@@ -641,10 +660,8 @@ onMounted(() => {
 .insight-card {
   min-height: 150px;
   padding: 18px;
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 12px;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
 }
 
@@ -666,6 +683,23 @@ onMounted(() => {
   margin-top: 10px;
   font-size: 13px;
   line-height: 1.6;
+  color: #475569;
+}
+
+.category-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
   color: #475569;
 }
 

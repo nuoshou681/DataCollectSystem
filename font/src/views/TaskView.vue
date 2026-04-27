@@ -8,6 +8,7 @@ import {
   dispatchTask,
   downloadPageResultMhtml,
   exportPageResults,
+  fetchResultTags,
   fetchBookmarkIds,
   fetchTaskDetail,
   fetchTasks,
@@ -15,7 +16,7 @@ import {
   getTaskRuntimeStreamUrl,
   removeBookmark,
 } from '@/api/api'
-import type { CrawlerPageResult, DispatchTaskPayload, Task, TaskDetail, TaskEvent, TaskRuntime } from '@/types/entity'
+import type { CrawlerPageResult, DispatchTaskPayload, ResultTag, Task, TaskDetail, TaskEvent, TaskRuntime } from '@/types/entity'
 import { getCurrentUserProfile } from '@/utils/auth'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
 
@@ -41,6 +42,7 @@ const batchKeywordsText = ref('')
 const batchName = ref('')
 const batchNotes = ref('')
 const batchMode = ref(false)
+const selectedTaskTagIds = ref<number[]>([])
 const keywordFilter = ref('')
 const statusFilter = ref<StatusFilter>('ALL')
 const loading = ref(false)
@@ -49,6 +51,7 @@ const exporting = ref(false)
 const tasks = ref<Task[]>([])
 const detailMap = ref<Record<number, TaskDetail | undefined>>({})
 const bookmarkIds = ref<Set<number>>(new Set())
+const resultTags = ref<ResultTag[]>([])
 const activeTaskId = ref<number | null>(null)
 const streamConnected = ref(false)
 const runtimeStreamConnected = ref(false)
@@ -97,6 +100,14 @@ async function loadTaskData(taskIdToOpen?: number) {
   }
 }
 
+async function loadResultTags() {
+  try {
+    resultTags.value = await fetchResultTags()
+  } catch {
+    ElMessage.error('任务标签加载失败')
+  }
+}
+
 function createPayload(option: SiteOption, keyword: string): DispatchTaskPayload {
   const profile = getCurrentUserProfile()
   return {
@@ -106,6 +117,7 @@ function createPayload(option: SiteOption, keyword: string): DispatchTaskPayload
     source: 'manual',
     siteType: option.siteType,
     maxLinksPerLevel: 10,
+    tagIds: selectedTaskTagIds.value,
   }
 }
 
@@ -150,6 +162,7 @@ async function submitTask() {
         batchName: batchName.value.trim(),
         batchNotes: batchNotes.value.trim(),
         keyword: '',
+        tagIds: selectedTaskTagIds.value,
       })
       ElMessage.success('批量任务创建成功')
       await loadTaskData()
@@ -399,6 +412,7 @@ const activeTaskDetail = computed(() => {
 })
 
 onMounted(() => {
+  void loadResultTags()
   void loadTaskData()
   connectPageResultStream()
   connectRuntimeStream()
@@ -437,6 +451,16 @@ onBeforeUnmount(() => {
           <el-checkbox-group v-model="selectedSites">
             <el-checkbox v-for="site in siteOptions" :key="site.key" :label="site.key">{{ site.label }}</el-checkbox>
           </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="任务标签">
+          <el-select v-model="selectedTaskTagIds" multiple collapse-tags collapse-tags-tooltip clearable placeholder="给本次任务预设标签" style="width: 100%">
+            <el-option
+              v-for="tag in resultTags"
+              :key="tag.tagId"
+              :label="tag.categoryName ? `${tag.categoryName} / ${tag.tagName}` : tag.tagName"
+              :value="tag.tagId!"
+            />
+          </el-select>
         </el-form-item>
         <template v-if="batchMode">
           <el-form-item label="批次名称"><el-input v-model="batchName" placeholder="例如：4月热点人物批次" /></el-form-item>

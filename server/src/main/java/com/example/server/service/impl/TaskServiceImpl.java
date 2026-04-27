@@ -13,6 +13,7 @@ import com.example.server.entity.Message.CrawlerTaskMessage;
 import com.example.server.mapper.CrawlerPageResultMapper;
 import com.example.server.service.TaskBatchService;
 import com.example.server.mapper.TaskMapper;
+import com.example.server.service.TaskTagBindingService;
 import com.example.server.service.TaskEventService;
 import com.example.server.service.TaskFileService;
 import com.example.server.service.TaskRuntimeService;
@@ -33,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskFileService taskFileService;
     private final CrawlerPageResultMapper crawlerPageResultMapper;
     private final TaskBatchService taskBatchService;
+    private final TaskTagBindingService taskTagBindingService;
 
     public TaskServiceImpl(
             TaskMapper taskMapper,
@@ -41,7 +43,8 @@ public class TaskServiceImpl implements TaskService {
             TaskEventService taskEventService,
             TaskFileService taskFileService,
             CrawlerPageResultMapper crawlerPageResultMapper,
-            TaskBatchService taskBatchService) {
+            TaskBatchService taskBatchService,
+            TaskTagBindingService taskTagBindingService) {
         this.taskMapper = taskMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.taskRuntimeService = taskRuntimeService;
@@ -49,6 +52,7 @@ public class TaskServiceImpl implements TaskService {
         this.taskFileService = taskFileService;
         this.crawlerPageResultMapper = crawlerPageResultMapper;
         this.taskBatchService = taskBatchService;
+        this.taskTagBindingService = taskTagBindingService;
     }
 
     @Override
@@ -57,6 +61,7 @@ public class TaskServiceImpl implements TaskService {
         taskBatchService.createBatchIfAbsent(resolveBatchId(request), request.getBatchName(), request.getUserId(), tasks.size(), request.getBatchNotes());
         for (Task task : tasks) {
             taskMapper.insert(task);
+            taskTagBindingService.bindTagsToTask(task.getTaskId(), task.getTagIds(), task.getUserId());
             taskRuntimeService.createQueuedRuntime(task);
             taskEventService.recordEvent(task.getTaskId(), task.getNodeId(), "TASK_CREATED", "INFO", "任务已创建", null);
             rabbitTemplate.convertAndSend(
@@ -74,6 +79,7 @@ public class TaskServiceImpl implements TaskService {
         taskBatchService.createBatchIfAbsent(resolveBatchId(request), request.getBatchName(), request.getUserId(), tasks.size(), request.getBatchNotes());
         for (Task task : tasks) {
             taskMapper.insert(task);
+            taskTagBindingService.bindTagsToTask(task.getTaskId(), task.getTagIds(), task.getUserId());
             taskRuntimeService.createQueuedRuntime(task);
             taskEventService.recordEvent(task.getTaskId(), task.getNodeId(), "TASK_CREATED", "INFO", "批量任务已创建", null);
             rabbitTemplate.convertAndSend(
@@ -151,6 +157,7 @@ public class TaskServiceImpl implements TaskService {
             task.setIdempotencyKey(blankToNull(request.getIdempotencyKey()));
             task.setRetryCount(0);
             task.setCancelRequested(false);
+            task.setTagIds(request.getTagIds());
             task.setCreatedAt(now);
             task.setUpdatedAt(now);
             tasks.add(task);
@@ -190,6 +197,7 @@ public class TaskServiceImpl implements TaskService {
             task.setIdempotencyKey(UUID.randomUUID().toString());
             task.setRetryCount(0);
             task.setCancelRequested(false);
+            task.setTagIds(request.getTagIds());
             task.setCreatedAt(now);
             task.setUpdatedAt(now);
             tasks.add(task);
@@ -217,7 +225,8 @@ public class TaskServiceImpl implements TaskService {
                 task.getMaxLinksPerLevel(),
                 task.getPriority(),
                 task.getSource(),
-                task.getIdempotencyKey());
+                task.getIdempotencyKey(),
+                task.getTagIds());
     }
 
     private String blankToNull(String value) {

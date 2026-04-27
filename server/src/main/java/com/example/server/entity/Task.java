@@ -73,4 +73,7 @@ public class Task {
 
     @TableField(exist = false)
     private TaskRuntime runtime;
+
+    @TableField(exist = false)
+    private java.util.List<Long> tagIds;
 }

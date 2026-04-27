@@ -137,6 +137,7 @@ function mapTask(raw: RawTask, runtime?: TaskRuntime | null): Task {
     startedAt: raw.startedAt ?? runtime?.startedAt ?? null,
     finishedAt: raw.finishedAt ?? runtime?.finishedAt ?? null,
     runtime: runtime ?? null,
+    tagIds: raw.tagIds ?? [],
   }
 }
 

@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.server.entity.ResultTag;
 import com.example.server.entity.ResultTagBinding;
 import com.example.server.entity.ResultTagView;
+import com.example.server.entity.Task;
+import com.example.server.entity.CrawlerPageResultRecord;
+import com.example.server.mapper.CrawlerPageResultMapper;
 import com.example.server.mapper.ResultTagBindingMapper;
 import com.example.server.mapper.ResultTagMapper;
+import com.example.server.mapper.TaskMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,15 +22,18 @@ import org.springframework.stereotype.Service;
 public class ResultTagService {
     private final ResultTagMapper resultTagMapper;
     private final ResultTagBindingMapper resultTagBindingMapper;
-    private final CrawlerPageResultService crawlerPageResultService;
+    private final CrawlerPageResultMapper crawlerPageResultMapper;
+    private final TaskMapper taskMapper;
 
     public ResultTagService(
             ResultTagMapper resultTagMapper,
             ResultTagBindingMapper resultTagBindingMapper,
-            CrawlerPageResultService crawlerPageResultService) {
+            CrawlerPageResultMapper crawlerPageResultMapper,
+            TaskMapper taskMapper) {
         this.resultTagMapper = resultTagMapper;
         this.resultTagBindingMapper = resultTagBindingMapper;
-        this.crawlerPageResultService = crawlerPageResultService;
+        this.crawlerPageResultMapper = crawlerPageResultMapper;
+        this.taskMapper = taskMapper;
     }
 
     public List<ResultTagView> list(Long userId) {
@@ -69,6 +76,8 @@ public class ResultTagService {
         if (tag == null || userId == null || tag.getTagName() == null || tag.getTagName().isBlank()) {
             return null;
         }
+        String categoryName = blankToNull(tag.getCategoryName());
+        String inheritedColor = resolveCategoryColor(userId, categoryName, tag.getTagColor());
         ResultTag existing = resultTagMapper.selectOne(new LambdaQueryWrapper<ResultTag>()
                 .eq(ResultTag::getUserId, userId)
                 .eq(ResultTag::getTagName, tag.getTagName().trim()));
@@ -79,8 +88,8 @@ public class ResultTagService {
         tag.setTagId(null);
         tag.setUserId(userId);
         tag.setTagName(tag.getTagName().trim());
-        tag.setTagColor(blankToNull(tag.getTagColor()));
-        tag.setCategoryName(blankToNull(tag.getCategoryName()));
+        tag.setTagColor(inheritedColor);
+        tag.setCategoryName(categoryName);
         tag.setDescription(blankToNull(tag.getDescription()));
         tag.setCreatedAt(now);
         tag.setUpdatedAt(now);
@@ -96,12 +105,15 @@ public class ResultTagService {
         if (existing == null || !userId.equals(existing.getUserId())) {
             return null;
         }
+        String nextCategoryName = blankToNull(tag.getCategoryName());
+        String nextColor = resolveCategoryColor(userId, nextCategoryName, tag.getTagColor());
         existing.setTagName(tag.getTagName() == null || tag.getTagName().isBlank() ? existing.getTagName() : tag.getTagName().trim());
-        existing.setTagColor(blankToNull(tag.getTagColor()));
-        existing.setCategoryName(blankToNull(tag.getCategoryName()));
+        existing.setTagColor(nextColor);
+        existing.setCategoryName(nextCategoryName);
         existing.setDescription(blankToNull(tag.getDescription()));
         existing.setUpdatedAt(LocalDateTime.now());
         resultTagMapper.updateById(existing);
+        syncCategoryColor(userId, existing.getCategoryName(), nextColor);
         return resultTagMapper.selectById(existing.getTagId());
     }
 
@@ -124,7 +136,7 @@ public class ResultTagService {
         if (tag == null || !userId.equals(tag.getUserId())) {
             return false;
         }
-        if (!crawlerPageResultService.canAccessPageResult(pageResultId, userId, isAdmin)) {
+        if (!canAccessPageResult(pageResultId, userId, isAdmin)) {
             return false;
         }
         ResultTagBinding existing = resultTagBindingMapper.selectOne(new LambdaQueryWrapper<ResultTagBinding>()
@@ -190,10 +202,57 @@ public class ResultTagService {
         return result;
     }
 
+    private String resolveCategoryColor(Long userId, String categoryName, String requestedColor) {
+        String normalizedRequestedColor = blankToNull(requestedColor);
+        if (categoryName == null) {
+            return normalizedRequestedColor;
+        }
+        ResultTag sameCategory = resultTagMapper.selectOne(new LambdaQueryWrapper<ResultTag>()
+                .eq(ResultTag::getUserId, userId)
+                .eq(ResultTag::getCategoryName, categoryName)
+                .last("limit 1"));
+        if (sameCategory != null && sameCategory.getTagColor() != null && !sameCategory.getTagColor().isBlank()) {
+            return sameCategory.getTagColor();
+        }
+        return normalizedRequestedColor;
+    }
+
+    private void syncCategoryColor(Long userId, String categoryName, String categoryColor) {
+        if (userId == null || categoryName == null || categoryColor == null || categoryColor.isBlank()) {
+            return;
+        }
+        List<ResultTag> sameCategoryTags = resultTagMapper.selectList(new LambdaQueryWrapper<ResultTag>()
+                .eq(ResultTag::getUserId, userId)
+                .eq(ResultTag::getCategoryName, categoryName));
+        for (ResultTag tag : sameCategoryTags) {
+            if (categoryColor.equals(tag.getTagColor())) {
+                continue;
+            }
+            tag.setTagColor(categoryColor);
+            tag.setUpdatedAt(LocalDateTime.now());
+            resultTagMapper.updateById(tag);
+        }
+    }
+
     private String blankToNull(String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
         return value.trim();
+    }
+
+    private boolean canAccessPageResult(Long pageResultId, Long userId, boolean isAdmin) {
+        if (pageResultId == null) {
+            return false;
+        }
+        CrawlerPageResultRecord pageResult = crawlerPageResultMapper.selectById(pageResultId);
+        if (pageResult == null || pageResult.getTaskId() == null) {
+            return false;
+        }
+        if (isAdmin) {
+            return true;
+        }
+        Task task = taskMapper.selectById(pageResult.getTaskId());
+        return task != null && userId != null && userId.equals(task.getUserId());
     }
 }

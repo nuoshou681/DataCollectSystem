@@ -46,6 +46,7 @@ export interface Task {
   startedAt?: string | null
   finishedAt?: string | null
   runtime?: TaskRuntime | null
+  tagIds?: number[]
 }
 
 export interface CrawlerPageResult {
@@ -131,6 +132,7 @@ export interface DispatchTaskPayload {
   source?: string
   batchId?: string
   idempotencyKey?: string
+  tagIds?: number[]
 }
 
 export interface AuthResponse {

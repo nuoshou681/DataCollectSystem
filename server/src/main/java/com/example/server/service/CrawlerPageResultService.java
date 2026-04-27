@@ -24,18 +24,21 @@ public class CrawlerPageResultService {
     private final TaskRuntimeService taskRuntimeService;
     private final TaskEventService taskEventService;
     private final TaskFileService taskFileService;
+    private final TaskTagBindingService taskTagBindingService;
 
     public CrawlerPageResultService(
             CrawlerPageResultMapper crawlerPageResultMapper,
             TaskMapper taskMapper,
             TaskRuntimeService taskRuntimeService,
             TaskEventService taskEventService,
-            TaskFileService taskFileService) {
+            TaskFileService taskFileService,
+            TaskTagBindingService taskTagBindingService) {
         this.crawlerPageResultMapper = crawlerPageResultMapper;
         this.taskMapper = taskMapper;
         this.taskRuntimeService = taskRuntimeService;
         this.taskEventService = taskEventService;
         this.taskFileService = taskFileService;
+        this.taskTagBindingService = taskTagBindingService;
     }
 
     public CrawlerPageResultRecord saveOrUpdateFromMessage(CrawlerPageResult message) {
@@ -236,6 +239,10 @@ public class CrawlerPageResultService {
                 record.getErrorCode(),
                 record.getErrorMessage());
         taskFileService.upsertFromPageResult(record);
+        Task task = taskMapper.selectById(record.getTaskId());
+        if (task != null && task.getUserId() != null && record.getPageResultId() != null) {
+            taskTagBindingService.inheritTaskTagsToPageResult(task.getTaskId(), record.getPageResultId(), task.getUserId());
+        }
         if (previousSuccess == null || previousSuccess.booleanValue() != Boolean.TRUE.equals(record.getSuccess())) {
             taskEventService.recordEvent(
                     record.getTaskId(),
