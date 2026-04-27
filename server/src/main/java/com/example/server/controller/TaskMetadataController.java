@@ -10,8 +10,10 @@ import com.example.server.service.TaskGroupService;
 import com.example.server.service.TaskNoteService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +42,23 @@ public class TaskMetadataController {
             return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限添加任务备注");
         }
         return ApiResponse.success(created);
+    }
+
+    @PutMapping("/notes/{noteId}")
+    public ApiResponse<?> updateNote(@PathVariable Long noteId, @RequestBody TaskNote note) {
+        TaskNote updated = taskNoteService.update(noteId, note == null ? null : note.getNoteContent(), SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin());
+        if (updated == null) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限修改任务备注");
+        }
+        return ApiResponse.success(updated);
+    }
+
+    @DeleteMapping("/notes/{noteId}")
+    public ApiResponse<?> deleteNote(@PathVariable Long noteId) {
+        if (!taskNoteService.delete(noteId, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin())) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限删除任务备注");
+        }
+        return ApiResponse.success(true);
     }
 
     @GetMapping("/groups")

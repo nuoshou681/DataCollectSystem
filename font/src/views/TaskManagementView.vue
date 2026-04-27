@@ -84,6 +84,14 @@ const stats = computed(() => ({
   noted: tasks.value.filter(item => (taskNotesMap.value[item.taskId] ?? []).length > 0).length,
 }))
 
+const noteSummary = computed(() => {
+  const noteList = Object.values(taskNotesMap.value).flat()
+  const total = noteList.length
+  const longNotes = noteList.filter(note => note.noteContent.length >= 20).length
+  const updatedToday = noteList.filter(note => sameDay(note.updatedAt || note.createdAt, 0)).length
+  return { total, longNotes, updatedToday }
+})
+
 function formatDayLabel(offset: number) {
   const date = new Date()
   date.setDate(date.getDate() - offset)
@@ -178,6 +186,12 @@ onMounted(() => {
       <el-card><div class="text-sm text-slate-500">已归档任务</div><div class="mt-2 text-2xl font-semibold text-sky-600">{{ stats.archived }}</div></el-card>
       <el-card><div class="text-sm text-slate-500">已分组任务</div><div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.grouped }}</div></el-card>
       <el-card><div class="text-sm text-slate-500">已有备注任务</div><div class="mt-2 text-2xl font-semibold text-amber-600">{{ stats.noted }}</div></el-card>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <el-card><div class="text-sm text-slate-500">备注总量</div><div class="mt-2 text-2xl font-semibold">{{ noteSummary.total }}</div></el-card>
+      <el-card><div class="text-sm text-slate-500">长备注数量</div><div class="mt-2 text-2xl font-semibold text-violet-600">{{ noteSummary.longNotes }}</div></el-card>
+      <el-card><div class="text-sm text-slate-500">今日更新备注</div><div class="mt-2 text-2xl font-semibold text-rose-600">{{ noteSummary.updatedToday }}</div></el-card>
     </section>
 
     <section class="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-6">

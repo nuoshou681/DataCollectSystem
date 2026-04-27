@@ -39,4 +39,35 @@ public class TaskNoteService {
         taskNoteMapper.insert(note);
         return taskNoteMapper.selectById(note.getNoteId());
     }
+
+    public TaskNote update(Long noteId, String noteContent, Long userId, boolean isAdmin) {
+        if (noteId == null || noteContent == null || noteContent.isBlank()) {
+            return null;
+        }
+        TaskNote existing = taskNoteMapper.selectById(noteId);
+        if (existing == null || !crawlerPageResultService.canAccessTask(existing.getTaskId(), userId, isAdmin)) {
+            return null;
+        }
+        if (!isAdmin && (userId == null || !userId.equals(existing.getUserId()))) {
+            return null;
+        }
+        existing.setNoteContent(noteContent.trim());
+        existing.setUpdatedAt(LocalDateTime.now());
+        taskNoteMapper.updateById(existing);
+        return taskNoteMapper.selectById(noteId);
+    }
+
+    public boolean delete(Long noteId, Long userId, boolean isAdmin) {
+        if (noteId == null) {
+            return false;
+        }
+        TaskNote existing = taskNoteMapper.selectById(noteId);
+        if (existing == null || !crawlerPageResultService.canAccessTask(existing.getTaskId(), userId, isAdmin)) {
+            return false;
+        }
+        if (!isAdmin && (userId == null || !userId.equals(existing.getUserId()))) {
+            return false;
+        }
+        return taskNoteMapper.deleteById(noteId) > 0;
+    }
 }

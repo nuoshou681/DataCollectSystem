@@ -514,6 +514,17 @@ export async function createTaskNote(taskId: number, noteContent: string) {
   return raw ? mapTaskNote(raw) : null
 }
 
+export async function updateTaskNote(noteId: number, noteContent: string) {
+  const res = await request.put<ApiResponse<TaskNote>>(`/task/metadata/notes/${noteId}`, { noteContent })
+  const raw = unwrapResponse<RawTaskNote>(res)
+  return raw ? mapTaskNote(raw) : null
+}
+
+export async function deleteTaskNote(noteId: number) {
+  const res = await request.delete<ApiResponse<boolean>>(`/task/metadata/notes/${noteId}`)
+  return unwrapResponse<boolean>(res)
+}
+
 export async function fetchTaskGroups() {
   const res = await request.get<ApiResponse<TaskGroup[]>>('/task/metadata/groups')
   return (unwrapResponse<RawTaskGroup[]>(res) ?? []).map(mapTaskGroup)

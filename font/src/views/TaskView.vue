@@ -7,6 +7,7 @@ import {
   cachePageResultMhtml,
   createTaskGroup,
   createTaskNote,
+  deleteTaskNote,
   dispatchBatchTask,
   dispatchTask,
   downloadPageResultMhtml,
@@ -22,6 +23,7 @@ import {
   getTaskRuntimeStreamUrl,
   removeBookmark,
   updateTaskArchived,
+  updateTaskNote,
 } from '@/api/api'
 import type { CrawlerPageResult, DispatchTaskPayload, ResultTag, Task, TaskDetail, TaskEvent, TaskGroup, TaskGroupBinding, TaskNote, TaskRuntime } from '@/types/entity'
 import { getCurrentUserProfile } from '@/utils/auth'
@@ -73,6 +75,7 @@ let runtimeStream: EventSource | null = null
 const cacheLoadingMap = ref<Record<number, boolean>>({})
 const downloadLoadingMap = ref<Record<number, boolean>>({})
 const noteDraft = ref('')
+const editingNoteId = ref<number | null>(null)
 const selectedGroupId = ref<number | null>(null)
 const taskGroupDialogVisible = ref(false)
 const groupForm = ref<TaskGroup>({
@@ -414,12 +417,39 @@ async function submitTaskNote() {
     return
   }
   try {
-    await createTaskNote(activeTaskId.value, noteDraft.value.trim())
+    if (editingNoteId.value) {
+      await updateTaskNote(editingNoteId.value, noteDraft.value.trim())
+    } else {
+      await createTaskNote(activeTaskId.value, noteDraft.value.trim())
+    }
     taskNotesMap.value[activeTaskId.value] = await fetchTaskNotes(activeTaskId.value)
     noteDraft.value = ''
-    ElMessage.success('任务备注已添加')
+    editingNoteId.value = null
+    ElMessage.success('任务备注已保存')
   } catch {
-    ElMessage.error('任务备注添加失败')
+    ElMessage.error('任务备注保存失败')
+  }
+}
+
+function editTaskNote(note: TaskNote) {
+  editingNoteId.value = note.noteId ?? null
+  noteDraft.value = note.noteContent
+}
+
+async function removeTaskNote(note: TaskNote) {
+  if (!note.noteId || !activeTaskId.value) {
+    return
+  }
+  try {
+    await deleteTaskNote(note.noteId)
+    taskNotesMap.value[activeTaskId.value] = await fetchTaskNotes(activeTaskId.value)
+    if (editingNoteId.value === note.noteId) {
+      editingNoteId.value = null
+      noteDraft.value = ''
+    }
+    ElMessage.success('任务备注已删除')
+  } catch {
+    ElMessage.error('任务备注删除失败')
   }
 }
 
@@ -520,6 +550,14 @@ const activeTaskNotes = computed(() => {
     return []
   }
   return taskNotesMap.value[activeTaskId.value] ?? []
+})
+
+const activeTaskNoteSummary = computed(() => {
+  const notes = activeTaskNotes.value
+  const total = notes.length
+  const latest = notes[0]?.updatedAt || notes[0]?.createdAt || '-'
+  const longNotes = notes.filter(note => note.noteContent.length >= 20).length
+  return { total, latest, longNotes }
 })
 
 const activeTaskGroups = computed(() => {
@@ -683,15 +721,38 @@ onBeforeUnmount(() => {
               </el-tag>
               <span v-if="!activeTaskGroups.length" class="text-sm text-slate-500">当前任务尚未加入分组</span>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="rounded-lg border border-slate-200 p-3">
+                <div class="text-xs text-slate-500">备注总数</div>
+                <div class="mt-2 text-xl font-semibold">{{ activeTaskNoteSummary.total }}</div>
+              </div>
+              <div class="rounded-lg border border-slate-200 p-3">
+                <div class="text-xs text-slate-500">长备注数</div>
+                <div class="mt-2 text-xl font-semibold">{{ activeTaskNoteSummary.longNotes }}</div>
+              </div>
+              <div class="rounded-lg border border-slate-200 p-3">
+                <div class="text-xs text-slate-500">最近更新时间</div>
+                <div class="mt-2 text-sm font-medium break-all">{{ activeTaskNoteSummary.latest }}</div>
+              </div>
+            </div>
             <el-input v-model="noteDraft" type="textarea" :rows="3" placeholder="补充任务备注、异常说明、结果整理结论" />
             <div class="flex items-center justify-between gap-3 flex-wrap">
               <div class="text-sm text-slate-500">备注用于答辩展示任务整理过程、异常记录和人工结论。</div>
-              <el-button type="primary" @click="submitTaskNote">添加备注</el-button>
+              <div class="flex items-center gap-2">
+                <el-button v-if="editingNoteId" @click="editingNoteId = null; noteDraft = ''">取消编辑</el-button>
+                <el-button type="primary" @click="submitTaskNote">{{ editingNoteId ? '保存修改' : '添加备注' }}</el-button>
+              </div>
             </div>
             <div class="space-y-2 max-h-48 overflow-auto">
               <div v-for="note in activeTaskNotes" :key="note.noteId" class="rounded-lg border border-slate-200 p-3">
                 <div class="text-sm text-slate-700">{{ note.noteContent }}</div>
-                <div class="mt-2 text-xs text-slate-400">{{ note.updatedAt || note.createdAt || '-' }}</div>
+                <div class="mt-2 flex items-center justify-between gap-3">
+                  <div class="text-xs text-slate-400">{{ note.updatedAt || note.createdAt || '-' }}</div>
+                  <div class="flex items-center gap-2">
+                    <el-button size="small" text type="primary" @click="editTaskNote(note)">编辑</el-button>
+                    <el-button size="small" text type="danger" @click="removeTaskNote(note)">删除</el-button>
+                  </div>
+                </div>
               </div>
               <span v-if="!activeTaskNotes.length" class="text-sm text-slate-500">还没有任务备注</span>
             </div>
