@@ -19,4 +19,16 @@ public class User {
     private String email;
     @TableField("role")
     private String role;
+
+    @TableField("status")
+    private String status;
+
+    @TableField("last_login_at")
+    private java.time.LocalDateTime lastLoginAt;
+
+    @TableField("created_at")
+    private java.time.LocalDateTime createdAt;
+
+    @TableField("updated_at")
+    private java.time.LocalDateTime updatedAt;
 }

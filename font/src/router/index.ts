@@ -8,6 +8,9 @@ import AdminNodeView from '@/views/AdminNodeView.vue'
 import AdminDashboardView from '@/views/AdminDashboardView.vue'
 import AdminBatchView from '@/views/AdminBatchView.vue'
 import AdminTaskCenterView from '@/views/AdminTaskCenterView.vue'
+import AdminExportCenterView from '@/views/AdminExportCenterView.vue'
+import AdminUserView from '@/views/AdminUserView.vue'
+import AdminConfigView from '@/views/AdminConfigView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
@@ -36,10 +39,13 @@ const routes = [
     children: [
       { path: '', component: AdminDashboardView },
       { path: 'task-center', component: AdminTaskCenterView },
+      { path: 'exports', component: AdminExportCenterView },
       { path: 'nodes', component: AdminNodeView },
       { path: 'batches', component: AdminBatchView },
       { path: 'logs', component: LogView },
       { path: 'profile', component: ProfileView },
+      { path: 'users', component: AdminUserView },
+      { path: 'config', component: AdminConfigView },
     ]
   },
   { path: '/login', component: LoginView },

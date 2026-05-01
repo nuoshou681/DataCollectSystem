@@ -4,16 +4,19 @@ import {
   ServerStackIcon,
   DocumentIcon,
   QueueListIcon,
+  ArrowDownTrayIcon,
   ShieldCheckIcon,
   BoltIcon,
   BellIcon,
   ClipboardDocumentCheckIcon,
+  UsersIcon,
+  Cog6ToothIcon,
 } from '@heroicons/vue/24/outline'
 import { BugAntIcon } from '@heroicons/vue/24/solid'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchCrawlerNodes, fetchTaskLogs } from '@/api/api'
-import type { CrawlerNode, TaskLog } from '@/types/entity'
+import { fetchCrawlerNodes, fetchTaskLogs, fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead } from '@/api/api'
+import type { CrawlerNode, TaskLog, Notification } from '@/types/entity'
 import { clearAuthSession, getCurrentUserProfile } from '@/utils/auth'
 
 const route = useRoute()
@@ -22,9 +25,12 @@ const router = useRouter()
 const navItems = [
   { path: '/admin', label: '控制台', icon: Squares2X2Icon },
   { path: '/admin/task-center', label: '任务治理', icon: ClipboardDocumentCheckIcon },
+  { path: '/admin/exports', label: '导出中心', icon: ArrowDownTrayIcon },
   { path: '/admin/nodes', label: '节点管理', icon: ServerStackIcon },
   { path: '/admin/batches', label: '任务批次', icon: QueueListIcon },
+  { path: '/admin/users', label: '用户管理', icon: UsersIcon },
   { path: '/admin/logs', label: '审计日志', icon: DocumentIcon },
+  { path: '/admin/config', label: '系统配置', icon: Cog6ToothIcon },
 ]
 
 function isPathActive(path: string) {
@@ -71,14 +77,20 @@ const searchResults = computed(() => {
   return { nodes: nodeMatches.slice(0, 6), logs: logMatches.slice(0, 6) }
 })
 
-const notificationItems = computed(() => {
-  const sorted = [...logs.value].sort((a, b) => (b.logId ?? 0) - (a.logId ?? 0))
-  return sorted.slice(0, 5)
-})
+const notifications = ref<Notification[]>([])
+const unreadCount = ref(0)
 
-const unreadNotificationCount = computed(() => {
-  return notificationItems.value.filter((item) => (item.logId ?? 0) > lastSeenLogId.value).length
-})
+const notificationItems = computed(() => notifications.value.slice(0, 5))
+
+const unreadNotificationCount = computed(() => unreadCount.value)
+
+async function loadNotifications() {
+  try {
+    const [data, count] = await Promise.all([fetchNotifications(), fetchUnreadCount()])
+    notifications.value = data
+    unreadCount.value = count
+  } catch { /* ignore */ }
+}
 
 async function loadSearchData() {
   if (isLoadingSearch.value) {
@@ -109,16 +121,21 @@ function closeSearch() {
 
 function toggleNotifications() {
   notificationsOpen.value = !notificationsOpen.value
-  if (notificationsOpen.value && !logs.value.length) {
-    void loadSearchData()
+  if (notificationsOpen.value) {
+    void loadNotifications()
   }
-  if (notificationsOpen.value && notificationItems.value.length) {
-    const latestId = notificationItems.value[0]?.logId ?? 0
-    if (latestId > lastSeenLogId.value) {
-      lastSeenLogId.value = latestId
-      localStorage.setItem('admin.lastSeenLogId', String(latestId))
-    }
-  }
+}
+
+async function readNotification(id: number) {
+  await markNotificationRead(id)
+  unreadCount.value = Math.max(0, unreadCount.value - 1)
+  notifications.value = notifications.value.map(n => n.notificationId === id ? { ...n, isRead: true } : n)
+}
+
+async function readAllNotifications() {
+  await markAllNotificationsRead()
+  unreadCount.value = 0
+  notifications.value = notifications.value.map(n => ({ ...n, isRead: true }))
 }
 
 function toggleUserMenu() {
@@ -264,17 +281,24 @@ onMounted(() => {
               <span v-if="unreadNotificationCount" class="badge">{{ unreadNotificationCount }}</span>
             </button>
             <div v-if="notificationsOpen" class="dropdown-panel">
-              <div class="dropdown-title">最新日志</div>
-              <div v-if="!notificationItems.length" class="dropdown-empty">暂无新的系统日志</div>
+              <div class="dropdown-title">
+                通知中心
+                <button v-if="unreadCount > 0" class="text-blue-400 text-xs ml-2 hover:underline" @click="readAllNotifications">全部已读</button>
+              </div>
+              <div v-if="!notificationItems.length" class="dropdown-empty">暂无消息</div>
               <button
                 v-for="notice in notificationItems"
-                :key="notice.logId"
+                :key="notice.notificationId"
                 type="button"
                 class="dropdown-item"
-                @click="handleLogClick"
+                :class="{ 'opacity-60': notice.isRead }"
+                @click="readNotification(notice.notificationId!)"
               >
-                <div>{{ notice.logLevel }} · 任务 #{{ notice.taskId }}</div>
-                <div class="dropdown-meta">{{ notice.logMessage }}</div>
+                <div class="flex items-center gap-1">
+                  <span v-if="!notice.isRead" class="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></span>
+                  {{ notice.title }}
+                </div>
+                <div class="dropdown-meta">{{ notice.content }}</div>
               </button>
             </div>
           </div>

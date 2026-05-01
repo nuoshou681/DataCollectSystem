@@ -12,8 +12,8 @@ import {
 import { BugAntIcon } from '@heroicons/vue/24/solid'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchPageResults, fetchTasks } from '@/api/api'
-import type { CrawlerPageResult, Task } from '@/types/entity'
+import { fetchPageResults, fetchTasks, fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead } from '@/api/api'
+import type { CrawlerPageResult, Task, Notification } from '@/types/entity'
 import { clearAuthSession, getCurrentUserProfile } from '@/utils/auth'
 import { normalizeTaskStatus } from '@/utils/task'
 
@@ -42,7 +42,29 @@ const isLoadingSearch = ref(false)
 
 const tasks = ref<Task[]>([])
 const pageResults = ref<CrawlerPageResult[]>([])
+const notifications = ref<Notification[]>([])
+const unreadCount = ref(0)
 const lastSeenPageResultId = ref(Number(localStorage.getItem('user.lastSeenPageResultId') || 0))
+
+async function loadNotifications() {
+  try {
+    const [data, count] = await Promise.all([fetchNotifications(), fetchUnreadCount()])
+    notifications.value = data
+    unreadCount.value = count
+  } catch { /* ignore */ }
+}
+
+async function readNotification(id: number) {
+  await markNotificationRead(id)
+  unreadCount.value = Math.max(0, unreadCount.value - 1)
+  notifications.value = notifications.value.map(n => n.notificationId === id ? { ...n, isRead: true } : n)
+}
+
+async function readAllNotifications() {
+  await markAllNotificationsRead()
+  unreadCount.value = 0
+  notifications.value = notifications.value.map(n => ({ ...n, isRead: true }))
+}
 
 // 进行中任务数量，支持 taskStatus 为 '进行中' 或 'running'（兼容中英文）
 const runningTaskCount = computed(() => {
@@ -80,14 +102,9 @@ const searchResults = computed(() => {
   return { tasks: taskMatches.slice(0, 6), pages: pageMatches.slice(0, 6) }
 })
 
-const notificationItems = computed(() => {
-  const sorted = [...pageResults.value].sort((a, b) => (b.pageResultId ?? 0) - (a.pageResultId ?? 0))
-  return sorted.slice(0, 5)
-})
+const notificationItems = computed(() => notifications.value.slice(0, 5))
 
-const unreadNotificationCount = computed(() => {
-  return notificationItems.value.filter((item) => (item.pageResultId ?? 0) > lastSeenPageResultId.value).length
-})
+const unreadNotificationCount = computed(() => unreadCount.value)
 
 async function loadSearchData() {
   if (isLoadingSearch.value) {
@@ -118,15 +135,8 @@ function closeSearch() {
 
 function toggleNotifications() {
   notificationsOpen.value = !notificationsOpen.value
-  if (notificationsOpen.value && !pageResults.value.length) {
-    void loadSearchData()
-  }
-  if (notificationsOpen.value && notificationItems.value.length) {
-    const latestId = notificationItems.value[0]?.pageResultId ?? 0
-    if (latestId > lastSeenPageResultId.value) {
-      lastSeenPageResultId.value = latestId
-      localStorage.setItem('user.lastSeenPageResultId', String(latestId))
-    }
+  if (notificationsOpen.value) {
+    void loadNotifications()
   }
 }
 
@@ -273,17 +283,24 @@ onMounted(() => {
               <span v-if="unreadNotificationCount" class="badge">{{ unreadNotificationCount }}</span>
             </button>
             <div v-if="notificationsOpen" class="dropdown-panel">
-              <div class="dropdown-title">最新通知</div>
-              <div v-if="!notificationItems.length" class="dropdown-empty">暂无新的页面结果</div>
+              <div class="dropdown-title">
+                通知中心
+                <button v-if="unreadCount > 0" class="text-blue-400 text-xs ml-2 hover:underline" @click="readAllNotifications">全部已读</button>
+              </div>
+              <div v-if="!notificationItems.length" class="dropdown-empty">暂无消息</div>
               <button
                 v-for="notice in notificationItems"
-                :key="notice.pageResultId"
+                :key="notice.notificationId"
                 type="button"
                 class="dropdown-item"
-                @click="handlePageResultClick(notice.pageUrl)"
+                :class="{ 'opacity-60': notice.isRead }"
+                @click="readNotification(notice.notificationId!)"
               >
-                <div>任务 #{{ notice.taskId }} · 结果 #{{ notice.pageResultId }}</div>
-                <div class="dropdown-meta">{{ notice.pageUrl }}</div>
+                <div class="flex items-center gap-1">
+                  <span v-if="!notice.isRead" class="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></span>
+                  {{ notice.title }}
+                </div>
+                <div class="dropdown-meta">{{ notice.content }}</div>
               </button>
             </div>
           </div>

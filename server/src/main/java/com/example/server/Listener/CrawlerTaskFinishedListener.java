@@ -2,6 +2,7 @@ package com.example.server.Listener;
 
 import com.example.server.config.RabbitMQConfig;
 import com.example.server.entity.Message.CrawlerTaskFinished;
+import com.example.server.service.NotificationService;
 import com.example.server.service.TaskEventService;
 import com.example.server.service.TaskRuntimeService;
 import org.slf4j.Logger;
@@ -16,10 +17,12 @@ public class CrawlerTaskFinishedListener {
 
     private final TaskRuntimeService taskRuntimeService;
     private final TaskEventService taskEventService;
+    private final NotificationService notificationService;
 
-    public CrawlerTaskFinishedListener(TaskRuntimeService taskRuntimeService, TaskEventService taskEventService) {
+    public CrawlerTaskFinishedListener(TaskRuntimeService taskRuntimeService, TaskEventService taskEventService, NotificationService notificationService) {
         this.taskRuntimeService = taskRuntimeService;
         this.taskEventService = taskEventService;
+        this.notificationService = notificationService;
     }
 
     @RabbitListener(queues = RabbitMQConfig.CRAWLER_TASK_FINISHED_QUEUE)
@@ -52,5 +55,13 @@ public class CrawlerTaskFinishedListener {
                 "{\"successPages\":" + finished.getSuccessPages()
                         + ",\"failedPages\":" + finished.getFailedPages()
                         + ",\"errorCode\":\"" + (finished.getErrorCode() == null ? "" : finished.getErrorCode()) + "\"}");
+
+        String notifTitle = finished.isSuccess()
+                ? "任务执行完成"
+                : "任务执行失败";
+        String notifContent = finished.isSuccess()
+                ? String.format("任务 #%d 已完成，成功 %d 页，失败 %d 页", finished.getTaskId(), finished.getSuccessPages(), finished.getFailedPages())
+                : String.format("任务 #%d 执行失败：%s", finished.getTaskId(), finished.getMessage() != null ? finished.getMessage() : "未知错误");
+        notificationService.createForTask(finished.getTaskId(), "TASK_FINISHED", notifTitle, notifContent);
     }
 }

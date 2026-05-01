@@ -1,5 +1,7 @@
 package com.example.server.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final String DEFAULT_PASSWORD = "123456";
 
     @Override
     public boolean emailExists(String email) {
@@ -28,8 +31,9 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
-        user.setPassword(passwordEncoder.encode(req.getPassword())); // 密码加密
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(normalizeRole(req.getRole()));
+        user.setStatus("ACTIVE");
         userMapper.insert(user);
     }
 
@@ -39,20 +43,66 @@ public class UserServiceImpl implements UserService {
         wrapper.eq("email", email);
         User user = userMapper.selectOne(wrapper);
         if (user != null) {
-            // 1. 加密密码校验
             if (passwordEncoder.matches(password, user.getPassword())) {
+                UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("email", email).set("last_login_at", java.time.LocalDateTime.now());
+                userMapper.update(null, updateWrapper);
                 return user;
             }
-            // 2. 明文密码校验
             else if (password.equals(user.getPassword())) {
                 String encoded = passwordEncoder.encode(password);
                 UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("email", email).set("password", encoded);
+                updateWrapper.eq("email", email).set("password", encoded).set("last_login_at", java.time.LocalDateTime.now());
                 userMapper.update(null, updateWrapper);
                 return user;
             }
         }
         return null;
+    }
+
+    @Override
+    public List<User> listAll() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.orderByDesc("created_at");
+        return userMapper.selectList(wrapper);
+    }
+
+    @Override
+    public User updateUser(Long userId, User req) {
+        User user = userMapper.selectById(userId);
+        if (user == null) return null;
+        if (req.getUsername() != null && !req.getUsername().isBlank()) {
+            user.setUsername(req.getUsername());
+        }
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            if (!req.getEmail().equals(user.getEmail()) && emailExists(req.getEmail())) {
+                return null;
+            }
+            user.setEmail(req.getEmail());
+        }
+        if (req.getRole() != null && !req.getRole().isBlank()) {
+            user.setRole(normalizeRole(req.getRole()));
+        }
+        userMapper.updateById(user);
+        return userMapper.selectById(userId);
+    }
+
+    @Override
+    public boolean resetPassword(Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) return false;
+        user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
+        userMapper.updateById(user);
+        return true;
+    }
+
+    @Override
+    public boolean setUserStatus(Long userId, String status) {
+        User user = userMapper.selectById(userId);
+        if (user == null) return false;
+        user.setStatus(status);
+        userMapper.updateById(user);
+        return true;
     }
 
     private String normalizeRole(String role) {

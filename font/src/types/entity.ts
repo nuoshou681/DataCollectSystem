@@ -3,6 +3,10 @@ export interface UserInfo {
   username: string
   email: string
   role?: string
+  status?: string
+  lastLoginAt?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface TaskRuntime {
@@ -218,4 +222,36 @@ export interface TaskGroupBinding {
   groupId: number
   createdBy?: number | null
   createdAt?: string
+}
+
+export interface Notification {
+  notificationId?: number
+  userId?: number
+  type: string
+  title: string
+  content?: string
+  isRead?: boolean
+  createdAt?: string
+}
+
+export interface TaskTemplate {
+  templateId?: number
+  userId?: number
+  templateName: string
+  keyword?: string
+  url?: string
+  siteType?: string
+  maxLinksPerLevel?: number
+  tagIdsJson?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface SystemConfig {
+  configKey: string
+  configValue: string
+  description?: string
+  category?: string
+  createdAt?: string
+  updatedAt?: string
 }

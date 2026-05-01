@@ -30,6 +30,20 @@ const stats = computed(() => {
   }
 })
 
+const capacityStats = computed(() => {
+  const maxConcurrency = nodes.value.reduce((sum, node) => sum + (node.maxConcurrency ?? 0), 0)
+  const currentLoad = nodes.value.reduce((sum, node) => sum + (node.currentLoad ?? 0), 0)
+  const usagePercent = maxConcurrency > 0 ? Math.round((currentLoad / maxConcurrency) * 100) : 0
+  return { maxConcurrency, currentLoad, usagePercent }
+})
+
+const riskNodes = computed(() => {
+  return nodes.value
+    .map(node => ({ node, status: deriveNodeStatus(node) }))
+    .filter(item => item.status.displayStatus === 'OFFLINE' || item.status.displayStatus === 'BUSY')
+    .slice(0, 6)
+})
+
 onMounted(() => {
   void loadNodes()
   refreshTimer = window.setInterval(() => void loadNodes(), 5000)
@@ -49,6 +63,42 @@ onBeforeUnmount(() => {
       <el-card><div class="text-sm text-gray-500">在线</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ stats.online }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">繁忙</div><div class="text-2xl font-semibold mt-2 text-amber-600">{{ stats.busy }}</div></el-card>
       <el-card><div class="text-sm text-gray-500">离线</div><div class="text-2xl font-semibold mt-2 text-red-600">{{ stats.offline }}</div></el-card>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-6">
+      <el-card>
+        <template #header><span class="font-semibold">节点容量概览</span></template>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="rounded-xl border border-slate-100 p-4">
+            <div class="text-xs text-gray-500">总并发能力</div>
+            <div class="mt-2 text-2xl font-semibold">{{ capacityStats.maxConcurrency }}</div>
+          </div>
+          <div class="rounded-xl border border-slate-100 p-4">
+            <div class="text-xs text-gray-500">当前负载</div>
+            <div class="mt-2 text-2xl font-semibold">{{ capacityStats.currentLoad }}</div>
+          </div>
+          <div class="rounded-xl border border-slate-100 p-4">
+            <div class="text-xs text-gray-500">负载使用率</div>
+            <div class="mt-2 text-2xl font-semibold">{{ capacityStats.usagePercent }}%</div>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card>
+        <template #header><span class="font-semibold">重点关注节点</span></template>
+        <div class="space-y-3">
+          <div v-for="item in riskNodes" :key="item.node.nodeId" class="rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="font-medium">{{ item.node.nodeId }}</div>
+              <el-tag :type="item.status.statusType">{{ item.status.displayStatus }}</el-tag>
+            </div>
+            <div class="mt-2 text-xs text-slate-500">
+              负载 {{ item.node.currentLoad ?? 0 }}/{{ item.node.maxConcurrency ?? 0 }} · 最后心跳 {{ item.node.lastHeartbeat || '-' }}
+            </div>
+          </div>
+          <el-empty v-if="!riskNodes.length" description="当前没有高风险节点" />
+        </div>
+      </el-card>
     </section>
 
     <el-card>

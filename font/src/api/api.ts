@@ -18,6 +18,9 @@ import type {
   TaskGroup,
   TaskGroupBinding,
   UserInfo,
+  Notification,
+  TaskTemplate,
+  SystemConfig,
 } from '@/types/entity'
 import type { ApiResponse } from '@/types/apiResponse'
 
@@ -574,4 +577,88 @@ export function getTaskRuntimeStreamUrl() {
     return `${API_BASE_URL}/task/runtime/stream`
   }
   return `${API_BASE_URL}/task/runtime/stream?token=${encodeURIComponent(token)}`
+}
+
+// --- Notification APIs ---
+
+export async function fetchNotifications(unreadOnly?: boolean) {
+  const res = await request.get<ApiResponse<Notification[]>>('/notifications', {
+    params: unreadOnly !== undefined ? { unread: unreadOnly } : {},
+  })
+  return unwrapResponse<Notification[]>(res) ?? []
+}
+
+export async function fetchUnreadCount() {
+  const res = await request.get<ApiResponse<number>>('/notifications/unread-count')
+  return unwrapResponse<number>(res) ?? 0
+}
+
+export async function markNotificationRead(notificationId: number) {
+  await request.post(`/notifications/${notificationId}/read`)
+}
+
+export async function markAllNotificationsRead() {
+  await request.post('/notifications/read-all')
+}
+
+export async function deleteNotification(notificationId: number) {
+  await request.delete(`/notifications/${notificationId}`)
+}
+
+// --- Task Template APIs ---
+
+export async function fetchTaskTemplates() {
+  const res = await request.get<ApiResponse<TaskTemplate[]>>('/task/templates')
+  return unwrapResponse<TaskTemplate[]>(res) ?? []
+}
+
+export async function createTaskTemplate(payload: TaskTemplate) {
+  const res = await request.post<ApiResponse<TaskTemplate>>('/task/templates', payload)
+  return unwrapResponse<TaskTemplate>(res)
+}
+
+export async function updateTaskTemplate(templateId: number, payload: TaskTemplate) {
+  const res = await request.put<ApiResponse<TaskTemplate>>(`/task/templates/${templateId}`, payload)
+  return unwrapResponse<TaskTemplate>(res)
+}
+
+export async function deleteTaskTemplate(templateId: number) {
+  await request.delete(`/task/templates/${templateId}`)
+}
+
+// --- Admin: User Management ---
+
+export async function fetchUsers() {
+  const res = await request.get<ApiResponse<UserInfo[]>>('/admin/users')
+  return unwrapResponse<UserInfo[]>(res) ?? []
+}
+
+export async function createUser(payload: { username: string; email: string; password: string; role: string }) {
+  const res = await request.post<ApiResponse<null>>('/admin/users', payload)
+  return res
+}
+
+export async function updateUser(userId: number, payload: { username?: string; email?: string; role?: string }) {
+  const res = await request.put<ApiResponse<UserInfo>>(`/admin/users/${userId}`, payload)
+  return unwrapResponse<UserInfo>(res)
+}
+
+export async function resetUserPassword(userId: number) {
+  await request.post(`/admin/users/${userId}/reset-password`)
+}
+
+export async function setUserStatus(userId: number, status: string) {
+  await request.post(`/admin/users/${userId}/status`, { status })
+}
+
+// --- Admin: System Config ---
+
+export async function fetchSystemConfigs() {
+  const res = await request.get<ApiResponse<SystemConfig[]>>('/admin/config')
+  return unwrapResponse<SystemConfig[]>(res) ?? []
+}
+
+export async function updateSystemConfig(key: string, value: string) {
+  const res = await request.put<ApiResponse<SystemConfig>>(`/admin/config/${key}`, { value })
+  return unwrapResponse<SystemConfig>(res)
 }
