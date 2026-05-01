@@ -3,12 +3,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import TaskView from '@/views/TaskView.vue'
 import TaskManagementView from '@/views/TaskManagementView.vue'
+import TaskScheduleView from '@/views/TaskScheduleView.vue'
+import StatsDashboardView from '@/views/StatsDashboardView.vue'
 import LogView from '@/views/LogView.vue'
 import AdminNodeView from '@/views/AdminNodeView.vue'
 import AdminDashboardView from '@/views/AdminDashboardView.vue'
 import AdminBatchView from '@/views/AdminBatchView.vue'
 import AdminTaskCenterView from '@/views/AdminTaskCenterView.vue'
 import AdminExportCenterView from '@/views/AdminExportCenterView.vue'
+import AdminStatsDashboardView from '@/views/AdminStatsDashboardView.vue'
+import AdminHealthView from '@/views/AdminHealthView.vue'
+import AdminCleanupView from '@/views/AdminCleanupView.vue'
 import AdminUserView from '@/views/AdminUserView.vue'
 import AdminConfigView from '@/views/AdminConfigView.vue'
 import LoginView from '@/views/LoginView.vue'
@@ -27,6 +32,8 @@ const routes = [
       { path: '', component: HomeView },
       { path: 'tasks', component: TaskView },
       { path: 'task-center', component: TaskManagementView },
+      { path: 'schedules', component: TaskScheduleView },
+      { path: 'stats', component: StatsDashboardView },
       { path: 'results', component: ResultCenterView },
       { path: 'exports', component: ExportHistoryView },
       { path: 'profile', component: ProfileView },
@@ -39,9 +46,12 @@ const routes = [
     children: [
       { path: '', component: AdminDashboardView },
       { path: 'task-center', component: AdminTaskCenterView },
+      { path: 'stats', component: AdminStatsDashboardView },
       { path: 'exports', component: AdminExportCenterView },
       { path: 'nodes', component: AdminNodeView },
       { path: 'batches', component: AdminBatchView },
+      { path: 'health', component: AdminHealthView },
+      { path: 'cleanup', component: AdminCleanupView },
       { path: 'logs', component: LogView },
       { path: 'profile', component: ProfileView },
       { path: 'users', component: AdminUserView },
@@ -57,7 +67,6 @@ const router = createRouter({
   routes,
 })
 
-//路由守位
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {

@@ -21,10 +21,11 @@ public class SecurityConfig {
         })
                 .csrf(crsf -> crsf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/login", "/register", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/client", "/log", "/task/maintenance/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/task/**").authenticated()
-                        .anyRequest().authenticated() // 其他接口需要认证
+                        .anyRequest().authenticated()
                 )
                 // 登录注册接口放行
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // 无状态

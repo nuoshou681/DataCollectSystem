@@ -1,6 +1,7 @@
 package com.example.server.config;
 
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 
@@ -30,6 +31,11 @@ public class RabbitMQConfig {
     public static final String ROUTING_RESULT = "crawler.result";
     public static final String ROUTING_STATUS = "crawler.status";
     public static final String ROUTING_TASK_FINISHED = "crawler.task.finished";
+
+    @Bean
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
+    }
 
     @Bean
     public DirectExchange crawDirectExchange() {

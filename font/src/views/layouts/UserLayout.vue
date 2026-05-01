@@ -4,6 +4,8 @@ import {
   RectangleStackIcon,
   ArchiveBoxIcon,
   PresentationChartBarIcon,
+  ChartBarIcon,
+  ClockIcon,
   MagnifyingGlassIcon,
   BellIcon,
   RocketLaunchIcon,
@@ -24,6 +26,8 @@ const navItems = [
   { path: '/', label: '工作台概览', icon: HomeIcon },
   { path: '/tasks', label: '我的任务', icon: RectangleStackIcon },
   { path: '/task-center', label: '任务管理中心', icon: PresentationChartBarIcon },
+  { path: '/schedules', label: '定时任务', icon: ClockIcon },
+  { path: '/stats', label: '数据统计', icon: ChartBarIcon },
   { path: '/results', label: '结果中心', icon: ArchiveBoxIcon },
 ]
 

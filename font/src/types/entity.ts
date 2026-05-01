@@ -255,3 +255,35 @@ export interface SystemConfig {
   createdAt?: string
   updatedAt?: string
 }
+
+export interface TaskSchedule {
+  scheduleId?: number
+  userId?: number
+  scheduleName: string
+  keyword: string
+  url?: string
+  siteType?: string
+  maxLinksPerLevel?: number
+  cronExpression: string
+  enabled?: boolean
+  lastRunAt?: string | null
+  nextRunAt?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface HealthInfo {
+  mysql: { status: string; error?: string }
+  rabbitmq: { status: string; error?: string }
+  jvm: { totalMemoryMB: number; freeMemoryMB: number; usedMemoryMB: number; maxMemoryMB: number; processors: number }
+  disk: { totalGB: number; freeGB: number; usableGB: number }
+}
+
+export interface CleanupStats {
+  totalTasks: number
+  totalPageResults: number
+  totalLogs: number
+  totalEvents: number
+  totalNotifications: number
+  archivedTasks: number
+}

@@ -21,6 +21,7 @@ import {
   fetchTasks,
   getPageResultStreamUrl,
   getTaskRuntimeStreamUrl,
+  importTasksCsv,
   removeBookmark,
   updateTaskArchived,
   updateTaskNote,
@@ -84,6 +85,33 @@ const groupForm = ref<TaskGroup>({
   description: '',
 })
 const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
+
+const csvInputRef = ref<HTMLInputElement | null>(null)
+const importingCsv = ref(false)
+
+function triggerCsvImport() {
+  csvInputRef.value?.click()
+}
+
+async function handleCsvFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  importingCsv.value = true
+  try {
+    const result = await importTasksCsv(file, 10)
+    if (result) {
+      ElMessage.success(`CSV导入完成: 成功 ${result.success ?? 0} 条，失败 ${result.failed ?? 0} 条`)
+    }
+    await loadTaskData()
+    await loadTaskMetadata()
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : 'CSV导入失败')
+  } finally {
+    importingCsv.value = false
+    input.value = ''
+  }
+}
 
 async function loadTaskData(taskIdToOpen?: number) {
   loading.value = true
@@ -594,6 +622,10 @@ onBeforeUnmount(() => {
             <el-tag :type="streamConnected ? 'success' : 'warning'" size="small">{{ streamStatusText }}</el-tag>
             <el-tag :type="runtimeStreamConnected ? 'success' : 'warning'" size="small">{{ runtimeStreamText }}</el-tag>
             <el-button type="primary" :loading="submitting" @click="submitTask">提交任务</el-button>
+            <input ref="csvInputRef" type="file" accept=".csv" style="display:none" @change="handleCsvFileChange" />
+            <el-button plain :loading="importingCsv" @click="triggerCsvImport">
+              {{ importingCsv ? '导入中...' : '批量导入CSV' }}
+            </el-button>
           </div>
         </div>
       </template>

@@ -21,6 +21,9 @@ import type {
   Notification,
   TaskTemplate,
   SystemConfig,
+  TaskSchedule,
+  HealthInfo,
+  CleanupStats,
 } from '@/types/entity'
 import type { ApiResponse } from '@/types/apiResponse'
 
@@ -661,4 +664,86 @@ export async function fetchSystemConfigs() {
 export async function updateSystemConfig(key: string, value: string) {
   const res = await request.put<ApiResponse<SystemConfig>>(`/admin/config/${key}`, { value })
   return unwrapResponse<SystemConfig>(res)
+}
+
+// --- Task Schedule APIs ---
+
+export async function fetchTaskSchedules() {
+  const res = await request.get<ApiResponse<TaskSchedule[]>>('/task/schedules')
+  return unwrapResponse<TaskSchedule[]>(res) ?? []
+}
+
+export async function createTaskSchedule(payload: TaskSchedule) {
+  const res = await request.post<ApiResponse<TaskSchedule>>('/task/schedules', payload)
+  return unwrapResponse<TaskSchedule>(res)
+}
+
+export async function updateTaskSchedule(scheduleId: number, payload: TaskSchedule) {
+  const res = await request.put<ApiResponse<TaskSchedule>>(`/task/schedules/${scheduleId}`, payload)
+  return unwrapResponse<TaskSchedule>(res)
+}
+
+export async function deleteTaskSchedule(scheduleId: number) {
+  await request.delete(`/task/schedules/${scheduleId}`)
+}
+
+export async function toggleTaskSchedule(scheduleId: number) {
+  await request.post(`/task/schedules/${scheduleId}/toggle`)
+}
+
+// --- Stats APIs ---
+
+export async function fetchStatsOverview() {
+  const res = await request.get<ApiResponse<Record<string, number>>>('/stats/overview')
+  return unwrapResponse<Record<string, number>>(res) ?? {}
+}
+
+export async function fetchStatsTrend() {
+  const res = await request.get<ApiResponse<Array<{ date: string; created: number; finished: number; failed: number }>>>('/stats/trend')
+  return unwrapResponse<Array<{ date: string; created: number; finished: number; failed: number }>>(res) ?? []
+}
+
+export async function fetchStatsSiteDistribution() {
+  const res = await request.get<ApiResponse<Array<{ name: string; value: number }>>>('/stats/site-distribution')
+  return unwrapResponse<Array<{ name: string; value: number }>>(res) ?? []
+}
+
+export async function fetchStatsNodeLoad() {
+  const res = await request.get<ApiResponse<Array<{ name: string; value: number }>>>('/stats/node-load')
+  return unwrapResponse<Array<{ name: string; value: number }>>(res) ?? []
+}
+
+export async function fetchStatsHourlyActivity() {
+  const res = await request.get<ApiResponse<Array<{ hour: string; count: number }>>>('/stats/hourly-activity')
+  return unwrapResponse<Array<{ hour: string; count: number }>>(res) ?? []
+}
+
+// --- Health API ---
+
+export async function fetchHealth() {
+  const res = await request.get<ApiResponse<HealthInfo>>('/admin/health')
+  return unwrapResponse<HealthInfo>(res)
+}
+
+// --- Cleanup APIs ---
+
+export async function fetchCleanupStats() {
+  const res = await request.post<ApiResponse<CleanupStats>>('/admin/cleanup/stats')
+  return unwrapResponse<CleanupStats>(res)
+}
+
+export async function runCleanup(days: number) {
+  const res = await request.post<ApiResponse<Record<string, unknown>>>('/admin/cleanup', { scope: 'old_tasks', days })
+  return unwrapResponse<Record<string, unknown>>(res)
+}
+
+// --- Batch Import API ---
+
+export async function importTasksCsv(file: File, maxLinksPerLevel = 10) {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await request.post<ApiResponse<Record<string, number>>>(`/task/import/csv?maxLinksPerLevel=${maxLinksPerLevel}`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return unwrapResponse<Record<string, number>>(res)
 }
