@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { ArchiveBoxIcon, ArrowDownTrayIcon, DocumentTextIcon, QueueListIcon } from '@heroicons/vue/24/outline'
 import { fetchExportRecords } from '@/api/api'
 import type { ExportRecord } from '@/types/entity'
 
@@ -41,10 +42,18 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <el-card><div class="text-sm text-slate-500">导出总次数</div><div class="mt-2 text-2xl font-semibold">{{ stats.total }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">CSV 导出</div><div class="mt-2 text-2xl font-semibold text-sky-600">{{ stats.csv }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">MHTML 打包</div><div class="mt-2 text-2xl font-semibold text-amber-600">{{ stats.mhtml }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">任务级导出</div><div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.taskScoped }}</div></el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-3"><ArrowDownTrayIcon class="w-6 h-6 text-blue-500" /><div><div class="text-sm text-slate-500">导出总次数</div><div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-sky-500">
+        <div class="flex items-center gap-3"><DocumentTextIcon class="w-6 h-6 text-sky-500" /><div><div class="text-sm text-slate-500">CSV 导出</div><div class="text-2xl font-bold text-sky-600">{{ stats.csv }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-amber-500">
+        <div class="flex items-center gap-3"><ArchiveBoxIcon class="w-6 h-6 text-amber-500" /><div><div class="text-sm text-slate-500">MHTML 打包</div><div class="text-2xl font-bold text-amber-600">{{ stats.mhtml }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-3"><QueueListIcon class="w-6 h-6 text-emerald-500" /><div><div class="text-sm text-slate-500">任务级导出</div><div class="text-2xl font-bold text-emerald-600">{{ stats.taskScoped }}</div></div></div>
+      </el-card>
     </section>
 
     <el-card>

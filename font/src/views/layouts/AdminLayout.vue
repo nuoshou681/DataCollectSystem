@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  BoltIcon,
   Squares2X2Icon,
   ServerStackIcon,
   DocumentIcon,

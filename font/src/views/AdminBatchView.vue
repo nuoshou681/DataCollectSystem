@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { BoltIcon, CheckBadgeIcon, QueueListIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import { fetchTaskBatchDetail, fetchTaskBatches } from '@/api/api'
 import type { TaskBatch, TaskBatchDetail } from '@/types/entity'
 
@@ -48,10 +49,18 @@ async function openDetail(batchId: string) {
 <template>
   <div class="space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <el-card><div class="text-sm text-gray-500">批次总数</div><div class="text-2xl font-semibold mt-2">{{ stats.total }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">执行中</div><div class="text-2xl font-semibold mt-2 text-sky-600">{{ stats.running }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">已完成</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ stats.finished }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">部分失败</div><div class="text-2xl font-semibold mt-2 text-rose-600">{{ stats.partialFailed }}</div></el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-3"><QueueListIcon class="w-6 h-6 text-blue-500" /><div><div class="text-sm text-slate-500">批次总数</div><div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-sky-500">
+        <div class="flex items-center gap-3"><BoltIcon class="w-6 h-6 text-sky-500" /><div><div class="text-sm text-slate-500">执行中</div><div class="text-2xl font-bold text-sky-600">{{ stats.running }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-3"><CheckBadgeIcon class="w-6 h-6 text-emerald-500" /><div><div class="text-sm text-slate-500">已完成</div><div class="text-2xl font-bold text-emerald-600">{{ stats.finished }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-rose-500">
+        <div class="flex items-center gap-3"><XCircleIcon class="w-6 h-6 text-rose-500" /><div><div class="text-sm text-slate-500">部分失败</div><div class="text-2xl font-bold text-rose-600">{{ stats.partialFailed }}</div></div></div>
+      </el-card>
     </section>
 
     <el-card>

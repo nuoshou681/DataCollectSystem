@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
+import { ArrowTrendingUpIcon, BoltIcon, CheckBadgeIcon, QueueListIcon } from '@heroicons/vue/24/outline'
 import { fetchStatsOverview, fetchStatsTrend, fetchStatsSiteDistribution, fetchStatsHourlyActivity, fetchStatsNodeLoad } from '@/api/api'
+
+const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#64748b']
 
 const overview = ref<Record<string, number>>({})
 const trend = ref<Array<{ date: string; created: number; finished: number; failed: number }>>([])
@@ -47,6 +50,7 @@ watch(trend, () => initChart(trendChartRef.value!, {
 }), { deep: true })
 
 watch(siteDist, () => initChart(siteChartRef.value!, {
+  color: CHART_COLORS,
   tooltip: { trigger: 'item' },
   series: [{
     type: 'pie', radius: ['40%', '70%'], center: ['50%', '50%'],
@@ -80,21 +84,21 @@ onMounted(load)
 <template>
   <div class="p-6 space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-sm text-gray-400">全系统任务数</div>
-        <div class="text-2xl font-semibold mt-2 text-blue-400">{{ overview.totalTasks ?? '-' }}</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <QueueListIcon class="w-6 h-6 text-blue-400 flex-shrink-0" />
+        <div><div class="text-sm text-gray-400">全系统任务数</div><div class="text-2xl font-bold text-blue-400">{{ overview.totalTasks ?? '-' }}</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-sm text-gray-400">运行中</div>
-        <div class="text-2xl font-semibold mt-2 text-emerald-400">{{ overview.runningTasks ?? '-' }}</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <BoltIcon class="w-6 h-6 text-emerald-400 flex-shrink-0" />
+        <div><div class="text-sm text-gray-400">运行中</div><div class="text-2xl font-bold text-emerald-400">{{ overview.runningTasks ?? '-' }}</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-sm text-gray-400">今日完成</div>
-        <div class="text-2xl font-semibold mt-2 text-violet-400">{{ overview.finishedToday ?? '-' }}</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <CheckBadgeIcon class="w-6 h-6 text-violet-400 flex-shrink-0" />
+        <div><div class="text-sm text-gray-400">今日完成</div><div class="text-2xl font-bold text-violet-400">{{ overview.finishedToday ?? '-' }}</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-sm text-gray-400">成功率</div>
-        <div class="text-2xl font-semibold mt-2 text-amber-400">{{ overview.successRate ?? '-' }}%</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <ArrowTrendingUpIcon class="w-6 h-6 text-amber-400 flex-shrink-0" />
+        <div><div class="text-sm text-gray-400">成功率</div><div class="text-2xl font-bold text-amber-400">{{ overview.successRate ?? '-' }}%</div></div>
       </div>
     </section>
 

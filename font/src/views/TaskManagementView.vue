@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { ArchiveBoxIcon, FolderIcon, PencilSquareIcon, QueueListIcon } from '@heroicons/vue/24/outline'
 import {
   fetchExportRecords,
   fetchTaskGroups,
@@ -122,10 +123,18 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <el-card><div class="text-sm text-slate-500">任务总量</div><div class="mt-2 text-2xl font-semibold">{{ stats.total }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">已归档任务</div><div class="mt-2 text-2xl font-semibold text-sky-600">{{ stats.archived }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">已分组任务</div><div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.grouped }}</div></el-card>
-      <el-card><div class="text-sm text-slate-500">已有备注任务</div><div class="mt-2 text-2xl font-semibold text-amber-600">{{ stats.noted }}</div></el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-3"><QueueListIcon class="w-6 h-6 text-blue-500" /><div><div class="text-sm text-slate-500">任务总量</div><div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-sky-500">
+        <div class="flex items-center gap-3"><ArchiveBoxIcon class="w-6 h-6 text-sky-500" /><div><div class="text-sm text-slate-500">已归档任务</div><div class="text-2xl font-bold text-sky-600">{{ stats.archived }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-3"><FolderIcon class="w-6 h-6 text-emerald-500" /><div><div class="text-sm text-slate-500">已分组任务</div><div class="text-2xl font-bold text-emerald-600">{{ stats.grouped }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-amber-500">
+        <div class="flex items-center gap-3"><PencilSquareIcon class="w-6 h-6 text-amber-500" /><div><div class="text-sm text-slate-500">已有备注任务</div><div class="text-2xl font-bold text-amber-600">{{ stats.noted }}</div></div></div>
+      </el-card>
     </section>
 
     <section class="grid grid-cols-1 xl:grid-cols-[1.35fr_0.95fr] gap-6">
@@ -145,9 +154,17 @@ onMounted(() => {
               </el-select>
               <el-select v-model="siteFilter" size="small" style="width: 140px">
                 <el-option label="全部站点" value="ALL" />
-                <el-option label="搜狐" value="搜狐" />
-                <el-option label="Bing" value="Bing" />
+                <el-option label="搜狐新闻" value="搜狐新闻" />
+                <el-option label="Bing 搜索" value="Bing 搜索" />
                 <el-option label="百度百科" value="百度百科" />
+                <el-option label="腾讯新闻" value="腾讯新闻" />
+                <el-option label="新浪新闻" value="新浪新闻" />
+                <el-option label="澎湃新闻" value="澎湃新闻" />
+                <el-option label="环球网" value="环球网" />
+                <el-option label="中国新闻网" value="中国新闻网" />
+                <el-option label="央视网新闻" value="央视网新闻" />
+                <el-option label="观察者网" value="观察者网" />
+                <el-option label="维基百科" value="维基百科" />
               </el-select>
               <el-select v-model="archiveFilter" size="small" style="width: 140px">
                 <el-option label="全部归档" value="ALL" />

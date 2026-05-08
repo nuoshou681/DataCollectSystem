@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArchiveBoxIcon, BellIcon, BoltIcon, DocumentIcon, DocumentTextIcon, QueueListIcon } from '@heroicons/vue/24/outline'
 import { fetchCleanupStats, runCleanup } from '@/api/api'
 import type { CleanupStats } from '@/types/entity'
 
@@ -49,26 +50,32 @@ onMounted(load)
 
     <div v-if="stats" class="grid grid-cols-6 gap-3">
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <QueueListIcon class="w-5 h-5 text-blue-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-blue-400">{{ stats.totalTasks }}</div>
         <div class="text-gray-500 text-xs mt-1">总任务</div>
       </div>
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <DocumentTextIcon class="w-5 h-5 text-violet-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-violet-400">{{ stats.totalPageResults }}</div>
         <div class="text-gray-500 text-xs mt-1">页面结果</div>
       </div>
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <DocumentIcon class="w-5 h-5 text-amber-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-amber-400">{{ stats.totalLogs }}</div>
         <div class="text-gray-500 text-xs mt-1">日志</div>
       </div>
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <BoltIcon class="w-5 h-5 text-emerald-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-emerald-400">{{ stats.totalEvents }}</div>
         <div class="text-gray-500 text-xs mt-1">事件</div>
       </div>
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <BellIcon class="w-5 h-5 text-pink-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-pink-400">{{ stats.totalNotifications }}</div>
         <div class="text-gray-500 text-xs mt-1">通知</div>
       </div>
       <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
+        <ArchiveBoxIcon class="w-5 h-5 text-red-400 mx-auto mb-2" />
         <div class="text-xl font-bold text-red-400">{{ stats.archivedTasks }}</div>
         <div class="text-gray-500 text-xs mt-1">已归档</div>
       </div>

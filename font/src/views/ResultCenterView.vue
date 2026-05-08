@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { BookmarkIcon, CheckBadgeIcon, TagIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import {
   bindResultTag,
   createResultTag,
@@ -319,11 +320,21 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
-      <el-card><div class="text-sm text-gray-500">收藏结果</div><div class="text-2xl font-semibold mt-2">{{ stats.total }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">成功结果</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ stats.success }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">失败结果</div><div class="text-2xl font-semibold mt-2 text-rose-600">{{ stats.failed }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">标签分类</div><div class="text-2xl font-semibold mt-2 text-sky-600">{{ stats.categories }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">已打标签结果</div><div class="text-2xl font-semibold mt-2 text-amber-600">{{ stats.taggedResults }}</div></el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-3"><BookmarkIcon class="w-6 h-6 text-blue-500" /><div><div class="text-sm text-slate-500">收藏结果</div><div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-3"><CheckBadgeIcon class="w-6 h-6 text-emerald-500" /><div><div class="text-sm text-slate-500">成功结果</div><div class="text-2xl font-bold text-emerald-600">{{ stats.success }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-rose-500">
+        <div class="flex items-center gap-3"><XCircleIcon class="w-6 h-6 text-rose-500" /><div><div class="text-sm text-slate-500">失败结果</div><div class="text-2xl font-bold text-rose-600">{{ stats.failed }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-sky-500">
+        <div class="flex items-center gap-3"><TagIcon class="w-6 h-6 text-sky-500" /><div><div class="text-sm text-slate-500">标签分类</div><div class="text-2xl font-bold text-sky-600">{{ stats.categories }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-amber-500">
+        <div class="flex items-center gap-3"><TagIcon class="w-6 h-6 text-amber-500" /><div><div class="text-sm text-slate-500">已打标签结果</div><div class="text-2xl font-bold text-amber-600">{{ stats.taggedResults }}</div></div></div>
+      </el-card>
     </section>
 
     <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_1fr] gap-6">

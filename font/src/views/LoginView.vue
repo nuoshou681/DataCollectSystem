@@ -13,7 +13,7 @@ async function handleLogin() {
   try {
     error.value = ''
     const res = await login(email.value, password.value)
-    // 登陆失败，清除表单
+    // 登录失败，清除表单
     if (res === null) {
       email.value = ''
       password.value = ''
@@ -36,14 +36,14 @@ async function handleLogin() {
 </script>
 <template>
   <div class="flex flex-col items-center justify-center h-screen bg-gray-50">
-    <form @submit.prevent="handleLogin" class=" bg-white p-8 rounded shadow w-80">
-      <h2 class="text-2xl font-bold mb-6">登陆</h2>
-      <input v-model="email" type="email" placeholder="邮箱" class=" input mb-4" required />
+    <form @submit.prevent="handleLogin" class="bg-white p-8 rounded shadow w-80">
+      <h2 class="text-2xl font-bold mb-6">登录</h2>
+      <input v-model="email" type="email" placeholder="邮箱" class="input mb-4" required />
       <input v-model="password" type="password" placeholder="密码" class="input mb-4" required />
-      <button type="submit" class="btn w-full">登陆</button>
+      <button type="submit" class="btn w-full">登录</button>
       <div v-if="error" class="text-red-500 text-sm mt-2 text-center">{{ error }}</div>
       <div class="mt-4 text-sm text-center">
-        <RouterLink to="/register" class=" text-indigo-600">注册</RouterLink>
+        <RouterLink to="/register" class="text-indigo-600">注册</RouterLink>
       </div>
     </form>
   </div>

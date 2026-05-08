@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { CheckBadgeIcon, ShieldCheckIcon, UsersIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import {
   fetchUsers, createUser, updateUser, resetUserPassword, setUserStatus,
 } from '@/api/api'
@@ -86,21 +87,21 @@ onMounted(loadUsers)
     <h1 class="text-2xl font-bold text-white">用户管理</h1>
 
     <div class="grid grid-cols-4 gap-4">
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-2xl font-bold text-white">{{ stats.total }}</div>
-        <div class="text-gray-400 text-sm">总用户数</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <UsersIcon class="w-6 h-6 text-blue-400 flex-shrink-0" />
+        <div><div class="text-2xl font-bold text-white">{{ stats.total }}</div><div class="text-gray-400 text-sm">总用户数</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-2xl font-bold text-emerald-400">{{ stats.active }}</div>
-        <div class="text-gray-400 text-sm">活跃用户</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <CheckBadgeIcon class="w-6 h-6 text-emerald-400 flex-shrink-0" />
+        <div><div class="text-2xl font-bold text-emerald-400">{{ stats.active }}</div><div class="text-gray-400 text-sm">活跃用户</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-2xl font-bold text-amber-400">{{ stats.admin }}</div>
-        <div class="text-gray-400 text-sm">管理员</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <ShieldCheckIcon class="w-6 h-6 text-amber-400 flex-shrink-0" />
+        <div><div class="text-2xl font-bold text-amber-400">{{ stats.admin }}</div><div class="text-gray-400 text-sm">管理员</div></div>
       </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4">
-        <div class="text-2xl font-bold text-red-400">{{ stats.disabled }}</div>
-        <div class="text-gray-400 text-sm">已禁用</div>
+      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 flex items-center gap-3">
+        <XCircleIcon class="w-6 h-6 text-red-400 flex-shrink-0" />
+        <div><div class="text-2xl font-bold text-red-400">{{ stats.disabled }}</div><div class="text-gray-400 text-sm">已禁用</div></div>
       </div>
     </div>
 

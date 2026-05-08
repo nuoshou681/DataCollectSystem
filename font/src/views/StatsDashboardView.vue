@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
+import { ArrowTrendingUpIcon, BoltIcon, CheckBadgeIcon, QueueListIcon } from '@heroicons/vue/24/outline'
 import { fetchStatsOverview, fetchStatsTrend, fetchStatsSiteDistribution, fetchStatsHourlyActivity } from '@/api/api'
+
+const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#64748b']
 
 const overview = ref<Record<string, number>>({})
 const trend = ref<Array<{ date: string; created: number; finished: number; failed: number }>>([])
@@ -57,6 +60,7 @@ function renderSiteChart() {
   if (!siteChart.value || !siteDist.value.length) return
   const chart = echarts.init(siteChart.value, undefined, { renderer: 'svg' })
   chart.setOption({
+    color: CHART_COLORS,
     tooltip: { trigger: 'item' },
     series: [{
       type: 'pie', radius: ['40%', '70%'], center: ['50%', '50%'],
@@ -91,10 +95,18 @@ onMounted(load)
 <template>
   <div class="p-6 space-y-6">
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <el-card><div class="text-sm text-gray-500">总任务数</div><div class="text-2xl font-semibold mt-2 text-blue-600">{{ overview.totalTasks ?? '-' }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">运行中</div><div class="text-2xl font-semibold mt-2 text-emerald-600">{{ overview.runningTasks ?? '-' }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">今日完成</div><div class="text-2xl font-semibold mt-2 text-violet-600">{{ overview.finishedToday ?? '-' }}</div></el-card>
-      <el-card><div class="text-sm text-gray-500">成功率</div><div class="text-2xl font-semibold mt-2 text-amber-600">{{ overview.successRate ?? '-' }}%</div></el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500">
+        <div class="flex items-center gap-3"><QueueListIcon class="w-6 h-6 text-blue-500" /><div><div class="text-sm text-slate-500">总任务数</div><div class="text-2xl font-bold text-blue-600">{{ overview.totalTasks ?? '-' }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500">
+        <div class="flex items-center gap-3"><BoltIcon class="w-6 h-6 text-emerald-500" /><div><div class="text-sm text-slate-500">运行中</div><div class="text-2xl font-bold text-emerald-600">{{ overview.runningTasks ?? '-' }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-violet-500">
+        <div class="flex items-center gap-3"><CheckBadgeIcon class="w-6 h-6 text-violet-500" /><div><div class="text-sm text-slate-500">今日完成</div><div class="text-2xl font-bold text-violet-600">{{ overview.finishedToday ?? '-' }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-amber-500">
+        <div class="flex items-center gap-3"><ArrowTrendingUpIcon class="w-6 h-6 text-amber-500" /><div><div class="text-sm text-slate-500">成功率</div><div class="text-2xl font-bold text-amber-600">{{ overview.successRate ?? '-' }}%</div></div></div>
+      </el-card>
     </section>
 
     <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">

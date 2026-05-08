@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
-import TaskView from '@/views/TaskView.vue'
+import TaskListView from '@/views/TaskListView.vue'
+import TaskCreateView from '@/views/TaskCreateView.vue'
+import TaskDetailView from '@/views/TaskDetailView.vue'
 import TaskManagementView from '@/views/TaskManagementView.vue'
 import TaskScheduleView from '@/views/TaskScheduleView.vue'
 import StatsDashboardView from '@/views/StatsDashboardView.vue'
@@ -30,7 +32,9 @@ const routes = [
     meta: { requiresAuth: true, requiresRole: 'user' },
     children: [
       { path: '', component: HomeView },
-      { path: 'tasks', component: TaskView },
+      { path: 'tasks', component: TaskListView },
+      { path: 'tasks/create', component: TaskCreateView },
+      { path: 'tasks/:id', component: TaskDetailView },
       { path: 'task-center', component: TaskManagementView },
       { path: 'schedules', component: TaskScheduleView },
       { path: 'stats', component: StatsDashboardView },
