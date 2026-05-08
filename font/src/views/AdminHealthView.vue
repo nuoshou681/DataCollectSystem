@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { CircleStackIcon, CloudIcon, CpuChipIcon, ServerIcon } from '@heroicons/vue/24/outline'
 import { fetchHealth } from '@/api/api'
 import type { HealthInfo } from '@/types/entity'
 
@@ -18,8 +19,8 @@ async function load() {
   }
 }
 
-function statusBadge(s: string) {
-  return s === 'UP' ? 'text-emerald-400 bg-emerald-400/10' : 'text-red-400 bg-red-400/10'
+function statusTag(s: string) {
+  return s === 'UP' ? 'success' as const : 'danger' as const
 }
 
 onMounted(load)
@@ -28,97 +29,114 @@ onMounted(load)
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-white">系统健康监控</h1>
-      <button class="text-sm text-blue-400 hover:text-blue-300" @click="load" :disabled="loading">
-        {{ loading ? '刷新中...' : '刷新' }}
-      </button>
+      <div>
+        <h2 class="text-xl font-semibold text-slate-800">系统健康监控</h2>
+        <p class="text-sm text-slate-500 mt-1">MySQL、RabbitMQ、JVM 内存与磁盘空间</p>
+      </div>
+      <el-button text type="primary" :loading="loading" @click="load">刷新</el-button>
     </div>
 
-    <div v-if="!health" class="text-center text-gray-500 py-16">加载中...</div>
+    <div v-if="loading && !health" class="flex items-center justify-center py-16">
+      <el-icon class="is-loading" :size="24" />
+      <span class="text-slate-400 ml-2">加载中...</span>
+    </div>
 
-    <template v-else>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- MySQL -->
-        <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-5">
-          <h3 class="text-sm font-medium text-gray-400 mb-3">MySQL 数据库</h3>
-          <div class="flex items-center gap-2">
-            <span :class="statusBadge(health.mysql.status)" class="px-3 py-1 rounded text-sm font-medium">
+    <template v-if="health">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <el-card shadow="hover">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <CircleStackIcon class="w-5 h-5 text-blue-500" />
+              <span class="font-semibold">MySQL 数据库</span>
+            </div>
+          </template>
+          <div class="flex items-center gap-3">
+            <el-tag :type="statusTag(health.mysql.status)">
               {{ health.mysql.status === 'UP' ? '运行正常' : '连接异常' }}
-            </span>
+            </el-tag>
           </div>
-          <div v-if="health.mysql.error" class="text-red-400 text-xs mt-2">{{ health.mysql.error }}</div>
-        </div>
+          <div v-if="health.mysql.error" class="text-sm text-red-500 mt-2 bg-red-50 rounded-lg p-3">{{ health.mysql.error }}</div>
+        </el-card>
 
-        <!-- RabbitMQ -->
-        <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-5">
-          <h3 class="text-sm font-medium text-gray-400 mb-3">RabbitMQ 消息队列</h3>
-          <div class="flex items-center gap-2">
-            <span :class="statusBadge(health.rabbitmq.status)" class="px-3 py-1 rounded text-sm font-medium">
+        <el-card shadow="hover">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <CloudIcon class="w-5 h-5 text-violet-500" />
+              <span class="font-semibold">RabbitMQ 消息队列</span>
+            </div>
+          </template>
+          <div class="flex items-center gap-3">
+            <el-tag :type="statusTag(health.rabbitmq.status)">
               {{ health.rabbitmq.status === 'UP' ? '运行正常' : '连接异常' }}
-            </span>
+            </el-tag>
           </div>
-          <div v-if="health.rabbitmq.error" class="text-red-400 text-xs mt-2">{{ health.rabbitmq.error }}</div>
-        </div>
-      </div>
+          <div v-if="health.rabbitmq.error" class="text-sm text-red-500 mt-2 bg-red-50 rounded-lg p-3">{{ health.rabbitmq.error }}</div>
+        </el-card>
+      </section>
 
-      <!-- JVM -->
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-5">
-        <h3 class="text-sm font-medium text-gray-400 mb-4">JVM 内存</h3>
-        <div class="grid grid-cols-4 gap-4">
-          <div>
-            <div class="text-2xl font-bold text-white">{{ ((health.jvm.usedMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
-            <div class="text-gray-500 text-xs">已用内存</div>
+      <el-card>
+        <template #header>
+          <div class="flex items-center gap-2">
+            <CpuChipIcon class="w-5 h-5 text-emerald-500" />
+            <span class="font-semibold">JVM 内存</span>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-blue-400">{{ ((health.jvm.maxMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
-            <div class="text-gray-500 text-xs">最大内存</div>
+        </template>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-slate-800">{{ ((health.jvm.usedMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
+            <div class="text-sm text-slate-500">已用内存</div>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-emerald-400">{{ ((health.jvm.freeMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
-            <div class="text-gray-500 text-xs">空闲内存</div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-blue-600">{{ ((health.jvm.maxMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
+            <div class="text-sm text-slate-500">最大内存</div>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-violet-400">{{ health.jvm.processors }}</div>
-            <div class="text-gray-500 text-xs">CPU 核心数</div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-emerald-600">{{ ((health.jvm.freeMemoryMB ?? 0) / 1024).toFixed(1) }} GB</div>
+            <div class="text-sm text-slate-500">空闲内存</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-violet-600">{{ health.jvm.processors }}</div>
+            <div class="text-sm text-slate-500">CPU 核心数</div>
           </div>
         </div>
-        <!-- Memory bar -->
-        <div class="mt-4 bg-gray-700 rounded-full h-3 overflow-hidden">
+        <div class="bg-slate-100 rounded-full h-3 overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-violet-500 h-full rounded-full transition-all"
-               :style="{ width: ((health.jvm.usedMemoryMB ?? 0) / (health.jvm.maxMemoryMB ?? 1) * 100).toFixed(1) + '%' }">
-          </div>
+               :style="{ width: ((health.jvm.usedMemoryMB ?? 0) / (health.jvm.maxMemoryMB ?? 1) * 100).toFixed(1) + '%' }" />
         </div>
-        <div class="text-gray-500 text-xs mt-1">
+        <div class="text-sm text-slate-500 mt-1">
           使用率 {{ ((health.jvm.usedMemoryMB ?? 0) / (health.jvm.maxMemoryMB ?? 1) * 100).toFixed(1) }}%
         </div>
-      </div>
+      </el-card>
 
-      <!-- Disk -->
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-5">
-        <h3 class="text-sm font-medium text-gray-400 mb-4">磁盘空间</h3>
-        <div class="grid grid-cols-3 gap-4">
-          <div>
-            <div class="text-2xl font-bold text-white">{{ health.disk.totalGB }} GB</div>
-            <div class="text-gray-500 text-xs">总容量</div>
+      <el-card>
+        <template #header>
+          <div class="flex items-center gap-2">
+            <ServerIcon class="w-5 h-5 text-amber-500" />
+            <span class="font-semibold">磁盘空间</span>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-emerald-400">{{ health.disk.freeGB }} GB</div>
-            <div class="text-gray-500 text-xs">可用空间</div>
+        </template>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-slate-800">{{ health.disk.totalGB }} GB</div>
+            <div class="text-sm text-slate-500">总容量</div>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-amber-400">{{ health.disk.usableGB }} GB</div>
-            <div class="text-gray-500 text-xs">可写入</div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-emerald-600">{{ health.disk.freeGB }} GB</div>
+            <div class="text-sm text-slate-500">可用空间</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-amber-600">{{ health.disk.usableGB }} GB</div>
+            <div class="text-sm text-slate-500">可写入</div>
           </div>
         </div>
-        <div class="mt-4 bg-gray-700 rounded-full h-3 overflow-hidden">
+        <div class="bg-slate-100 rounded-full h-3 overflow-hidden">
           <div class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full rounded-full"
-               :style="{ width: ((1 - health.disk.freeGB / (health.disk.totalGB || 1)) * 100).toFixed(1) + '%' }">
-          </div>
+               :style="{ width: ((1 - health.disk.freeGB / (health.disk.totalGB || 1)) * 100).toFixed(1) + '%' }" />
         </div>
-        <div class="text-gray-500 text-xs mt-1">
+        <div class="text-sm text-slate-500 mt-1">
           已用 {{ ((1 - health.disk.freeGB / (health.disk.totalGB || 1)) * 100).toFixed(1) }}%
         </div>
-      </div>
+      </el-card>
     </template>
   </div>
 </template>

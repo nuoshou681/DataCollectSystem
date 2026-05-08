@@ -1,46 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
-import TaskListView from '@/views/TaskListView.vue'
-import TaskCreateView from '@/views/TaskCreateView.vue'
-import TaskDetailView from '@/views/TaskDetailView.vue'
-import TaskManagementView from '@/views/TaskManagementView.vue'
-import TaskScheduleView from '@/views/TaskScheduleView.vue'
-import StatsDashboardView from '@/views/StatsDashboardView.vue'
-import LogView from '@/views/LogView.vue'
-import AdminNodeView from '@/views/AdminNodeView.vue'
-import AdminDashboardView from '@/views/AdminDashboardView.vue'
-import AdminBatchView from '@/views/AdminBatchView.vue'
-import AdminTaskCenterView from '@/views/AdminTaskCenterView.vue'
-import AdminExportCenterView from '@/views/AdminExportCenterView.vue'
-import AdminStatsDashboardView from '@/views/AdminStatsDashboardView.vue'
-import AdminHealthView from '@/views/AdminHealthView.vue'
-import AdminCleanupView from '@/views/AdminCleanupView.vue'
-import AdminUserView from '@/views/AdminUserView.vue'
-import AdminConfigView from '@/views/AdminConfigView.vue'
-import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import ProfileView from '@/views/ProfileView.vue'
-import ResultCenterView from '@/views/ResultCenterView.vue'
-import ExportHistoryView from '@/views/ExportHistoryView.vue'
 import UserLayout from '@/views/layouts/UserLayout.vue'
 import AdminLayout from '@/views/layouts/AdminLayout.vue'
+
 const routes = [
   {
     path: '/',
     component: UserLayout,
     meta: { requiresAuth: true, requiresRole: 'user' },
     children: [
-      { path: '', component: HomeView },
-      { path: 'tasks', component: TaskListView },
-      { path: 'tasks/create', component: TaskCreateView },
-      { path: 'tasks/:id', component: TaskDetailView },
-      { path: 'task-center', component: TaskManagementView },
-      { path: 'schedules', component: TaskScheduleView },
-      { path: 'stats', component: StatsDashboardView },
-      { path: 'results', component: ResultCenterView },
-      { path: 'exports', component: ExportHistoryView },
-      { path: 'profile', component: ProfileView },
+      { path: '', component: () => import('@/views/HomeView.vue') },
+      { path: 'tasks', component: () => import('@/views/TaskListView.vue') },
+      { path: 'tasks/create', component: () => import('@/views/TaskCreateView.vue') },
+      { path: 'tasks/:id', component: () => import('@/views/TaskDetailView.vue') },
+      { path: 'task-center', component: () => import('@/views/TaskManagementView.vue') },
+      { path: 'schedules', component: () => import('@/views/TaskScheduleView.vue') },
+      { path: 'stats', component: () => import('@/views/StatsDashboardView.vue') },
+      { path: 'results', component: () => import('@/views/ResultCenterView.vue') },
+      { path: 'exports', component: () => import('@/views/ExportHistoryView.vue') },
+      { path: 'profile', component: () => import('@/views/ProfileView.vue') },
     ]
   },
   {
@@ -48,22 +26,22 @@ const routes = [
     component: AdminLayout,
     meta: { requiresAuth: true, requiresRole: 'admin' },
     children: [
-      { path: '', component: AdminDashboardView },
-      { path: 'task-center', component: AdminTaskCenterView },
-      { path: 'stats', component: AdminStatsDashboardView },
-      { path: 'exports', component: AdminExportCenterView },
-      { path: 'nodes', component: AdminNodeView },
-      { path: 'batches', component: AdminBatchView },
-      { path: 'health', component: AdminHealthView },
-      { path: 'cleanup', component: AdminCleanupView },
-      { path: 'logs', component: LogView },
-      { path: 'profile', component: ProfileView },
-      { path: 'users', component: AdminUserView },
-      { path: 'config', component: AdminConfigView },
+      { path: '', component: () => import('@/views/AdminDashboardView.vue') },
+      { path: 'task-center', component: () => import('@/views/AdminTaskCenterView.vue') },
+      { path: 'stats', component: () => import('@/views/AdminStatsDashboardView.vue') },
+      { path: 'exports', component: () => import('@/views/AdminExportCenterView.vue') },
+      { path: 'nodes', component: () => import('@/views/AdminNodeView.vue') },
+      { path: 'batches', component: () => import('@/views/AdminBatchView.vue') },
+      { path: 'health', component: () => import('@/views/AdminHealthView.vue') },
+      { path: 'cleanup', component: () => import('@/views/AdminCleanupView.vue') },
+      { path: 'logs', component: () => import('@/views/LogView.vue') },
+      { path: 'profile', component: () => import('@/views/ProfileView.vue') },
+      { path: 'users', component: () => import('@/views/AdminUserView.vue') },
+      { path: 'config', component: () => import('@/views/AdminConfigView.vue') },
     ]
   },
-  { path: '/login', component: LoginView },
-  { path: '/register', component: RegisterView },
+  { path: '/login', component: () => import('@/views/LoginView.vue') },
+  { path: '/register', component: () => import('@/views/RegisterView.vue') },
 ]
 
 const router = createRouter({

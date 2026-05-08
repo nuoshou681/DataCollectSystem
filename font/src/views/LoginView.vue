@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { LockClosedIcon } from '@heroicons/vue/24/outline'
 import { login } from '@/api/api'
 import { persistAuthSession } from '@/utils/auth'
 
 const email = ref('')
 const password = ref('')
-const error = ref('')
+const loading = ref(false)
 const router = useRouter()
 
 async function handleLogin() {
+  if (!email.value.trim() || !password.value) {
+    ElMessage.warning('请填写邮箱和密码')
+    return
+  }
+  loading.value = true
   try {
-    error.value = ''
     const res = await login(email.value, password.value)
-    // 登录失败，清除表单
     if (res === null) {
       email.value = ''
       password.value = ''
+      ElMessage.error('邮箱或密码错误')
     } else {
       persistAuthSession(String(res.token), String(res.role || 'user'))
       if (res.role === 'admin') {
@@ -25,41 +31,41 @@ async function handleLogin() {
         router.push('/')
       }
     }
-  } catch (e: unknown) {
-    if (typeof e === 'object' && e && 'response' in e) {
-      error.value = (e as { response?: { data?: { msg?: string } } }).response?.data?.msg || '网络错误'
-    } else {
-      error.value = '网络错误'
-    }
+  } catch {
+    ElMessage.error('网络错误，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 </script>
+
 <template>
-  <div class="flex flex-col items-center justify-center h-screen bg-gray-50">
-    <form @submit.prevent="handleLogin" class="bg-white p-8 rounded shadow w-80">
-      <h2 class="text-2xl font-bold mb-6">登录</h2>
-      <input v-model="email" type="email" placeholder="邮箱" class="input mb-4" required />
-      <input v-model="password" type="password" placeholder="密码" class="input mb-4" required />
-      <button type="submit" class="btn w-full">登录</button>
-      <div v-if="error" class="text-red-500 text-sm mt-2 text-center">{{ error }}</div>
-      <div class="mt-4 text-sm text-center">
-        <RouterLink to="/register" class="text-indigo-600">注册</RouterLink>
+  <div class="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 w-[400px] max-w-[92vw] p-8">
+      <div class="text-center mb-8">
+        <div class="mx-auto w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+          <LockClosedIcon class="w-6 h-6 text-blue-600" />
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">登录</h2>
+        <p class="text-sm text-slate-500 mt-1">分布式数据采集系统</p>
       </div>
-    </form>
+
+      <el-form label-position="top" @submit.prevent="handleLogin">
+        <el-form-item label="邮箱">
+          <el-input v-model="email" type="email" placeholder="请输入邮箱" size="large" clearable />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="password" type="password" placeholder="请输入密码" size="large" show-password @keydown.enter="handleLogin" />
+        </el-form-item>
+        <el-button type="primary" size="large" class="w-full mt-2" :loading="loading" @click="handleLogin">
+          登录
+        </el-button>
+      </el-form>
+
+      <div class="mt-6 text-sm text-center text-slate-500">
+        还没有账号？
+        <RouterLink to="/register" class="text-blue-600 font-medium hover:text-blue-700">立即注册</RouterLink>
+      </div>
+    </div>
   </div>
 </template>
-<style scoped>
-.input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.btn {
-  background: #6366f1;
-  color: #fff;
-  padding: 8px;
-  border-radius: 4px;
-}
-</style>

@@ -84,6 +84,11 @@ const userName = computed(() => {
   return profile.username || profile.email || '用户'
 })
 
+const userInitials = computed(() => {
+  const name = userName.value
+  return name ? name.charAt(0).toUpperCase() : 'U'
+})
+
 const searchResults = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
   if (keyword.length < 2) {
@@ -310,7 +315,7 @@ onMounted(() => {
           </div>
           <div class="dropdown-wrap">
             <button type="button" class="user-pill" @click="toggleUserMenu">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="user" />
+            <span class="avatar-initial">{{ userInitials }}</span>
             <div>
               <div class="user-name">{{ userName }}</div>
               <div class="user-role">用户</div>
@@ -630,10 +635,18 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.user-pill img {
+.avatar-initial {
   width: 28px;
   height: 28px;
   border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-name {

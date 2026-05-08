@@ -46,57 +46,44 @@ onMounted(load)
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-bold text-white">数据清理</h1>
-
-    <div v-if="stats" class="grid grid-cols-6 gap-3">
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <QueueListIcon class="w-5 h-5 text-blue-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-blue-400">{{ stats.totalTasks }}</div>
-        <div class="text-gray-500 text-xs mt-1">总任务</div>
-      </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <DocumentTextIcon class="w-5 h-5 text-violet-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-violet-400">{{ stats.totalPageResults }}</div>
-        <div class="text-gray-500 text-xs mt-1">页面结果</div>
-      </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <DocumentIcon class="w-5 h-5 text-amber-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-amber-400">{{ stats.totalLogs }}</div>
-        <div class="text-gray-500 text-xs mt-1">日志</div>
-      </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <BoltIcon class="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-emerald-400">{{ stats.totalEvents }}</div>
-        <div class="text-gray-500 text-xs mt-1">事件</div>
-      </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <BellIcon class="w-5 h-5 text-pink-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-pink-400">{{ stats.totalNotifications }}</div>
-        <div class="text-gray-500 text-xs mt-1">通知</div>
-      </div>
-      <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 text-center">
-        <ArchiveBoxIcon class="w-5 h-5 text-red-400 mx-auto mb-2" />
-        <div class="text-xl font-bold text-red-400">{{ stats.archivedTasks }}</div>
-        <div class="text-gray-500 text-xs mt-1">已归档</div>
-      </div>
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800">数据清理</h2>
+      <p class="text-sm text-slate-500 mt-1">清理过期归档任务、日志、事件和通知</p>
     </div>
 
-    <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-6">
-      <h3 class="text-sm font-medium text-gray-300 mb-4">清理设置</h3>
-      <div class="flex items-end gap-4">
+    <section class="grid grid-cols-3 md:grid-cols-6 gap-4">
+      <el-card shadow="hover" class="border-l-4 border-l-blue-500" v-if="stats">
+        <div class="flex items-center gap-3"><QueueListIcon class="w-5 h-5 text-blue-500" /><div><div class="text-sm text-slate-500">总任务</div><div class="text-xl font-bold text-blue-600">{{ stats.totalTasks }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-violet-500" v-if="stats">
+        <div class="flex items-center gap-3"><DocumentTextIcon class="w-5 h-5 text-violet-500" /><div><div class="text-sm text-slate-500">页面结果</div><div class="text-xl font-bold text-violet-600">{{ stats.totalPageResults }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-amber-500" v-if="stats">
+        <div class="flex items-center gap-3"><DocumentIcon class="w-5 h-5 text-amber-500" /><div><div class="text-sm text-slate-500">日志</div><div class="text-xl font-bold text-amber-600">{{ stats.totalLogs }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-emerald-500" v-if="stats">
+        <div class="flex items-center gap-3"><BoltIcon class="w-5 h-5 text-emerald-500" /><div><div class="text-sm text-slate-500">事件</div><div class="text-xl font-bold text-emerald-600">{{ stats.totalEvents }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-pink-400" v-if="stats">
+        <div class="flex items-center gap-3"><BellIcon class="w-5 h-5 text-pink-400" /><div><div class="text-sm text-slate-500">通知</div><div class="text-xl font-bold" style="color:#f472b6">{{ stats.totalNotifications }}</div></div></div>
+      </el-card>
+      <el-card shadow="hover" class="border-l-4 border-l-red-500" v-if="stats">
+        <div class="flex items-center gap-3"><ArchiveBoxIcon class="w-5 h-5 text-red-500" /><div><div class="text-sm text-slate-500">已归档</div><div class="text-xl font-bold text-red-600">{{ stats.archivedTasks }}</div></div></div>
+      </el-card>
+    </section>
+
+    <el-card>
+      <template #header><span class="font-semibold">清理设置</span></template>
+      <div class="flex flex-wrap items-end gap-4">
         <div>
-          <label class="text-gray-400 text-sm block mb-1">清理 {{ days }} 天前的数据</label>
-          <input v-model.number="days" type="range" min="1" max="365" class="w-64">
+          <div class="text-sm text-slate-500 mb-2">清理 {{ days }} 天前的数据</div>
+          <el-slider v-model="days" :min="1" :max="365" show-input style="width:320px" />
         </div>
-        <button
-          class="bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white px-6 py-2 rounded-lg text-sm"
-          :disabled="cleaning"
-          @click="handleCleanup"
-        >
+        <el-button type="danger" :loading="cleaning" @click="handleCleanup">
           {{ cleaning ? '清理中...' : '执行清理' }}
-        </button>
+        </el-button>
       </div>
-      <p class="text-gray-500 text-xs mt-3">将删除 {{ days }} 天前的已归档任务、系统日志、任务事件和旧通知。活跃任务不受影响。</p>
-    </div>
+      <p class="text-xs text-slate-400 mt-3">将删除 {{ days }} 天前的已归档任务、系统日志、任务事件和旧通知。活跃任务不受影响。</p>
+    </el-card>
   </div>
 </template>

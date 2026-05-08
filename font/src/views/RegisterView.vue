@@ -1,65 +1,74 @@
-<template>
-  <div class="flex flex-col items-center justify-center h-screen bg-gray-50">
-    <form @submit.prevent="handleRegister" class="bg-white p-8 rounded shadow w-80">
-      <h2 class="text-2xl font-bold mb-6">注册</h2>
-      <input v-model="username" type="text" placeholder="用户名" class="input mb-4" required />
-      <input v-model="email" type="email" placeholder="邮箱" class="input mb-4" required />
-      <input v-model="password" type="password" placeholder="密码" class="input mb-4" required />
-      <input v-model="confirm" type="password" placeholder="确认密码" class="input mb-4" required />
-      <button type="submit" class="btn w-full">注册</button>
-      <div class="mt-4 text-sm text-center">
-        已有账号？
-        <RouterLink to="/login" class="text-indigo-600">登录</RouterLink>
-      </div>
-      <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
-    </form>
-  </div>
-</template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { UserPlusIcon } from '@heroicons/vue/24/outline'
 import { register } from '@/api/api'
+
 const username = ref('')
 const email = ref('')
 const password = ref('')
 const confirm = ref('')
-const error = ref('')
+const loading = ref(false)
 const router = useRouter()
+
 async function handleRegister() {
-  if (!username.value.trim()) {
-    error.value = '用户名不能为空'
-    return
-  }
-  if (password.value !== confirm.value) {
-    error.value = '两次密码不一致'
-    return
-  }
+  if (!username.value.trim()) { ElMessage.warning('用户名不能为空'); return }
+  if (!email.value.trim()) { ElMessage.warning('邮箱不能为空'); return }
+  if (!password.value) { ElMessage.warning('密码不能为空'); return }
+  if (password.value !== confirm.value) { ElMessage.warning('两次密码不一致'); return }
+  if (password.value.length < 6) { ElMessage.warning('密码至少6位'); return }
+
+  loading.value = true
   try {
-    error.value = ''
     await register(username.value.trim(), email.value, password.value)
+    ElMessage.success('注册成功，请登录')
     router.push('/login')
   } catch (e: unknown) {
-    // 只处理真正的网络错误，业务错误已由 axios 拦截器弹窗
     if (typeof e === 'object' && e !== null && 'message' in e) {
-      error.value = (e as { message?: string }).message || '网络错误'
+      ElMessage.error((e as { message?: string }).message || '注册失败')
     } else {
-      error.value = '网络错误'
+      ElMessage.error('网络错误')
     }
+  } finally {
+    loading.value = false
   }
 }
 </script>
-<style scoped>
-.input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
 
-.btn {
-  background: #6366f1;
-  color: #fff;
-  padding: 8px;
-  border-radius: 4px;
-}
-</style>
+<template>
+  <div class="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 w-[400px] max-w-[92vw] p-8">
+      <div class="text-center mb-8">
+        <div class="mx-auto w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+          <UserPlusIcon class="w-6 h-6 text-emerald-600" />
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">注册</h2>
+        <p class="text-sm text-slate-500 mt-1">创建账号以使用采集系统</p>
+      </div>
+
+      <el-form label-position="top" @submit.prevent="handleRegister">
+        <el-form-item label="用户名">
+          <el-input v-model="username" placeholder="请输入用户名" size="large" maxlength="32" clearable />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="email" type="email" placeholder="请输入邮箱" size="large" clearable />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="password" type="password" placeholder="至少6位密码" size="large" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码">
+          <el-input v-model="confirm" type="password" placeholder="再次输入密码" size="large" show-password @keydown.enter="handleRegister" />
+        </el-form-item>
+        <el-button type="primary" size="large" class="w-full mt-2" :loading="loading" @click="handleRegister">
+          注册
+        </el-button>
+      </el-form>
+
+      <div class="mt-6 text-sm text-center text-slate-500">
+        已有账号？
+        <RouterLink to="/login" class="text-blue-600 font-medium hover:text-blue-700">立即登录</RouterLink>
+      </div>
+    </div>
+  </div>
+</template>

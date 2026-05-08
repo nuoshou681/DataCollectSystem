@@ -55,6 +55,11 @@ const nodes = ref<CrawlerNode[]>([])
 const logs = ref<TaskLog[]>([])
 const lastSeenLogId = ref(Number(localStorage.getItem('admin.lastSeenLogId') || 0))
 
+const userInitials = computed(() => {
+  const name = userName.value
+  return name ? name.charAt(0).toUpperCase() : 'A'
+})
+
 const userName = computed(() => {
   const storedName = localStorage.getItem('profileName')
   if (storedName) {
@@ -310,7 +315,7 @@ onMounted(() => {
           </div>
           <div class="dropdown-wrap">
             <button type="button" class="user-pill" @click="toggleUserMenu">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="admin" />
+            <span class="avatar-initial">{{ userInitials }}</span>
             <div>
               <div class="user-name">{{ userName }}</div>
               <div class="user-role">管理员</div>
@@ -636,10 +641,18 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.user-pill img {
+.avatar-initial {
   width: 28px;
   height: 28px;
   border-radius: 50%;
+  background: linear-gradient(135deg, #38bdf8, #0e7490);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-name {
