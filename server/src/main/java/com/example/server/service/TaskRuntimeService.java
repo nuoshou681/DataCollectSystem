@@ -111,8 +111,13 @@ public class TaskRuntimeService {
         boolean terminal = isTerminalStatus(runtime.getStatus());
         runtime.setProgressPercent(expected <= 0 ? 0 : Math.min(100, Math.round(runtime.getCompletedPages() * 100f / expected)));
         if (terminal) {
+            runtime.setProgressPercent(100);
+        } else if (expected > 0 && runtime.getCompletedPages() >= expected) {
             runtime.setStatus(resolveFinalStatus(runtime));
             runtime.setProgressPercent(100);
+            if (runtime.getFinishedAt() == null) {
+                runtime.setFinishedAt(LocalDateTime.now());
+            }
         } else {
             runtime.setStatus("RUNNING");
         }
@@ -161,8 +166,13 @@ public class TaskRuntimeService {
         boolean terminal = isTerminalStatus(runtime.getStatus());
         runtime.setProgressPercent(expected <= 0 ? 0 : Math.min(100, Math.round(completedPages * 100f / expected)));
         if (terminal) {
+            runtime.setProgressPercent(100);
+        } else if (completedPages > 0 && expected > 0 && completedPages >= expected) {
             runtime.setStatus(resolveFinalStatus(runtime));
             runtime.setProgressPercent(100);
+            if (runtime.getFinishedAt() == null) {
+                runtime.setFinishedAt(LocalDateTime.now());
+            }
         } else if (completedPages > 0) {
             runtime.setStatus("RUNNING");
         }

@@ -30,7 +30,7 @@ import type { CrawlerPageResult, DispatchTaskPayload, ResultTag, Task, TaskDetai
 import { getCurrentUserProfile } from '@/utils/auth'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
 
-type SiteKey = 'sohu' | 'bing' | 'baike'
+type SiteKey = 'sohu' | 'bing' | 'baike' | 'tencent_news' | 'sina_news' | 'thepaper' | 'huanqiu' | 'chinanews' | 'cctv_news' | 'guancha' | 'wikipedia'
 type StatusFilter = 'ALL' | 'PENDING' | 'RUNNING' | 'FINISHED' | 'PARTIAL_FAILED' | 'FAILED'
 
 interface SiteOption {
@@ -38,15 +38,29 @@ interface SiteOption {
   label: string
   seedUrl: string
   siteType: string
+  category: string
+  icon: string
+  domain: string
+  description: string
+  method: 'search' | 'scrape'
 }
 
 const siteOptions: SiteOption[] = [
-  { key: 'sohu', label: '搜狐新闻', seedUrl: 'https://search.sohu.com/?keyword=', siteType: 'SOHU' },
-  { key: 'bing', label: 'Bing', seedUrl: 'https://www.bing.com/search?q=', siteType: 'BING' },
-  { key: 'baike', label: '百度百科', seedUrl: 'https://baike.baidu.com/item/', siteType: 'BAIDU_BAIKE' },
+  { key: 'sohu', label: '搜狐新闻', seedUrl: 'https://search.sohu.com/?keyword=', siteType: 'SOHU', category: '新闻资讯', icon: '📰', domain: 'search.sohu.com', description: '搜狐新闻搜索引擎，覆盖全网新闻资讯', method: 'scrape' },
+  { key: 'bing', label: 'Bing 搜索', seedUrl: 'https://www.bing.com/search?q=', siteType: 'BING', category: '搜索引擎', icon: '🔍', domain: 'www.bing.com', description: '微软 Bing 全网搜索，结果多样覆盖广', method: 'search' },
+  { key: 'baike', label: '百度百科', seedUrl: 'https://baike.baidu.com/item/', siteType: 'BAIDU_BAIKE', category: '百科知识', icon: '📚', domain: 'baike.baidu.com', description: '全球最大中文百科全书，权威知识库', method: 'scrape' },
+  { key: 'tencent_news', label: '腾讯新闻', seedUrl: 'https://news.qq.com', siteType: 'TENCENT_NEWS', category: '新闻资讯', icon: '🐧', domain: 'news.qq.com', description: '腾讯新闻门户，实时热点资讯平台', method: 'search' },
+  { key: 'sina_news', label: '新浪新闻', seedUrl: 'https://news.sina.com.cn', siteType: 'SINA_NEWS', category: '新闻资讯', icon: '📡', domain: 'news.sina.com.cn', description: '新浪新闻中心，全方位时事报道', method: 'search' },
+  { key: 'thepaper', label: '澎湃新闻', seedUrl: 'https://www.thepaper.cn', siteType: 'THEPAPER', category: '新闻资讯', icon: '🗞️', domain: 'www.thepaper.cn', description: '澎湃新闻，专注时政与深度报道', method: 'search' },
+  { key: 'huanqiu', label: '环球网', seedUrl: 'https://www.huanqiu.com', siteType: 'HUANQIU', category: '新闻资讯', icon: '🌐', domain: 'www.huanqiu.com', description: '环球网，全球视角的国际资讯平台', method: 'search' },
+  { key: 'chinanews', label: '中国新闻网', seedUrl: 'https://www.chinanews.com.cn', siteType: 'CHINANEWS', category: '新闻资讯', icon: '🏛️', domain: 'www.chinanews.com.cn', description: '中国新闻网，权威国家新闻通讯社', method: 'search' },
+  { key: 'cctv_news', label: '央视网新闻', seedUrl: 'https://news.cctv.com', siteType: 'CCTV_NEWS', category: '新闻资讯', icon: '📺', domain: 'news.cctv.com', description: '央视网新闻频道，官方主流媒体', method: 'search' },
+  { key: 'guancha', label: '观察者网', seedUrl: 'https://www.guancha.cn', siteType: 'GUANCHA', category: '新闻资讯', icon: '👁️', domain: 'www.guancha.cn', description: '观察者网，深度评论与时事分析', method: 'search' },
+  { key: 'wikipedia', label: '维基百科', seedUrl: 'https://en.wikipedia.org/w/index.php?search=', siteType: 'WIKIPEDIA', category: '百科知识', icon: '📖', domain: 'en.wikipedia.org', description: '英文维基百科，全球最大开放百科', method: 'scrape' },
 ]
 
 const selectedSites = ref<SiteOption['key'][]>(['sohu'])
+const siteKeywordFilter = ref('')
 const commonKeyword = ref('')
 const batchKeywordsText = ref('')
 const batchName = ref('')
@@ -88,6 +102,29 @@ const siteOptionMap = new Map(siteOptions.map(option => [option.key, option]))
 
 const csvInputRef = ref<HTMLInputElement | null>(null)
 const importingCsv = ref(false)
+
+function toggleSite(key: SiteKey) {
+  const idx = selectedSites.value.indexOf(key)
+  if (idx >= 0) {
+    selectedSites.value.splice(idx, 1)
+  } else {
+    selectedSites.value.push(key)
+  }
+}
+
+const siteCategories = computed(() => {
+  const order = ['搜索引擎', '新闻资讯', '百科知识']
+  const groups = new Map<string, SiteOption[]>()
+  const filtered = siteKeywordFilter.value
+    ? siteOptions.filter(s => s.label.includes(siteKeywordFilter.value) || s.domain.includes(siteKeywordFilter.value) || s.description.includes(siteKeywordFilter.value))
+    : siteOptions
+  for (const s of filtered) {
+    const list = groups.get(s.category) || []
+    list.push(s)
+    groups.set(s.category, list)
+  }
+  return order.filter(cat => groups.has(cat)).map(cat => ({ name: cat, sites: groups.get(cat)! }))
+})
 
 function triggerCsvImport() {
   csvInputRef.value?.click()
@@ -629,12 +666,51 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </template>
-      <el-form label-width="130px" class="max-w-4xl">
-        <el-form-item label="批量创建模式"><el-switch v-model="batchMode" /></el-form-item>
-        <el-form-item label="选择站点">
-          <el-checkbox-group v-model="selectedSites">
-            <el-checkbox v-for="site in siteOptions" :key="site.key" :label="site.key">{{ site.label }}</el-checkbox>
-          </el-checkbox-group>
+      <el-form label-width="130px" class="max-w-5xl">
+        <el-form-item label="采集站点">
+          <div class="space-y-4 w-full">
+            <div class="flex items-center gap-3">
+              <el-input v-model="siteKeywordFilter" size="small" placeholder="搜索站点..." clearable style="width: 260px" />
+              <span class="text-xs text-slate-400">已选 <b class="text-blue-600">{{ selectedSites.length }}</b> 个站点</span>
+              <el-button v-if="selectedSites.length" text size="small" type="danger" @click="selectedSites = []">清空选择</el-button>
+            </div>
+            <div v-for="cat in siteCategories" :key="cat.name" class="space-y-2">
+              <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ cat.name }}</div>
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div
+                  v-for="site in cat.sites"
+                  :key="site.key"
+                  class="relative rounded-xl border-2 p-4 cursor-pointer transition-all duration-200 select-none"
+                  :class="selectedSites.includes(site.key) ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm bg-white'"
+                  @click="toggleSite(site.key)"
+                >
+                  <div v-if="selectedSites.includes(site.key)" class="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-xs leading-none">&#10003;</span>
+                  </div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0" :class="selectedSites.includes(site.key) ? 'bg-blue-100' : 'bg-slate-100'">
+                      {{ site.icon }}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-semibold text-sm truncate">{{ site.label }}</div>
+                      <el-tag size="small" :type="site.method === 'search' ? 'success' : 'warning'" class="mt-0.5" style="font-size:10px;height:18px;line-height:18px;padding:0 4px">
+                        {{ site.method === 'search' ? 'Firecrawl /search' : '页面提取' }}
+                      </el-tag>
+                    </div>
+                  </div>
+                  <div class="text-xs text-slate-500 leading-relaxed line-clamp-2">{{ site.description }}</div>
+                  <div class="text-xs text-slate-400 mt-2 truncate font-mono">{{ site.domain }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+        <el-divider />
+        <el-form-item label="采集模式">
+          <div class="flex items-center gap-4">
+            <el-switch v-model="batchMode" active-text="批量" inactive-text="单关键词" />
+            <span class="text-xs text-slate-400">{{ batchMode ? '输入多个关键词，系统为每个关键词创建独立任务' : '所有选中站点使用同一个关键词' }}</span>
+          </div>
         </el-form-item>
         <el-form-item label="任务标签">
           <el-select v-model="selectedTaskTagIds" multiple collapse-tags collapse-tags-tooltip clearable placeholder="给本次任务预设标签" style="width: 100%">

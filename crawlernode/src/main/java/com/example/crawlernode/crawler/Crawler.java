@@ -192,10 +192,16 @@ public class Crawler {
                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"));
 
             Page page = context.newPage();
-            page.navigate(pageUrl, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+            page.navigate(pageUrl, new Page.NavigateOptions()
+                    .setWaitUntil(WaitUntilState.DOMCONTENTLOADED)
+                    .setTimeout(60000));
             acceptConsentIfPresent(page);
             forceScrollToBottom(page);
-            page.waitForLoadState(LoadState.NETWORKIDLE);
+            try {
+                page.waitForLoadState(LoadState.NETWORKIDLE, new Page.WaitForLoadStateOptions().setTimeout(10000));
+            } catch (Exception e) {
+                log.warn("【CrawlerNode】{} 页面网络空闲等待超时，继续保存快照: {}", nodeId, e.getMessage());
+            }
             page.waitForTimeout(2000);
             acceptConsentIfPresent(page);
             waitForImagesComplete(page);
@@ -293,11 +299,35 @@ public class Crawler {
         if (task.getSiteType() != null && !task.getSiteType().isBlank()) {
             return task.getSiteType();
         }
+        if (pageUrl.contains("chinanews.com.cn")) {
+            return "CHINANEWS";
+        }
+        if (pageUrl.contains("cctv.com")) {
+            return "CCTV_NEWS";
+        }
+        if (pageUrl.contains("guancha.cn")) {
+            return "GUANCHA";
+        }
+        if (pageUrl.contains("news.qq.com")) {
+            return "TENCENT_NEWS";
+        }
+        if (pageUrl.contains("news.sina.com.cn") || pageUrl.contains("sina.com.cn")) {
+            return "SINA_NEWS";
+        }
+        if (pageUrl.contains("thepaper.cn")) {
+            return "THEPAPER";
+        }
+        if (pageUrl.contains("huanqiu.com")) {
+            return "HUANQIU";
+        }
         if (pageUrl.contains("sohu.com")) {
             return "SOHU";
         }
         if (pageUrl.contains("bing.com")) {
             return "BING";
+        }
+        if (pageUrl.contains("wikipedia.org")) {
+            return "WIKIPEDIA";
         }
         if (pageUrl.contains("baidu.com")) {
             return "BAIDU_BAIKE";

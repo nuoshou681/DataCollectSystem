@@ -17,14 +17,30 @@ import org.springframework.stereotype.Service;
 public class TaskScheduleService {
     private static final Logger log = LoggerFactory.getLogger(TaskScheduleService.class);
 
-    private static final Map<String, String> SITE_URL_MAP = Map.of(
-        "sohu", "https://search.sohu.com/?keyword=",
-        "SOHU", "https://search.sohu.com/?keyword=",
-        "bing", "https://www.bing.com/search?q=",
-        "BING", "https://www.bing.com/search?q=",
-        "baidu_baike", "https://baike.baidu.com/item/",
-        "BAIDU_BAIKE", "https://baike.baidu.com/item/",
-        "baike", "https://baike.baidu.com/item/"
+    private static final Map<String, String> SITE_URL_MAP = Map.ofEntries(
+        Map.entry("sohu", "https://search.sohu.com/?keyword="),
+        Map.entry("SOHU", "https://search.sohu.com/?keyword="),
+        Map.entry("bing", "https://www.bing.com/search?q="),
+        Map.entry("BING", "https://www.bing.com/search?q="),
+        Map.entry("baidu_baike", "https://baike.baidu.com/item/"),
+        Map.entry("BAIDU_BAIKE", "https://baike.baidu.com/item/"),
+        Map.entry("baike", "https://baike.baidu.com/item/"),
+        Map.entry("wikipedia", "https://en.wikipedia.org/w/index.php?search="),
+        Map.entry("WIKIPEDIA", "https://en.wikipedia.org/w/index.php?search="),
+        Map.entry("tencent_news", "https://news.qq.com"),
+        Map.entry("TENCENT_NEWS", "https://news.qq.com"),
+        Map.entry("sina_news", "https://news.sina.com.cn"),
+        Map.entry("SINA_NEWS", "https://news.sina.com.cn"),
+        Map.entry("thepaper", "https://www.thepaper.cn"),
+        Map.entry("THEPAPER", "https://www.thepaper.cn"),
+        Map.entry("huanqiu", "https://www.huanqiu.com"),
+        Map.entry("HUANQIU", "https://www.huanqiu.com"),
+        Map.entry("chinanews", "https://www.chinanews.com.cn"),
+        Map.entry("CHINANEWS", "https://www.chinanews.com.cn"),
+        Map.entry("cctv_news", "https://news.cctv.com"),
+        Map.entry("CCTV_NEWS", "https://news.cctv.com"),
+        Map.entry("guancha", "https://www.guancha.cn"),
+        Map.entry("GUANCHA", "https://www.guancha.cn")
     );
 
     private final TaskScheduleMapper scheduleMapper;

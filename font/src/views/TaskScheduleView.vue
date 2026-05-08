@@ -14,6 +14,14 @@ const SITE_OPTIONS = [
   { value: 'sohu', label: '搜狐新闻', seedUrl: 'https://search.sohu.com/?keyword=' },
   { value: 'bing', label: 'Bing 搜索', seedUrl: 'https://www.bing.com/search?q=' },
   { value: 'baidu_baike', label: '百度百科', seedUrl: 'https://baike.baidu.com/item/' },
+  { value: 'tencent_news', label: '腾讯新闻', seedUrl: 'https://news.qq.com' },
+  { value: 'sina_news', label: '新浪新闻', seedUrl: 'https://news.sina.com.cn' },
+  { value: 'thepaper', label: '澎湃新闻', seedUrl: 'https://www.thepaper.cn' },
+  { value: 'huanqiu', label: '环球网', seedUrl: 'https://www.huanqiu.com' },
+  { value: 'chinanews', label: '中国新闻网', seedUrl: 'https://www.chinanews.com.cn' },
+  { value: 'cctv_news', label: '央视网新闻', seedUrl: 'https://news.cctv.com' },
+  { value: 'guancha', label: '观察者网', seedUrl: 'https://www.guancha.cn' },
+  { value: 'wikipedia', label: '维基百科(EN)', seedUrl: 'https://en.wikipedia.org/w/index.php?search=' },
 ]
 
 const INTERVAL_PRESETS = [

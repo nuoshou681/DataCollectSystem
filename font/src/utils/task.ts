@@ -1,6 +1,6 @@
 import type { CrawlerNode, CrawlerPageResult, Task } from '@/types/entity'
 
-export type SiteKey = 'sohu' | 'bing' | 'baike' | 'other'
+export type SiteKey = 'sohu' | 'bing' | 'baike' | 'tencent_news' | 'sina_news' | 'thepaper' | 'huanqiu' | 'chinanews' | 'cctv_news' | 'guancha' | 'wikipedia' | 'other'
 export type TaskStatus = 'PENDING' | 'RUNNING' | 'FINISHED' | 'FAILED' | 'PARTIAL_FAILED' | 'CANCELLED'
 
 export function detectSite(url: string): SiteKey {
@@ -12,6 +12,30 @@ export function detectSite(url: string): SiteKey {
   }
   if (url.includes('baike.baidu.com')) {
     return 'baike'
+  }
+  if (url.includes('chinanews.com.cn')) {
+    return 'chinanews'
+  }
+  if (url.includes('cctv.com')) {
+    return 'cctv_news'
+  }
+  if (url.includes('guancha.cn')) {
+    return 'guancha'
+  }
+  if (url.includes('news.qq.com')) {
+    return 'tencent_news'
+  }
+  if (url.includes('news.sina.com.cn') || url.includes('sina.com.cn')) {
+    return 'sina_news'
+  }
+  if (url.includes('thepaper.cn')) {
+    return 'thepaper'
+  }
+  if (url.includes('huanqiu.com')) {
+    return 'huanqiu'
+  }
+  if (url.includes('en.wikipedia.org')) {
+    return 'wikipedia'
   }
   return 'other'
 }
@@ -25,6 +49,30 @@ export function siteLabel(key: SiteKey) {
   }
   if (key === 'baike') {
     return '百度百科'
+  }
+  if (key === 'tencent_news') {
+    return '腾讯新闻'
+  }
+  if (key === 'sina_news') {
+    return '新浪新闻'
+  }
+  if (key === 'thepaper') {
+    return '澎湃新闻'
+  }
+  if (key === 'huanqiu') {
+    return '环球网'
+  }
+  if (key === 'chinanews') {
+    return '中国新闻网'
+  }
+  if (key === 'cctv_news') {
+    return '央视网'
+  }
+  if (key === 'guancha') {
+    return '观察者网'
+  }
+  if (key === 'wikipedia') {
+    return '维基百科'
   }
   return '其他站点'
 }

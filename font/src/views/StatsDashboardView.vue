@@ -42,6 +42,17 @@ function renderTrendChart() {
   })
 }
 
+const SITE_NAME_MAP: Record<string, string> = {
+  'SOHU': '搜狐新闻', 'BING': 'Bing 搜索', 'BAIDU_BAIKE': '百度百科',
+  'TENCENT_NEWS': '腾讯新闻', 'SINA_NEWS': '新浪新闻', 'THEPAPER': '澎湃新闻',
+  'HUANQIU': '环球网', 'CHINANEWS': '中国新闻网', 'CCTV_NEWS': '央视网新闻',
+  'GUANCHA': '观察者网', 'WIKIPEDIA': '维基百科(EN)',
+  'UNKNOWN': '其他站点', '未知': '未分类',
+  'BAIDU_NEWS': '百度新闻(已停用)', 'BAIDU_SEARCH': '百度搜索(已停用)',
+  'SO360': '360搜索(已停用)', 'SOGOU_WEIXIN': '搜狗微信(已停用)',
+  'ZHIHU': '知乎(已停用)', 'NETEASE_NEWS': '网易新闻(已停用)',
+}
+
 function renderSiteChart() {
   if (!siteChart.value || !siteDist.value.length) return
   const chart = echarts.init(siteChart.value, undefined, { renderer: 'svg' })
@@ -49,7 +60,8 @@ function renderSiteChart() {
     tooltip: { trigger: 'item' },
     series: [{
       type: 'pie', radius: ['40%', '70%'], center: ['50%', '50%'],
-      data: siteDist.value.map(d => ({ name: d.name, value: d.value })),
+      data: siteDist.value.map(d => ({ name: SITE_NAME_MAP[d.name] || d.name, value: d.value })),
+      label: { formatter: '{b}: {c}' },
     }],
   })
 }
