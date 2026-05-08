@@ -7,11 +7,26 @@ import com.example.server.mapper.TaskScheduleMapper;
 import com.example.server.service.impl.TaskServiceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskScheduleService {
+    private static final Logger log = LoggerFactory.getLogger(TaskScheduleService.class);
+
+    private static final Map<String, String> SITE_URL_MAP = Map.of(
+        "sohu", "https://search.sohu.com/?keyword=",
+        "SOHU", "https://search.sohu.com/?keyword=",
+        "bing", "https://www.bing.com/search?q=",
+        "BING", "https://www.bing.com/search?q=",
+        "baidu_baike", "https://baike.baidu.com/item/",
+        "BAIDU_BAIKE", "https://baike.baidu.com/item/",
+        "baike", "https://baike.baidu.com/item/"
+    );
+
     private final TaskScheduleMapper scheduleMapper;
     private final TaskServiceImpl taskService;
 
@@ -85,20 +100,31 @@ public class TaskScheduleService {
                     }
                 }
                 if (shouldRun) {
+                    String url = s.getUrl();
+                    if (url == null || url.isBlank()) {
+                        url = SITE_URL_MAP.getOrDefault(s.getSiteType(), null);
+                    }
+                    if (url == null || url.isBlank()) {
+                        log.warn("定时任务 #{} url 为空且无法根据 siteType={} 推导，跳过", s.getScheduleId(), s.getSiteType());
+                        continue;
+                    }
                     DispatchTaskRequest req = new DispatchTaskRequest();
                     req.setUserId(s.getUserId());
                     req.setKeyword(s.getKeyword());
-                    req.setUrl(s.getUrl());
+                    req.setUrl(url);
                     req.setSiteType(s.getSiteType());
                     req.setMaxLinksPerLevel(s.getMaxLinksPerLevel() != null ? s.getMaxLinksPerLevel() : 10);
                     req.setSource("scheduled");
+                    log.info("定时调度触发: scheduleId={}, keyword={}, url={}", s.getScheduleId(), s.getKeyword(), url);
                     taskService.dispatchTasks(req);
                     s.setLastRunAt(now);
+                    s.setNextRunAt(now.plusMinutes(parseSimpleInterval(s.getCronExpression()) / 60000));
                     s.setUpdatedAt(now);
                     scheduleMapper.updateById(s);
+                    log.info("定时调度完成: scheduleId={}", s.getScheduleId());
                 }
             } catch (Exception e) {
-                // log and continue
+                log.error("定时调度执行失败: scheduleId={}, keyword={}, error={}", s.getScheduleId(), s.getKeyword(), e.getMessage());
             }
         }
     }
