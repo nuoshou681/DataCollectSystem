@@ -28,12 +28,11 @@ const routes = [
     children: [
       { path: '', component: () => import('@/views/AdminDashboardView.vue') },
       { path: 'task-center', component: () => import('@/views/AdminTaskCenterView.vue') },
-      { path: 'stats', component: () => import('@/views/AdminStatsDashboardView.vue') },
+
       { path: 'exports', component: () => import('@/views/AdminExportCenterView.vue') },
       { path: 'nodes', component: () => import('@/views/AdminNodeView.vue') },
-      { path: 'batches', component: () => import('@/views/AdminBatchView.vue') },
-      { path: 'health', component: () => import('@/views/AdminHealthView.vue') },
-      { path: 'cleanup', component: () => import('@/views/AdminCleanupView.vue') },
+
+
       { path: 'logs', component: () => import('@/views/LogView.vue') },
       { path: 'profile', component: () => import('@/views/ProfileView.vue') },
       { path: 'users', component: () => import('@/views/AdminUserView.vue') },

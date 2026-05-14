@@ -409,9 +409,28 @@ export async function fetchCrawlerNodes() {
   return (unwrapResponse<RawCrawlerNode[]>(res) ?? []).map(mapCrawlerNode)
 }
 
-export async function fetchTaskLogs() {
-  const res = await request.get<ApiResponse<TaskLog[]>>('/log')
-  return (unwrapResponse<RawTaskLog[]>(res) ?? []).map(mapTaskLog)
+export async function fetchNodeTasks(nodeId: string) {
+  const res = await request.get<ApiResponse<{ nodeId: string; tasks: RawTask[]; total: number }>>(`/client/${nodeId}/tasks`)
+  const data = unwrapResponse<{ nodeId: string; tasks: RawTask[]; total: number }>(res)
+  return {
+    nodeId: data?.nodeId ?? nodeId,
+    tasks: (data?.tasks ?? []).map(t => mapTask(t)),
+    total: data?.total ?? 0,
+  }
+}
+
+export async function fetchTaskLogs(page = 1, size = 20, level?: string, keyword?: string) {
+  const params: Record<string, unknown> = { page, size }
+  if (level && level !== 'ALL') params.level = level
+  if (keyword) params.keyword = keyword
+  const res = await request.get<ApiResponse<{ records: RawTaskLog[]; total: number; page: number; size: number }>>('/log', { params })
+  const data = unwrapResponse<{ records: RawTaskLog[]; total: number; page: number; size: number }>(res)
+  return {
+    records: (data?.records ?? []).map(mapTaskLog),
+    total: data?.total ?? 0,
+    page: data?.page ?? 1,
+    size: data?.size ?? 20,
+  }
 }
 
 export async function fetchTaskBatches() {
@@ -564,6 +583,21 @@ export async function updateTaskArchived(taskId: number, archived: boolean) {
     params: { archived },
   })
   return unwrapResponse<boolean>(res)
+}
+
+export async function retryTask(taskId: number) {
+  const res = await request.post<ApiResponse<boolean>>(`/task/${taskId}/retry`)
+  return unwrapResponse<boolean>(res)
+}
+
+export async function batchArchiveTasks(taskIds: number[], archived: boolean) {
+  const res = await request.post<ApiResponse<{ count: number }>>('/task/batch-archive', { taskIds, archived })
+  return unwrapResponse<{ count: number }>(res)
+}
+
+export async function batchRetryTasks(taskIds: number[]) {
+  const res = await request.post<ApiResponse<{ count: number }>>('/task/batch-retry', { taskIds })
+  return unwrapResponse<{ count: number }>(res)
 }
 
 export function getPageResultStreamUrl() {

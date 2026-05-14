@@ -227,6 +227,26 @@ public class TaskRuntimeService {
         taskRuntimeStreamService.publish(runtime);
     }
 
+    public void resetToPending(Long taskId) {
+        TaskRuntime runtime = getByTaskId(taskId);
+        if (runtime == null) return;
+        runtime.setStatus("PENDING");
+        runtime.setProgressPercent(0);
+        runtime.setCompletedPages(0);
+        runtime.setSuccessPages(0);
+        runtime.setFailedPages(0);
+        runtime.setLastErrorCode(null);
+        runtime.setLastErrorMessage(null);
+        runtime.setAssignedNodeId(null);
+        runtime.setStartedAt(null);
+        runtime.setFinishedAt(null);
+        runtime.setQueuedAt(LocalDateTime.now());
+        runtime.setUpdatedAt(LocalDateTime.now());
+        taskRuntimeMapper.updateById(runtime);
+        syncTaskSnapshot(taskId, runtime);
+        taskRuntimeStreamService.publish(runtime);
+    }
+
     public void markPendingTimeout(LocalDateTime cutoff) {
         taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
                         .eq(TaskRuntime::getStatus, "PENDING")

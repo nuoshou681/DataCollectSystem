@@ -35,6 +35,9 @@ public class StatsController {
         result.put("runningTasks", q("SELECT COUNT(*) FROM task" + (isAdmin ? "" : " WHERE user_id = " + userId) + (isAdmin ? " WHERE " : " AND ") + "task_status = 'RUNNING'"));
         result.put("finishedToday", q("SELECT COUNT(*) FROM task" + (isAdmin ? " WHERE " : " WHERE user_id = " + userId + " AND ") + "DATE(finished_at) = CURDATE()"));
         result.put("successRate", calcSuccessRate(userId, isAdmin));
+        result.put("finishedTasks", q("SELECT COUNT(*) FROM task" + (isAdmin ? " WHERE " : " WHERE user_id = " + userId + " AND ") + "task_status = 'FINISHED'"));
+        result.put("failedTasks", q("SELECT COUNT(*) FROM task" + (isAdmin ? " WHERE " : " WHERE user_id = " + userId + " AND ") + "task_status IN ('FAILED','PARTIAL_FAILED')"));
+        result.put("pendingTasks", q("SELECT COUNT(*) FROM task" + (isAdmin ? " WHERE " : " WHERE user_id = " + userId + " AND ") + "task_status = 'PENDING'"));
 
         return ApiResponse.success(result);
     }

@@ -15,4 +15,10 @@ public interface TaskService {
     List<Task> dispatchBatchTasks(DispatchTaskRequest request);
 
     boolean updateArchived(Long taskId, boolean archived, Long userId, boolean isAdmin);
+
+    boolean retryTask(Long taskId, Long userId, boolean isAdmin);
+
+    int batchArchive(List<Long> taskIds, boolean archived, Long userId, boolean isAdmin);
+
+    int batchRetry(List<Long> taskIds, Long userId, boolean isAdmin);
 }

@@ -1,25 +1,31 @@
 <script setup lang="ts">
 import {
-  BoltIcon,
-  Squares2X2Icon,
-  ServerStackIcon,
-  DocumentIcon,
-  QueueListIcon,
   ArrowDownTrayIcon,
-  ChartBarIcon,
-  HeartIcon,
-  TrashIcon,
-  ShieldCheckIcon,
+  Bars3Icon,
   BellIcon,
+  BoltIcon,
   ClipboardDocumentCheckIcon,
-  UsersIcon,
   Cog6ToothIcon,
+  DocumentIcon,
+  ServerStackIcon,
+  ShieldCheckIcon,
+  Squares2X2Icon,
+  UsersIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/outline'
 import { BugAntIcon } from '@heroicons/vue/24/solid'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchCrawlerNodes, fetchTaskLogs, fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead } from '@/api/api'
-import type { CrawlerNode, TaskLog, Notification } from '@/types/entity'
+import {
+  fetchCrawlerNodes,
+  fetchNotifications,
+  fetchStatsOverview,
+  fetchTaskLogs,
+  fetchUnreadCount,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '@/api/api'
+import type { CrawlerNode, Notification, TaskLog } from '@/types/entity'
 import { clearAuthSession, getCurrentUserProfile } from '@/utils/auth'
 
 const route = useRoute()
@@ -27,33 +33,36 @@ const router = useRouter()
 
 const navItems = [
   { path: '/admin', label: '控制台', icon: Squares2X2Icon },
-  { path: '/admin/stats', label: '数据统计', icon: ChartBarIcon },
+
   { path: '/admin/task-center', label: '任务治理', icon: ClipboardDocumentCheckIcon },
   { path: '/admin/exports', label: '导出中心', icon: ArrowDownTrayIcon },
   { path: '/admin/nodes', label: '节点管理', icon: ServerStackIcon },
-  { path: '/admin/batches', label: '任务批次', icon: QueueListIcon },
-  { path: '/admin/health', label: '系统健康', icon: HeartIcon },
-  { path: '/admin/cleanup', label: '数据清理', icon: TrashIcon },
+
+
   { path: '/admin/users', label: '用户管理', icon: UsersIcon },
   { path: '/admin/logs', label: '审计日志', icon: DocumentIcon },
   { path: '/admin/config', label: '系统配置', icon: Cog6ToothIcon },
 ]
 
 function isPathActive(path: string) {
-  if (path === '/admin') {
-    return route.path === '/admin'
-  }
+  if (path === '/admin') return route.path === '/admin'
   return route.path === path || route.path.startsWith(path + '/')
 }
 
 const searchQuery = ref('')
 const searchOpen = ref(false)
 const notificationsOpen = ref(false)
-const userMenuOpen = ref(false)
 const isLoadingSearch = ref(false)
+const sidebarOpen = ref(false)
 const nodes = ref<CrawlerNode[]>([])
 const logs = ref<TaskLog[]>([])
-const lastSeenLogId = ref(Number(localStorage.getItem('admin.lastSeenLogId') || 0))
+
+const overviewStats = ref({
+  totalTasks: 0,
+  runningTasks: 0,
+  finishedToday: 0,
+  successRate: 0,
+})
 
 const userInitials = computed(() => {
   const name = userName.value
@@ -62,37 +71,41 @@ const userInitials = computed(() => {
 
 const userName = computed(() => {
   const storedName = localStorage.getItem('profileName')
-  if (storedName) {
-    return storedName
-  }
+  if (storedName) return storedName
   const profile = getCurrentUserProfile()
   return profile.username || profile.email || '管理员'
 })
 
+const onlineNodeCount = computed(() =>
+  nodes.value.filter(n => n.status === 'ONLINE').length,
+)
+
+const queueLoad = computed(() => {
+  const online = nodes.value.filter(n => n.status === 'ONLINE')
+  if (!online.length) return 0
+  const totalLoad = online.reduce((sum, n) => sum + (n.currentLoad ?? 0), 0)
+  const totalMax = online.reduce((sum, n) => sum + (n.maxConcurrency ?? 1), 0)
+  return totalMax > 0 ? Math.round((totalLoad / totalMax) * 100) : 0
+})
+
 const searchResults = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
-  if (keyword.length < 2) {
-    return { nodes: [], logs: [] }
-  }
-  const nodeMatches = nodes.value.filter((node) => {
-    return node.nodeId.toLowerCase().includes(keyword) || node.status.toLowerCase().includes(keyword)
-  })
-  const logMatches = logs.value.filter((log) => {
-    return (
-      String(log.taskId).includes(keyword) ||
-      String(log.nodeId ?? '').includes(keyword) ||
-      log.logMessage?.toLowerCase().includes(keyword) ||
-      log.logLevel?.toLowerCase().includes(keyword)
-    )
-  })
+  if (keyword.length < 2) return { nodes: [] as CrawlerNode[], logs: [] as TaskLog[] }
+  const nodeMatches = nodes.value.filter(n =>
+    n.nodeId.toLowerCase().includes(keyword) || n.status.toLowerCase().includes(keyword),
+  )
+  const logMatches = logs.value.filter(l =>
+    String(l.taskId).includes(keyword) ||
+    String(l.nodeId ?? '').includes(keyword) ||
+    l.logMessage?.toLowerCase().includes(keyword) ||
+    l.logLevel?.toLowerCase().includes(keyword),
+  )
   return { nodes: nodeMatches.slice(0, 6), logs: logMatches.slice(0, 6) }
 })
 
 const notifications = ref<Notification[]>([])
 const unreadCount = ref(0)
-
 const notificationItems = computed(() => notifications.value.slice(0, 5))
-
 const unreadNotificationCount = computed(() => unreadCount.value)
 
 async function loadNotifications() {
@@ -104,14 +117,24 @@ async function loadNotifications() {
 }
 
 async function loadSearchData() {
-  if (isLoadingSearch.value) {
-    return
-  }
+  if (isLoadingSearch.value) return
   isLoadingSearch.value = true
   try {
-    const [nodeData, logData] = await Promise.all([fetchCrawlerNodes(), fetchTaskLogs()])
+    const [nodeData, logResult, stats] = await Promise.all([
+      fetchCrawlerNodes(),
+      fetchTaskLogs(1, 50),
+      fetchStatsOverview(),
+    ])
     nodes.value = nodeData
-    logs.value = logData
+    logs.value = logResult.records
+    if (stats) {
+      overviewStats.value = {
+        totalTasks: Number(stats.totalTasks ?? 0),
+        runningTasks: Number(stats.runningTasks ?? 0),
+        finishedToday: Number(stats.finishedToday ?? 0),
+        successRate: Number(stats.successRate ?? 0),
+      }
+    }
   } finally {
     isLoadingSearch.value = false
   }
@@ -125,22 +148,20 @@ function openSearch() {
 }
 
 function closeSearch() {
-  window.setTimeout(() => {
-    searchOpen.value = false
-  }, 120)
+  setTimeout(() => { searchOpen.value = false }, 150)
 }
 
 function toggleNotifications() {
   notificationsOpen.value = !notificationsOpen.value
-  if (notificationsOpen.value) {
-    void loadNotifications()
-  }
+  if (notificationsOpen.value) void loadNotifications()
 }
 
 async function readNotification(id: number) {
   await markNotificationRead(id)
   unreadCount.value = Math.max(0, unreadCount.value - 1)
-  notifications.value = notifications.value.map(n => n.notificationId === id ? { ...n, isRead: true } : n)
+  notifications.value = notifications.value.map(n =>
+    n.notificationId === id ? { ...n, isRead: true } : n,
+  )
 }
 
 async function readAllNotifications() {
@@ -149,17 +170,17 @@ async function readAllNotifications() {
   notifications.value = notifications.value.map(n => ({ ...n, isRead: true }))
 }
 
-function toggleUserMenu() {
-  userMenuOpen.value = !userMenuOpen.value
-}
-
-function handleLogClick() {
-  router.push('/admin/logs')
+function handleLogClick(log?: TaskLog) {
+  if (log) {
+    router.push({ path: '/admin/logs', query: { taskId: String(log.taskId) } })
+  } else {
+    router.push('/admin/logs')
+  }
   searchOpen.value = false
 }
 
-function handleNodeClick() {
-  router.push('/admin/nodes')
+function handleNodeClick(node?: CrawlerNode) {
+  router.push(node ? `/admin/nodes?highlight=${node.nodeId}` : '/admin/nodes')
   searchOpen.value = false
 }
 
@@ -168,20 +189,43 @@ function logout() {
   router.push('/login')
 }
 
+function closeSidebar() {
+  sidebarOpen.value = false
+}
+
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (notificationsOpen.value && !target.closest('.notification-area')) {
+    notificationsOpen.value = false
+  }
+}
+
 onMounted(() => {
   void loadSearchData()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <template>
-  <div class="app-shell admin-shell">
-    <aside class="side-panel">
+  <div class="app-shell">
+    <!-- Mobile overlay -->
+    <div v-if="sidebarOpen" class="sidebar-overlay" @click="closeSidebar" />
+
+    <!-- Sidebar -->
+    <aside class="side-panel" :class="{ open: sidebarOpen }">
       <div class="brand">
         <BugAntIcon class="brand-icon" />
         <div>
           <div class="brand-title">采集控制台</div>
           <div class="brand-sub">管理员空间</div>
         </div>
+        <button class="sidebar-close-btn" @click="closeSidebar">
+          <XMarkIcon class="w-5 h-5" />
+        </button>
       </div>
 
       <div class="nav-section">
@@ -193,6 +237,7 @@ onMounted(() => {
             :to="item.path"
             class="nav-item"
             :class="{ active: isPathActive(item.path) }"
+            @click="closeSidebar"
           >
             <component :is="item.icon" class="nav-icon" />
             <span>{{ item.label }}</span>
@@ -206,51 +251,77 @@ onMounted(() => {
           <div class="signal">
             <ShieldCheckIcon class="signal-icon" />
             <div>
-              <div class="signal-label">安全状态</div>
-              <div class="signal-value">稳定</div>
+              <div class="signal-label">在线节点</div>
+              <div class="signal-value">{{ onlineNodeCount }} / {{ nodes.length }}</div>
             </div>
           </div>
           <div class="signal">
             <BoltIcon class="signal-icon" />
             <div>
               <div class="signal-label">队列负载</div>
-              <div class="signal-value">72%</div>
+              <div class="signal-value">{{ queueLoad }}%</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="side-card">
-        <div class="side-card-title">值班备忘</div>
+        <div class="side-card-title">运行概览</div>
         <div class="side-card-body">
-          <div>• 高优先级任务: 2</div>
-          <div>• 重试队列待处理: 5</div>
-          <div>• 节点轮换倒计时: 45 分钟</div>
+          <div class="metric">
+            <span>进行中任务</span>
+            <strong>{{ overviewStats.runningTasks }}</strong>
+          </div>
+          <div class="metric">
+            <span>今日完成</span>
+            <strong>{{ overviewStats.finishedToday }}</strong>
+          </div>
+          <div class="metric">
+            <span>成功率</span>
+            <strong>{{ overviewStats.successRate }}%</strong>
+          </div>
         </div>
       </div>
     </aside>
 
+    <!-- Main panel -->
     <div class="main-panel">
       <header class="topbar">
-        <div class="headline">
-          <div class="headline-title">管理员运维中心</div>
-          <div class="headline-sub">实时系统态势与节点调度</div>
+        <div class="topbar-left">
+          <button class="hamburger-btn" @click="sidebarOpen = true">
+            <Bars3Icon class="w-5 h-5" />
+          </button>
+          <div class="headline">
+            <div class="headline-title">管理员运维中心</div>
+            <div class="headline-sub">实时系统态势与节点调度</div>
+          </div>
         </div>
-        <div class="search">
-          <input
-            v-model="searchQuery"
-            class="search-input"
-            placeholder="搜索节点、任务或日志"
-            @focus="openSearch"
-            @blur="closeSearch"
-            @keydown.enter.prevent="handleLogClick"
-          />
-          <div v-if="searchOpen" class="search-panel">
+
+        <!-- Search -->
+        <el-popover
+          :visible="searchOpen"
+          trigger="manual"
+          placement="bottom-start"
+          :width="420"
+          :offset="8"
+          :show-arrow="false"
+          popper-class="search-popover"
+        >
+          <template #reference>
+            <div class="search-wrapper">
+              <el-input
+                v-model="searchQuery"
+                placeholder="搜索节点、任务或日志"
+                :prefix-icon="undefined"
+                size="default"
+                @focus="openSearch"
+              />
+            </div>
+          </template>
+          <div class="search-panel-content">
             <div class="search-header">
               <span>搜索结果</span>
-              <button type="button" class="ghost-button" @click="loadSearchData">
-                刷新
-              </button>
+              <el-button size="small" text @click="loadSearchData">刷新</el-button>
             </div>
             <div v-if="isLoadingSearch" class="search-empty">正在加载节点与日志…</div>
             <template v-else>
@@ -262,7 +333,7 @@ onMounted(() => {
                   :key="node.nodeId"
                   type="button"
                   class="search-item"
-                  @click="handleNodeClick"
+                  @click="handleNodeClick(node)"
                 >
                   <div>{{ node.nodeId }}</div>
                   <div class="search-meta">状态: {{ node.status }}</div>
@@ -276,7 +347,7 @@ onMounted(() => {
                   :key="log.logId"
                   type="button"
                   class="search-item"
-                  @click="handleLogClick"
+                  @click="handleLogClick(log)"
                 >
                   <div>{{ log.logLevel }} · 任务 #{{ log.taskId }}</div>
                   <div class="search-meta">{{ log.logMessage }}</div>
@@ -284,17 +355,36 @@ onMounted(() => {
               </div>
             </template>
           </div>
-        </div>
+        </el-popover>
+
         <div class="top-actions">
-          <div class="dropdown-wrap">
-            <button type="button" class="icon-button" @click="toggleNotifications">
-              <BellIcon class="icon" />
-              <span v-if="unreadNotificationCount" class="badge">{{ unreadNotificationCount }}</span>
-            </button>
-            <div v-if="notificationsOpen" class="dropdown-panel">
+          <!-- Notifications -->
+          <div class="notification-area">
+            <el-popover
+              :visible="notificationsOpen"
+              trigger="manual"
+              placement="bottom-end"
+              :width="260"
+              :offset="8"
+              :show-arrow="false"
+              popper-class="notify-popover"
+            >
+              <template #reference>
+                <el-badge :value="unreadNotificationCount" :hidden="!unreadNotificationCount">
+                  <button type="button" class="icon-button" @click="toggleNotifications">
+                    <BellIcon class="icon" />
+                  </button>
+                </el-badge>
+              </template>
               <div class="dropdown-title">
                 通知中心
-                <button v-if="unreadCount > 0" class="text-blue-400 text-xs ml-2 hover:underline" @click="readAllNotifications">全部已读</button>
+                <button
+                  v-if="unreadCount > 0"
+                  class="text-xs text-blue-500 hover:underline ml-2"
+                  @click="readAllNotifications"
+                >
+                  全部已读
+                </button>
               </div>
               <div v-if="!notificationItems.length" class="dropdown-empty">暂无消息</div>
               <button
@@ -306,37 +396,32 @@ onMounted(() => {
                 @click="readNotification(notice.notificationId!)"
               >
                 <div class="flex items-center gap-1">
-                  <span v-if="!notice.isRead" class="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></span>
+                  <span v-if="!notice.isRead" class="unread-dot" />
                   {{ notice.title }}
                 </div>
                 <div class="dropdown-meta">{{ notice.content }}</div>
               </button>
-            </div>
+            </el-popover>
           </div>
-          <div class="dropdown-wrap">
-            <button type="button" class="user-pill" @click="toggleUserMenu">
-            <span class="avatar-initial">{{ userInitials }}</span>
-            <div>
-              <div class="user-name">{{ userName }}</div>
-              <div class="user-role">管理员</div>
-            </div>
+
+          <!-- User menu -->
+          <el-dropdown trigger="click" placement="bottom-end" popper-class="user-dropdown">
+            <button type="button" class="user-pill">
+              <span class="avatar-initial">{{ userInitials }}</span>
+              <div>
+                <div class="user-name">{{ userName }}</div>
+                <div class="user-role">管理员</div>
+              </div>
             </button>
-            <div v-if="userMenuOpen" class="dropdown-panel">
-              <div class="dropdown-title">账号设置</div>
-              <button type="button" class="dropdown-item" @click="router.push('/admin/profile')">
-                个人资料
-              </button>
-              <button type="button" class="dropdown-item" @click="router.push('/admin')">
-                返回控制台
-              </button>
-              <button type="button" class="dropdown-item" @click="router.push('/admin/nodes')">
-                节点管理
-              </button>
-              <button type="button" class="dropdown-item danger" @click="logout">
-                退出登录
-              </button>
-            </div>
-          </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="router.push('/admin')">返回控制台</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/admin/nodes')">节点管理</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/admin/config')">系统配置</el-dropdown-item>
+                <el-dropdown-item divided class="logout-item" @click="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </header>
 
@@ -357,38 +442,55 @@ onMounted(() => {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 280px 1fr;
-  background: radial-gradient(circle at 20% 0%, #111827 0%, #0b1120 38%, #05070f 100%);
-  color: #e2e8f0;
+  grid-template-columns: 260px 1fr;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
-.admin-shell .side-panel {
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 28px 22px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.95) 100%);
+/* ── Sidebar ── */
+
+.side-panel {
+  border-right: 1px solid #e2e8f0;
+  padding: 24px 18px;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.sidebar-close-btn {
+  display: none;
+  border: none;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.sidebar-overlay {
+  display: none;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .brand-icon {
-  width: 36px;
-  height: 36px;
-  color: #38bdf8;
+  width: 34px;
+  height: 34px;
+  color: #0e7490;
 }
 
 .brand-title {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .brand-sub {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .nav-section {
@@ -396,66 +498,70 @@ onMounted(() => {
 }
 
 .nav-title {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #64748b;
-  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  padding-left: 4px;
 }
 
 .nav-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(30, 41, 59, 0.35);
-  color: #e2e8f0;
-  transition: all 0.2s ease;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #475569;
+  transition: all 0.15s ease;
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.28), rgba(14, 116, 144, 0.5));
-  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.35);
+  background: #e0f2fe;
+  color: #0e7490;
+  box-shadow: 0 4px 12px rgba(14, 116, 144, 0.1);
 }
 
 .nav-item:hover {
-  transform: translateX(2px);
+  background: #f1f5f9;
 }
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
 }
 
 .signal-grid {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .signal {
   display: flex;
   gap: 10px;
   align-items: center;
-  background: rgba(15, 23, 42, 0.8);
-  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   padding: 10px 12px;
 }
 
 .signal-icon {
-  width: 20px;
-  height: 20px;
-  color: #22d3ee;
+  width: 18px;
+  height: 18px;
+  color: #0ea5e9;
 }
 
 .signal-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
 }
 
@@ -465,25 +571,38 @@ onMounted(() => {
 }
 
 .side-card {
-  margin-top: 24px;
-  border-radius: 16px;
+  margin-top: 20px;
+  border-radius: 14px;
   padding: 16px;
-  background: linear-gradient(140deg, rgba(30, 64, 175, 0.6), rgba(14, 116, 144, 0.7));
+  background: #0f172a;
   color: #f8fafc;
   font-size: 13px;
 }
 
 .side-card-title {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-bottom: 10px;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  margin-bottom: 12px;
 }
 
 .side-card-body {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric strong {
+  font-weight: 600;
+}
+
+/* ── Main panel ── */
 
 .main-panel {
   display: flex;
@@ -491,55 +610,53 @@ onMounted(() => {
   min-width: 0;
 }
 
+.hamburger-btn {
+  display: none;
+  border: none;
+  background: none;
+  color: #334155;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ── Topbar ── */
+
 .topbar {
-  padding: 20px 28px;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
   gap: 20px;
   flex-wrap: wrap;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .headline-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .headline-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: #94a3b8;
 }
 
-.search {
-  flex: 1;
-  max-width: 420px;
-  position: relative;
+/* ── Search ── */
+
+.search-wrapper {
+  width: 360px;
+  max-width: 100%;
 }
 
-.search-input {
-  width: 100%;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  padding: 10px 16px;
-  background: rgba(30, 41, 59, 0.8);
-  color: #e2e8f0;
-  font-size: 14px;
-}
-
-.search-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: min(420px, 70vw);
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
-  padding: 14px;
-  z-index: 10;
+.search-panel-content {
+  padding: 4px 0;
 }
 
 .search-header {
@@ -547,39 +664,47 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  color: #cbd5f5;
-  margin-bottom: 10px;
+  color: #475569;
+  margin-bottom: 8px;
+  padding: 0 4px;
 }
 
 .search-section {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .search-label {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #94a3b8;
   margin-bottom: 6px;
+  padding: 0 4px;
 }
 
 .search-item {
   width: 100%;
   text-align: left;
-  background: rgba(30, 41, 59, 0.7);
-  border: none;
-  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
   padding: 8px 10px;
   display: grid;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   cursor: pointer;
-  color: #e2e8f0;
+  font-size: 13px;
+  color: #1e293b;
+  transition: background 0.15s;
+}
+
+.search-item:hover {
+  background: #f1f5f9;
 }
 
 .search-meta {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .search-empty {
@@ -588,25 +713,15 @@ onMounted(() => {
   padding: 6px 4px;
 }
 
-.ghost-button {
-  border: none;
-  background: rgba(148, 163, 184, 0.2);
-  color: #e2e8f0;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
+/* ── Top actions ── */
 
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  gap: 14px;
 }
 
-.dropdown-wrap {
+.notification-area {
   position: relative;
 }
 
@@ -614,31 +729,39 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: none;
-  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   position: relative;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s;
+}
+
+.icon-button:hover {
+  background: #f8fafc;
 }
 
 .icon {
   width: 18px;
   height: 18px;
-  color: #e2e8f0;
+  color: #475569;
 }
+
+/* ── User pill ── */
 
 .user-pill {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(30, 41, 59, 0.9);
+  background: #0f172a;
   color: #f8fafc;
   padding: 6px 12px;
   border-radius: 999px;
   border: none;
   cursor: pointer;
+  font-family: inherit;
 }
 
 .avatar-initial {
@@ -658,38 +781,16 @@ onMounted(() => {
 .user-name {
   font-size: 13px;
   font-weight: 600;
+  text-align: left;
 }
 
 .user-role {
   font-size: 11px;
-  color: #7dd3fc;
+  color: #a5f3fc;
+  text-align: left;
 }
 
-.badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ef4444;
-  color: #ffffff;
-  font-size: 10px;
-  border-radius: 999px;
-  padding: 2px 6px;
-}
-
-.dropdown-panel {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 10px);
-  width: 240px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 20px 36px rgba(2, 6, 23, 0.6);
-  z-index: 10;
-  max-height: 320px;
-  overflow-y: auto;
-}
+/* ── Dropdown shared ── */
 
 .dropdown-title {
   font-size: 12px;
@@ -697,33 +798,33 @@ onMounted(() => {
   letter-spacing: 0.08em;
   color: #94a3b8;
   margin-bottom: 8px;
+  padding: 4px 4px 0;
 }
 
 .dropdown-item {
   width: 100%;
   text-align: left;
-  background: rgba(30, 41, 59, 0.7);
+  background: #f8fafc;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 8px 10px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: grid;
   gap: 4px;
   cursor: pointer;
   font-size: 13px;
-  color: #e2e8f0;
-  word-break: break-all;
+  color: #1e293b;
+  transition: background 0.15s;
+  font-family: inherit;
 }
 
-.dropdown-item.danger {
-  background: rgba(248, 113, 113, 0.2);
-  color: #fecaca;
+.dropdown-item:hover {
+  background: #f1f5f9;
 }
 
 .dropdown-meta {
   font-size: 12px;
-  color: #94a3b8;
-  word-break: break-all;
+  color: #64748b;
 }
 
 .dropdown-empty {
@@ -732,10 +833,28 @@ onMounted(() => {
   padding: 6px 4px;
 }
 
+.unread-dot {
+  width: 6px;
+  height: 6px;
+  background: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Logout item ── */
+
+:deep(.logout-item) {
+  color: #dc2626 !important;
+}
+
+/* ── Content ── */
+
 .content {
   padding: 28px;
   min-width: 0;
 }
+
+/* ── Responsive ── */
 
 @media (max-width: 1024px) {
   .app-shell {
@@ -743,38 +862,85 @@ onMounted(() => {
   }
 
   .side-panel {
-    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 280px;
+  }
+
+  .side-panel.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .hamburger-btn {
+    display: flex;
   }
 
   .topbar {
-    padding: 18px 20px;
-  }
-
-  .search {
-    max-width: 100%;
+    padding: 14px 20px;
   }
 
   .content {
     padding: 20px;
   }
+
+  .search-wrapper {
+    width: 220px;
+  }
 }
 
 @media (max-width: 768px) {
+  .topbar {
+    gap: 12px;
+  }
+
   .top-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
-  .search {
-    width: 100%;
-  }
-
-  .search-panel {
-    width: min(100%, 92vw);
+  .search-wrapper {
+    flex: 1;
+    width: auto;
   }
 
   .content {
     padding: 16px;
   }
+}
+</style>
+
+<style>
+/* Element Plus popper overrides — teleported outside scoped component */
+.search-popover,
+.notify-popover,
+.user-dropdown {
+  border-radius: 14px !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 12px !important;
+}
+
+.notify-popover {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.el-dropdown-menu {
+  border-radius: 12px !important;
 }
 </style>

@@ -8,6 +8,7 @@ import com.example.server.entity.Message.ApiResponse;
 import com.example.server.entity.Message.ErrorCode;
 import com.example.server.service.TaskService;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,5 +85,48 @@ public class TaskController {
             return ApiResponse.error(ErrorCode.FORBIDDEN, "任务不存在或无权限归档");
         }
         return ApiResponse.success(true);
+    }
+
+    @PostMapping("/{taskId}/retry")
+    public ApiResponse<?> retryTask(@PathVariable Long taskId) {
+        if (!SecurityUtils.isAdmin()) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "仅管理员可执行");
+        }
+        boolean ok = taskService.retryTask(taskId, SecurityUtils.getCurrentUserId(), true);
+        if (!ok) {
+            return ApiResponse.error(ErrorCode.PARAM_ERROR, "任务不存在或状态不允许重试");
+        }
+        return ApiResponse.success(true);
+    }
+
+    @PostMapping("/batch-archive")
+    public ApiResponse<?> batchArchive(@RequestBody Map<String, Object> body) {
+        if (!SecurityUtils.isAdmin()) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "仅管理员可执行");
+        }
+        @SuppressWarnings("unchecked")
+        List<Integer> idsRaw = (List<Integer>) body.get("taskIds");
+        boolean archived = Boolean.TRUE.equals(body.get("archived"));
+        if (idsRaw == null || idsRaw.isEmpty()) {
+            return ApiResponse.error(ErrorCode.PARAM_ERROR, "任务ID列表不能为空");
+        }
+        List<Long> taskIds = idsRaw.stream().map(Long::valueOf).toList();
+        int count = taskService.batchArchive(taskIds, archived, SecurityUtils.getCurrentUserId(), true);
+        return ApiResponse.success(Map.of("count", count));
+    }
+
+    @PostMapping("/batch-retry")
+    public ApiResponse<?> batchRetry(@RequestBody Map<String, Object> body) {
+        if (!SecurityUtils.isAdmin()) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "仅管理员可执行");
+        }
+        @SuppressWarnings("unchecked")
+        List<Integer> idsRaw = (List<Integer>) body.get("taskIds");
+        if (idsRaw == null || idsRaw.isEmpty()) {
+            return ApiResponse.error(ErrorCode.PARAM_ERROR, "任务ID列表不能为空");
+        }
+        List<Long> taskIds = idsRaw.stream().map(Long::valueOf).toList();
+        int count = taskService.batchRetry(taskIds, SecurityUtils.getCurrentUserId(), true);
+        return ApiResponse.success(Map.of("count", count));
     }
 }

@@ -138,11 +138,7 @@ public class TaskServiceImpl implements TaskService {
         if (!isAdmin && (userId == null || !userId.equals(task.getUserId()))) {
             return false;
         }
-        LocalDateTime now = LocalDateTime.now();
-        task.setArchived(archived);
-        task.setArchivedAt(archived ? now : null);
-        task.setUpdatedAt(now);
-        taskMapper.updateById(task);
+        applyArchive(task, archived);
         taskEventService.recordEvent(
                 taskId,
                 task.getNodeId(),
@@ -151,6 +147,97 @@ public class TaskServiceImpl implements TaskService {
                 archived ? "任务已归档" : "任务已取消归档",
                 null);
         return true;
+    }
+
+    @Override
+    public boolean retryTask(Long taskId, Long userId, boolean isAdmin) {
+        if (taskId == null) return false;
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) return false;
+        if (!isAdmin && (userId == null || !userId.equals(task.getUserId()))) return false;
+
+        String status = task.getTaskStatus();
+        if (status == null || (!status.equals("FAILED") && !status.equals("PARTIAL_FAILED"))) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        task.setTaskStatus("PENDING");
+        task.setTaskProgress(0);
+        task.setRetryCount((task.getRetryCount() == null ? 0 : task.getRetryCount()) + 1);
+        task.setLastErrorMessage(null);
+        task.setCancelRequested(false);
+        task.setUpdatedAt(now);
+        taskMapper.updateById(task);
+
+        taskRuntimeService.resetToPending(taskId);
+
+        taskEventService.recordEvent(taskId, task.getNodeId(), "TASK_RETRY", "INFO",
+                "管理员手动重试任务 (第" + task.getRetryCount() + "次)", null);
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.CRAWLER_EXCHANGE,
+                RabbitMQConfig.ROUTING_TASK,
+                toCrawlerTaskMessage(task));
+
+        return true;
+    }
+
+    @Override
+    public int batchArchive(List<Long> taskIds, boolean archived, Long userId, boolean isAdmin) {
+        int count = 0;
+        for (Long taskId : taskIds) {
+            Task task = taskMapper.selectById(taskId);
+            if (task == null) continue;
+            if (!isAdmin && (userId == null || !userId.equals(task.getUserId()))) continue;
+            applyArchive(task, archived);
+            taskEventService.recordEvent(taskId, task.getNodeId(),
+                    archived ? "TASK_ARCHIVED" : "TASK_UNARCHIVED", "INFO",
+                    archived ? "批量归档" : "批量取消归档", null);
+            count++;
+        }
+        return count;
+    }
+
+    @Override
+    public int batchRetry(List<Long> taskIds, Long userId, boolean isAdmin) {
+        int count = 0;
+        for (Long taskId : taskIds) {
+            Task task = taskMapper.selectById(taskId);
+            if (task == null) continue;
+            if (!isAdmin && (userId == null || !userId.equals(task.getUserId()))) continue;
+            String status = task.getTaskStatus();
+            if (status == null || (!status.equals("FAILED") && !status.equals("PARTIAL_FAILED"))) continue;
+
+            LocalDateTime now = LocalDateTime.now();
+            task.setTaskStatus("PENDING");
+            task.setTaskProgress(0);
+            task.setRetryCount((task.getRetryCount() == null ? 0 : task.getRetryCount()) + 1);
+            task.setLastErrorMessage(null);
+            task.setCancelRequested(false);
+            task.setUpdatedAt(now);
+            taskMapper.updateById(task);
+
+            taskRuntimeService.resetToPending(taskId);
+
+            taskEventService.recordEvent(taskId, task.getNodeId(), "TASK_RETRY", "INFO",
+                    "管理员批量重试任务", null);
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.CRAWLER_EXCHANGE,
+                    RabbitMQConfig.ROUTING_TASK,
+                    toCrawlerTaskMessage(task));
+            count++;
+        }
+        return count;
+    }
+
+    private void applyArchive(Task task, boolean archived) {
+        LocalDateTime now = LocalDateTime.now();
+        task.setArchived(archived);
+        task.setArchivedAt(archived ? now : null);
+        task.setUpdatedAt(now);
+        taskMapper.updateById(task);
     }
 
     private List<Task> buildTasks(DispatchTaskRequest request) {
