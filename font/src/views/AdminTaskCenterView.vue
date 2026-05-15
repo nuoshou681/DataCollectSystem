@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   ArchiveBoxIcon,
@@ -13,13 +13,14 @@ import {
 import {
   batchArchiveTasks,
   batchRetryTasks,
+  fetchTaskBatchDetail,
   fetchTaskDetail,
   fetchTasks,
   fetchUsers,
   retryTask,
   updateTaskArchived,
 } from '@/api/api'
-import type { Task, TaskDetail } from '@/types/entity'
+import type { Task, TaskBatch, TaskDetail } from '@/types/entity'
 import { detectSite, siteLabel, statusText } from '@/utils/task'
 
 const NODE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899']
@@ -38,6 +39,17 @@ const activeDetail = ref<TaskDetail | null>(null)
 const filterNode = ref<string | null>(null)
 const filterUser = ref<number | null>(null)
 const filterBatch = ref<string | null>(null)
+const batchDetail = ref<TaskBatch | null>(null)
+
+watch(filterBatch, async (bid) => {
+  if (bid && bid !== '无批次') {
+    try {
+      batchDetail.value = await fetchTaskBatchDetail(bid).then(d => d?.batch ?? null)
+    } catch { batchDetail.value = null }
+  } else {
+    batchDetail.value = null
+  }
+})
 
 const userNameMap = ref<Map<number, string>>(new Map())
 const nodeColorMap = ref<Map<string, string>>(new Map())
@@ -365,6 +377,28 @@ onMounted(() => { void loadAll() })
     <div v-if="filterNode || filterUser || filterBatch" class="flex items-center gap-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
       <span class="text-amber-700 font-medium">筛选: {{ activeFilterLabel }}</span>
       <el-button size="small" text type="warning" @click="clearFilters">清除筛选</el-button>
+    </div>
+
+    <!-- Batch info panel -->
+    <div v-if="batchDetail && filterBatch" class="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm">
+      <div>
+        <div class="text-xs text-slate-400">批次名称</div>
+        <div class="font-medium text-slate-800">{{ batchDetail.batchName || batchDetail.batchId }}</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400">状态</div>
+        <el-tag size="small" :type="batchDetail.status === 'COMPLETED' ? 'success' : batchDetail.status === 'FAILED' ? 'danger' : 'info'">
+          {{ batchDetail.status }}
+        </el-tag>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400">任务数 / 创建者</div>
+        <div class="font-medium text-slate-800">{{ batchDetail.taskCount }} 个 · 用户{{ batchDetail.createdBy }}</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400">备注</div>
+        <div class="font-medium text-slate-800 truncate">{{ batchDetail.notes || '-' }}</div>
+      </div>
     </div>
 
     <section class="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">

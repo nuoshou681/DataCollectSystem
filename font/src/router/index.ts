@@ -36,6 +36,7 @@ const routes = [
       { path: 'logs', component: () => import('@/views/LogView.vue') },
       { path: 'profile', component: () => import('@/views/ProfileView.vue') },
       { path: 'users', component: () => import('@/views/AdminUserView.vue') },
+      { path: 'notifications', component: () => import('@/views/AdminNotificationView.vue') },
       { path: 'config', component: () => import('@/views/AdminConfigView.vue') },
     ]
   },

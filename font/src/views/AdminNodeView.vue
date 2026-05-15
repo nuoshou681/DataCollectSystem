@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { BoltIcon, CheckBadgeIcon, QueueListIcon, ServerStackIcon, XCircleIcon } from '@heroicons/vue/24/outline'
+import {
+  BoltIcon,
+  CheckBadgeIcon,
+  CpuChipIcon,
+  DocumentTextIcon,
+  QueueListIcon,
+  ServerStackIcon,
+  XCircleIcon,
+} from '@heroicons/vue/24/outline'
 import { fetchCrawlerNodes, fetchNodeTasks } from '@/api/api'
 import type { CrawlerNode, Task } from '@/types/entity'
 import { deriveNodeStatus, siteLabel, detectSite, statusText } from '@/utils/task'
 
 const route = useRoute()
+const router = useRouter()
 const loading = ref(false)
 const nodes = ref<CrawlerNode[]>([])
 let refreshTimer: number | null = null
@@ -15,6 +24,7 @@ let refreshTimer: number | null = null
 // Task drawer
 const drawerVisible = ref(false)
 const drawerNodeId = ref('')
+const drawerNode = ref<CrawlerNode | null>(null)
 const drawerTasks = ref<Task[]>([])
 const drawerLoading = ref(false)
 
@@ -31,6 +41,7 @@ async function loadNodes() {
 
 async function viewNodeTasks(node: CrawlerNode) {
   drawerNodeId.value = node.nodeId
+  drawerNode.value = node
   drawerVisible.value = true
   drawerLoading.value = true
   try {
@@ -41,6 +52,10 @@ async function viewNodeTasks(node: CrawlerNode) {
   } finally {
     drawerLoading.value = false
   }
+}
+
+function viewNodeLogs(nodeId: string) {
+  router.push({ path: '/admin/logs', query: { keyword: nodeId } })
 }
 
 const stats = computed(() => {
@@ -59,6 +74,13 @@ const capacityStats = computed(() => {
   const usagePercent = maxConcurrency > 0 ? Math.round((currentLoad / maxConcurrency) * 100) : 0
   return { maxConcurrency, currentLoad, usagePercent }
 })
+
+const drawerTaskStats = computed(() => ({
+  total: drawerTasks.value.length,
+  running: drawerTasks.value.filter(t => (t.runtime?.status ?? t.taskStatus) === 'RUNNING').length,
+  finished: drawerTasks.value.filter(t => (t.runtime?.status ?? t.taskStatus) === 'FINISHED').length,
+  failed: drawerTasks.value.filter(t => ['FAILED', 'PARTIAL_FAILED'].includes(t.runtime?.status ?? t.taskStatus ?? '')).length,
+}))
 
 const recentNodes = computed(() =>
   [...nodes.value]
@@ -174,7 +196,7 @@ onBeforeUnmount(() => {
       <template #header>
         <div class="flex items-center justify-between">
           <span class="font-semibold">全部节点</span>
-          <span class="text-xs text-slate-400">自动刷新 5s · 点击行查看任务</span>
+          <span class="text-xs text-slate-400">自动刷新 5s · 点击行或「查看任务」按钮查看详情</span>
         </div>
       </template>
       <el-table :data="nodes" border stripe v-loading="loading" @row-click="viewNodeTasks">
@@ -215,10 +237,14 @@ onBeforeUnmount(() => {
             <span v-if="!(scope.row.tags?.length)" class="text-slate-400 text-sm">-</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="90" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="scope">
             <el-button size="small" text type="primary" @click.stop="viewNodeTasks(scope.row)">
               查看任务
+            </el-button>
+            <el-button size="small" text type="info" @click.stop="viewNodeLogs(scope.row.nodeId)">
+              <DocumentTextIcon class="w-3.5 h-3.5 mr-0.5" />
+              日志
             </el-button>
           </template>
         </el-table-column>
@@ -226,34 +252,98 @@ onBeforeUnmount(() => {
       </el-table>
     </el-card>
 
-    <!-- Per-node task drawer -->
-    <el-drawer v-model="drawerVisible" :title="`${drawerNodeId} 任务列表`" size="640px">
+    <!-- Per-node detail drawer -->
+    <el-drawer v-model="drawerVisible" :title="`${drawerNodeId}`" size="680px">
       <div v-loading="drawerLoading" class="space-y-4">
-        <div class="text-sm text-slate-500">共 {{ drawerTasks.length }} 个任务</div>
-        <el-table :data="drawerTasks" border stripe size="small" max-height="calc(100vh - 200px)">
-          <el-table-column prop="taskId" label="ID" width="80" />
-          <el-table-column label="站点" width="100">
-            <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
-          </el-table-column>
-          <el-table-column prop="keyword" label="关键词" min-width="120" show-overflow-tooltip />
-          <el-table-column label="状态" width="100">
-            <template #default="scope">
-              <el-tag :type="['FAILED', 'PARTIAL_FAILED'].includes(scope.row.taskStatus ?? '') ? 'danger' : scope.row.taskStatus === 'FINISHED' ? 'success' : scope.row.taskStatus === 'RUNNING' ? 'warning' : ''" size="small">
-                {{ statusText(scope.row.taskStatus) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="进度" min-width="130">
-            <template #default="scope">
-              <div class="flex items-center gap-2">
-                <el-progress :percentage="scope.row.taskProgress ?? 0" :stroke-width="5" :show-text="false" />
-                <span class="text-xs text-slate-500">{{ scope.row.taskProgress ?? 0 }}%</span>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="createdAt" label="创建时间" min-width="160" />
-          <template #empty><el-empty description="该节点暂无任务" :image-size="60" /></template>
-        </el-table>
+        <!-- Node summary card -->
+        <div v-if="drawerNode" class="rounded-lg border border-slate-200 p-4 bg-slate-50">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-semibold text-slate-800">{{ drawerNode.nodeName || drawerNode.nodeId }}</span>
+            <el-tag :type="deriveNodeStatus(drawerNode).statusType" size="small">
+              {{ deriveNodeStatus(drawerNode).displayStatus }}
+            </el-tag>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <div class="text-xs text-slate-400">版本</div>
+              <div class="font-mono font-medium">{{ drawerNode.version || '-' }}</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400">最大并发</div>
+              <div class="font-medium">{{ drawerNode.maxConcurrency ?? '-' }}</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400">当前负载</div>
+              <div class="font-medium">{{ drawerNode.currentLoad ?? 0 }}</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400">最后心跳</div>
+              <div class="font-medium text-xs">{{ drawerNode.lastHeartbeat || '-' }}</div>
+            </div>
+          </div>
+          <!-- Capabilities + tags -->
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <el-tag v-for="cap in drawerNode.capabilities || []" :key="cap" size="small" type="info">{{ cap }}</el-tag>
+            <span v-if="!(drawerNode.capabilities?.length)" class="text-xs text-slate-400">无能力标签</span>
+            <span class="w-px h-4 bg-slate-300 mx-1" v-if="drawerNode.tags?.length" />
+            <el-tag v-for="tag in drawerNode.tags || []" :key="tag" size="small">{{ tag }}</el-tag>
+          </div>
+        </div>
+
+        <!-- Task stats mini cards -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="rounded-lg border border-slate-200 p-3 text-center">
+            <div class="text-xs text-slate-400">全部</div>
+            <div class="text-lg font-bold text-slate-700">{{ drawerTaskStats.total }}</div>
+          </div>
+          <div class="rounded-lg border border-sky-200 bg-sky-50 p-3 text-center">
+            <div class="text-xs text-sky-500">运行中</div>
+            <div class="text-lg font-bold text-sky-600">{{ drawerTaskStats.running }}</div>
+          </div>
+          <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+            <div class="text-xs text-emerald-500">已完成</div>
+            <div class="text-lg font-bold text-emerald-600">{{ drawerTaskStats.finished }}</div>
+          </div>
+          <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+            <div class="text-xs text-red-500">失败</div>
+            <div class="text-lg font-bold text-red-600">{{ drawerTaskStats.failed }}</div>
+          </div>
+        </div>
+
+        <!-- Task table -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-semibold text-slate-700">节点任务 ({{ drawerTasks.length }})</h4>
+            <el-button size="small" text type="primary" @click="viewNodeLogs(drawerNodeId)">
+              <DocumentTextIcon class="w-3.5 h-3.5 mr-0.5" />
+              查看节点日志
+            </el-button>
+          </div>
+          <el-table :data="drawerTasks" border stripe size="small" max-height="360">
+            <el-table-column prop="taskId" label="ID" width="80" />
+            <el-table-column label="站点" width="100">
+              <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
+            </el-table-column>
+            <el-table-column prop="keyword" label="关键词" min-width="120" show-overflow-tooltip />
+            <el-table-column label="状态" width="100">
+              <template #default="scope">
+                <el-tag :type="['FAILED', 'PARTIAL_FAILED'].includes(scope.row.taskStatus ?? '') ? 'danger' : scope.row.taskStatus === 'FINISHED' ? 'success' : scope.row.taskStatus === 'RUNNING' ? 'warning' : ''" size="small">
+                  {{ statusText(scope.row.taskStatus) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="进度" min-width="130">
+              <template #default="scope">
+                <div class="flex items-center gap-2">
+                  <el-progress :percentage="scope.row.taskProgress ?? 0" :stroke-width="5" :show-text="false" />
+                  <span class="text-xs text-slate-500">{{ scope.row.taskProgress ?? 0 }}%</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createdAt" label="创建时间" min-width="160" />
+            <template #empty><el-empty description="该节点暂无任务" :image-size="60" /></template>
+          </el-table>
+        </div>
       </div>
     </el-drawer>
   </div>

@@ -41,6 +41,7 @@ const navItems = [
 
   { path: '/admin/users', label: '用户管理', icon: UsersIcon },
   { path: '/admin/logs', label: '审计日志', icon: DocumentIcon },
+  { path: '/admin/notifications', label: '通知中心', icon: BellIcon },
   { path: '/admin/config', label: '系统配置', icon: Cog6ToothIcon },
 ]
 
@@ -62,6 +63,30 @@ const overviewStats = ref({
   runningTasks: 0,
   finishedToday: 0,
   successRate: 0,
+})
+
+const breadcrumbMap: Record<string, string> = {
+  '/admin': '控制台',
+  '/admin/task-center': '任务治理',
+  '/admin/exports': '导出中心',
+  '/admin/nodes': '节点管理',
+  '/admin/users': '用户管理',
+  '/admin/logs': '审计日志',
+  '/admin/notifications': '通知中心',
+  '/admin/config': '系统配置',
+  '/admin/profile': '个人设置',
+}
+
+const breadcrumbs = computed(() => {
+  const items: { label: string; path?: string }[] = []
+  if (route.path !== '/admin') {
+    items.push({ label: '控制台', path: '/admin' })
+  }
+  const label = breadcrumbMap[route.path]
+  if (label && label !== '控制台') {
+    items.push({ label })
+  }
+  return items
 })
 
 const userInitials = computed(() => {
@@ -401,6 +426,13 @@ onUnmounted(() => {
                 </div>
                 <div class="dropdown-meta">{{ notice.content }}</div>
               </button>
+              <div class="dropdown-footer">
+                <RouterLink to="/admin/notifications" class="text-xs text-blue-600 hover:underline"
+                  @click="notificationsOpen = false"
+                >
+                  查看全部
+                </RouterLink>
+              </div>
             </el-popover>
           </div>
 
@@ -424,6 +456,19 @@ onUnmounted(() => {
           </el-dropdown>
         </div>
       </header>
+
+      <!-- Breadcrumbs -->
+      <div v-if="breadcrumbs.length" class="breadcrumb-bar">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item
+            v-for="(item, idx) in breadcrumbs"
+            :key="idx"
+            :to="item.path ? { path: item.path } : undefined"
+          >
+            {{ item.label }}
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
 
       <main class="content">
         <RouterView />
@@ -833,6 +878,13 @@ onUnmounted(() => {
   padding: 6px 4px;
 }
 
+.dropdown-footer {
+  text-align: center;
+  padding: 8px 4px 4px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
+}
+
 .unread-dot {
   width: 6px;
   height: 6px;
@@ -845,6 +897,26 @@ onUnmounted(() => {
 
 :deep(.logout-item) {
   color: #dc2626 !important;
+}
+
+/* ── Breadcrumb ── */
+
+.breadcrumb-bar {
+  padding: 12px 28px 0;
+  background: #ffffff;
+}
+
+.breadcrumb-bar :deep(.el-breadcrumb__inner) {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.breadcrumb-bar :deep(.el-breadcrumb__inner.is-link) {
+  color: #0e7490;
+}
+
+.breadcrumb-bar :deep(.el-breadcrumb__separator) {
+  color: #cbd5e1;
 }
 
 /* ── Content ── */
