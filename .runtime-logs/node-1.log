@@ -131,3 +131,460 @@ java.nio.channels.AsynchronousCloseException
 2026-05-17T14:45:29.369+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3dc2b5db:0/SimpleConnection@61285cf8 [delegate=amqp://guest@127.0.0.1:5672/, localPort=50953]
 2026-05-17T14:45:29.374+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 0.301 seconds (process running for 1401.89)
 2026-05-17T14:45:29.375+08:00  INFO 38736 --- [crawlernode] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-05-17T15:08:11.427+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=32, url=https://news.sina.com.cn, keyword=芯片
+2026-05-17T15:08:11.432+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:news.sina.com.cn 芯片, limit=3
+2026-05-17T15:08:13.424+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 3 条结果
+2026-05-17T15:08:13.425+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.sina.com.cn/w/2026-05-15/doc-inhxxspq8235995.shtml
+2026-05-17T15:08:13.425+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.sina.com.cn/c/2026-05-13/doc-inhxteir7693369.shtml
+2026-05-17T15:08:13.425+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.sina.com.cn/c/2026-04-09/doc-inhtwhrk1088433.shtml
+2026-05-17T15:08:39.752+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T15:09:06.280+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T15:09:36.902+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T15:09:57.332+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=32
+2026-05-17T20:56:26.202+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=71, url=https://www.bing.com/search?q=, keyword=篮球
+2026-05-17T20:56:26.204+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=篮球, limit=10
+2026-05-17T20:56:37.831+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T20:56:37.832+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://zh.wikipedia.org/wiki/%E7%AF%AE%E7%90%83
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.cbaleague.com/
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://baike.baidu.com/item/%E7%AF%AE%E7%90%83/123564
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.leisu.com/live/lanqiu
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.sohu.com/z/nba/home
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.tpenoc.net/sport/basketball/
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.olympics.com/zh/sports/basketball/
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://sports.qq.com/
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.youtube.com/watch?v=nSynsJVnK94
+2026-05-17T20:56:37.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.sportsv.net/basketball
+2026-05-17T20:57:38.815+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T20:57:41.368+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=71
+2026-05-17T20:57:41.369+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=69, url=https://news.qq.com, keyword=篮球
+2026-05-17T20:57:41.369+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:news.qq.com 篮球, limit=10
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260509A03IQ200
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20251030A03CVR00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260211A055VU00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20251010A0625100
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260226A01V6Q00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20250301A056OO00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20251204A045LJ00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20250126A08D6Q00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20250428A06JTA00
+2026-05-17T20:58:21.812+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260310A012AP00
+2026-05-17T20:58:34.615+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T20:59:45.943+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:00:44.625+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=69
+2026-05-17T21:03:36.890+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=75, url=https://search.sohu.com/?keyword=, keyword=英伟达
+2026-05-17T21:03:47.103+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/xtopic/TURBeE1qRTJNekl4?spm=smpc.csrpage.topic-list.1.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023854381_120127074?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.1.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/120127074?spm=smpc.csrpage.news-list.1.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023877284_610300?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.2.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/610300?spm=smpc.csrpage.news-list.2.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023811153_130887?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.3.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/130887?spm=smpc.csrpage.news-list.3.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023896856_114760?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.4.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114760?spm=smpc.csrpage.news-list.4.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023609125_115362?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.5.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/115362?spm=smpc.csrpage.news-list.5.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023867381_473283?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.6.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/473283?spm=smpc.csrpage.news-list.6.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023609015_114984?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.7.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114984?spm=smpc.csrpage.news-list.7.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023760512_100053070?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.8.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/100053070?spm=smpc.csrpage.news-list.8.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1018421384_121097259?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.9.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121097259?spm=smpc.csrpage.news-list.9.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023718188_114986?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.10.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114986?spm=smpc.csrpage.news-list.10.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E4%BB%8E%E8%BF%87%E5%8E%BB%E6%8E%A2%E5%AF%BB%E6%9C%AA%E6%9D%A5&queryType=hot-query&spm=smpc.csrpage.hot-list.1.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%BC%A0%E9%9B%AA%E6%9C%BA%E8%BD%A6%E6%96%A9%E8%8E%B7%E8%B5%9B%E5%AD%A3%E7%AC%AC%E4%BA%94%E5%86%A0&queryType=hot-query&spm=smpc.csrpage.hot-list.2.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%B8%B8%E5%AE%A2%E6%82%A3%E7%97%85%E9%80%80%E5%B9%B4%E5%8D%A1%20%E5%8A%A8%E7%89%A9%E5%9B%AD%E6%B8%85%E7%A9%BA%E8%AE%B8%E6%84%BF%E6%B1%A0&queryType=hot-query&spm=smpc.csrpage.hot-list.3.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E4%BB%8E%E2%80%9C%E8%A2%AB%E5%A4%AA%E7%A9%BA%E8%B8%A2%E4%B8%80%E8%84%9A%E2%80%9D%E5%88%B0%E2%80%9C%E6%84%9F%E8%A7%89%E8%89%AF%E5%A5%BD%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.4.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%9B%9B%E4%B8%AA%E5%93%81%E7%89%8C%E4%BA%94%E6%AC%BE%E4%BA%A7%E5%93%81%E9%83%BD%E8%87%AA%E7%A7%B0%E9%94%80%E9%87%8F%E7%AC%AC%E4%B8%80&queryType=hot-query&spm=smpc.csrpage.hot-list.5.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E9%BD%90%E8%B1%AB%E5%9B%9E%E5%BA%94%E8%A2%AB%E8%B4%A8%E7%96%91%E2%80%9C%E4%B8%83%E6%97%AC%E8%80%81%E5%A4%AA%E4%B8%8A%E6%AD%8C%E6%89%8B%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.6.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E7%8E%8B%E6%99%93%E4%B8%9C%E8%A2%AB%E6%9F%A5&queryType=hot-query&spm=smpc.csrpage.hot-list.7.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E2%80%9C%E8%B1%86%E5%8C%85%E8%AF%B4%E4%BD%A0%E9%82%A3%E9%87%8C%E5%8D%96%E9%87%8E%E7%8C%AA%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.8.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E8%80%81%E4%BA%BA%E6%AF%8F%E6%9C%88%E8%AF%9D%E8%B4%B9500%E5%85%83%20%E8%A7%A3%E7%BA%A6%E9%9C%80%E4%BB%98%E8%BF%9D%E7%BA%A6%E9%87%91&queryType=hot-query&spm=smpc.csrpage.hot-list.9.1779023023816QOyznma
+2026-05-17T21:03:47.104+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%B0%8F%E7%B1%B3YU7%E5%85%A8%E6%96%B0%E9%A2%9C%E8%89%B2%E5%85%AC%E5%B8%83%EF%BC%9A%E7%81%AB%E5%B1%B1%E7%81%B0&queryType=hot-query&spm=smpc.csrpage.hot-list.10.1779023023816QOyznma
+2026-05-17T21:04:33.443+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:05:51.856+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=75
+2026-05-17T21:05:51.857+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=76, url=https://news.qq.com, keyword=英伟达
+2026-05-17T21:05:51.857+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:news.qq.com 英伟达, limit=10
+2026-05-17T21:06:19.070+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260512A02FVA00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260226A04OIP00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260417A06X6F00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260506A086GN00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260423A057YH00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260317A021SU00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260410A02W5L00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20251031Q026HY00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260219A063ZD00
+2026-05-17T21:06:19.071+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260324A060H700
+2026-05-17T21:08:43.833+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=76
+2026-05-17T21:08:43.834+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=81, url=https://www.bing.com/search?q=, keyword=英伟达
+2026-05-17T21:08:43.834+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=英伟达, limit=10
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.cn/
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.com/en-us/
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://zh-min-nan.wikipedia.org/wiki/NVIDIA
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.instagram.com/nvidia/
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://hk.finance.yahoo.com/quote/NVDA/
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://xueqiu.com/S/NVDA
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.youtube.com/user/nvidia
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://xueqiu.com/S/NVDA
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.linkedin.com/company/nvidia
+2026-05-17T21:08:45.777+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.com/en-us/solutions/ai/
+2026-05-17T21:09:19.061+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:09:51.111+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='Timeout 30000ms exceeded.
+  name='TimeoutError
+  stack='TimeoutError: Timeout 30000ms exceeded.
+    at ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:78:26)
+    at Frame._waitForFunctionExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:1361:23)
+    at FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:102)
+    at FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:94:40)
+    at DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:39)
+}
+2026-05-17T21:10:24.933+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:10:26.992+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src *.instagram.com static.cdninstagram.com z-p42-static.cdninstagram.com *.facebook.com *.fbcdn.net *.facebook.net 127.0.0.1:* 'nonce-LNI1DFO0' blob: 'self' 'wasm-unsafe-eval' https://*.google-analytics.com https://translate.google.com https://apis.google.com https://accounts.google.com".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at t (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:288:213)
+    at Object.applyWithGuard (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:10303)
+    at e (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:11000)
+  name='Error
+  stack='Error: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src *.instagram.com static.cdninstagram.com z-p42-static.cdninstagram.com *.facebook.com *.fbcdn.net *.facebook.net 127.0.0.1:* 'nonce-LNI1DFO0' blob: 'self' 'wasm-unsafe-eval' https://*.google-analytics.com https://translate.google.com https://apis.google.com https://accounts.google.com".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at t (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:288:213)
+    at Object.applyWithGuard (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:10303)
+    at e (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:11000)
+    at CRExecutionContext.evaluateWithArguments (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:92:33)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/javascript.js:235:12)
+    at async Frame.retryWithProgressAndTimeouts (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:929:24)
+    at async ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:82:22)
+    at async FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:84)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:96:14)
+    at async DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:22)
+}
+2026-05-17T21:10:55.656+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:11:29.335+08:00 ERROR 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 保存页面失败: taskId=81, pageUrl=https://www.youtube.com/user/nvidia, error=Error {
+  message='net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+
+com.microsoft.playwright.PlaywrightException: Error {
+  message='net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+	at com.microsoft.playwright.impl.WaitableResult.get(WaitableResult.java:56) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:132) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.Connection.sendMessage(Connection.java:130) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.sendMessage(ChannelOwner.java:118) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.FrameImpl.navigateImpl(FrameImpl.java:463) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.lambda$navigate$47(PageImpl.java:943) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:47) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.withLogging(ChannelOwner.java:97) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.navigate(PageImpl.java:943) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.navigate(PageImpl.java:42) ~[playwright-1.48.0.jar:1.48.0]
+	at com.example.crawlernode.crawler.Crawler.savePageAsMhtml(Crawler.java:195) ~[classes/:na]
+	at com.example.crawlernode.crawler.Crawler.crawl(Crawler.java:92) ~[classes/:na]
+	at com.example.crawlernode.crawler.CrawlerTaskListener.handleTask(CrawlerTaskListener.java:32) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:168) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.KotlinAwareInvocableHandlerMethod.doInvoke(KotlinAwareInvocableHandlerMethod.java:47) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:83) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:287) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandlerAndProcessResult(MessagingMessageListenerAdapter.java:233) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.onMessage(MessagingMessageListenerAdapter.java:157) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doInvokeListener(AbstractMessageListenerContainer.java:1683) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.actualInvokeListener(AbstractMessageListenerContainer.java:1612) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.invokeListener(AbstractMessageListenerContainer.java:1599) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doExecuteListener(AbstractMessageListenerContainer.java:1590) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListenerAndHandleException(AbstractMessageListenerContainer.java:1539) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListener(AbstractMessageListenerContainer.java:1520) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.doReceiveAndExecute(SimpleMessageListenerContainer.java:1116) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.receiveAndExecute(SimpleMessageListenerContainer.java:1061) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.mainLoop(SimpleMessageListenerContainer.java:1465) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1359) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+Caused by: com.microsoft.playwright.impl.DriverException: Error {
+  message='net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_CONNECTION_CLOSED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+	at com.microsoft.playwright.impl.Connection.dispatch(Connection.java:259) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.Connection.processOneMessage(Connection.java:211) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:130) ~[playwright-1.48.0.jar:1.48.0]
+	... 33 common frames omitted
+
+2026-05-17T21:11:43.716+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:11:45.814+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'report-sample' 'sha256-th47JTnh6tX15SUn/I+GGmsOSXpa7dh5Skner77gxlY=' 'sha256-SSoodjUD3LGm2FfFCVHGqEb8D4UM3OOigidT2UKDcYg=' 'sha256-cKTgdnmO6+hXd85a9wKg1effVfVzenUAtUCyOKY9bQE=' 'sha256-DwtT8+ZZKpxH9pqZNAmJ3GdbLAh5SsYaXR3omTXPCns=' 'sha256-sV9jZa797T0QWBzcU/CNd4tpBhTnh+TFdLnfjlitl28=' 'sha256-aa/Q8CRBDSqTQbCIyioPhZaz+G+dbPyu7BzsjInEmiU=' 'sha256-THuVhwbXPeTR0HszASqMOnIyxqEgvGyBwSPBKBF/iMc=' 'sha256-zTIusdVJJeXz9+iox2a+pdDglzbpRpFVRzEwvW4AONk=' 'sha256-iC8MPqNLw0FDnsBf4DlSkFLNTwhkI85aouiAEB819ic=' 'sha256-2EqrEvcPzl8c6/TSGVvaVMEe7lg700MAz/te4/3kTYY=' 'sha256-y5uW69VItKj51mcc7UD9qfptDVUqicZL+bItEpvVNDw=' 'sha256-DatsFGoJ8gFkzzxo47Ou76WZ+3QBPOQHtBu9p9b3DhA=' 'sha256-k95cyM8gFgPziZe5VQ2IvJvBUVyd5zFt2CokIUwqdHE=' 'sha256-PyCXNcEkzRWqbiNr087fizmiBBrq9O6GGD8eV3P09Ik=' 'sha256-RFqsjmAF1N5LnfpaHFvPqFlVkeIS/DtTAFor+JjJJVc=' 'sha256-2SQ55Erm3CPCb+k03EpNxU9bdV3XL9TnVTriDs7INZ4=' 'sha256-S/KSPe186K/1B0JEjbIXcCdpB97krdzX05S+dHnQjUs=' 'sha256-9pXOIwF4N0gPltLd3AI69lkCjSC2H/Eb3sc5zdmUyYU=' 'sha256-jou6v/Nleyzoc+LXktAv1Fp8M807dVVxy7E/yzVljHc=' 'sha256-6E4e/3dSvj/8JZT2S2yR91mspqM6MyOpKl5lrhHsZa8=' 'sha256-JfJ82reKxtqugVbfRGw/O/1x1Lm1I09rHueXSwvbRws=' 'sha256-BbV1i75oYRtLtfDWs7tnA8QLF5EOO1dVHKL0prVd/fQ=' 'sha256-3woF8BZ54TeXM+czaH3aXoaJsVpiamuAKFsXDykAR/Q=' 'sha256-vIfNcKb8ixJg1cfJIoNNYjWcm0lezj1/XpUNFiZyVsU=' 'sha256-cLsHUHFgT/VGX04cZrJ9xgm4HbzTR7ptutkxK+7BlMk=' 'sha256-BwU8jMnQYUhjOpsDVABpfddV/DlP1ZYrFcTumYw7x54=' 'sha256-wz6ika9i3WU3bpUPdhYDZeO/NrDQniDyiscN0LWnyaY=' 'sha256-3RIGhhApBii1KY+aW1xk7kFyoQY8vSVE5DfT7E9SJUc=' static.licdn.com static-exp1.licdn.com static-exp2.licdn.com static-exp3.licdn.com platform.linkedin.com platform-akam.linkedin.com platform-ecst.linkedin.com platform-azur.linkedin.com snap.licdn.com www.google.com/recaptcha/enterprise.js www.gstatic.com/recaptcha/releases/ www.googletagmanager.com/gtag/js www.googletagmanager.com/gtag/destination googleads.g.doubleclick.net/pagead/viewthroughconversion/ merchantpool1.linkedin.com/mdt.js".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+  name='Error
+  stack='Error: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'report-sample' 'sha256-th47JTnh6tX15SUn/I+GGmsOSXpa7dh5Skner77gxlY=' 'sha256-SSoodjUD3LGm2FfFCVHGqEb8D4UM3OOigidT2UKDcYg=' 'sha256-cKTgdnmO6+hXd85a9wKg1effVfVzenUAtUCyOKY9bQE=' 'sha256-DwtT8+ZZKpxH9pqZNAmJ3GdbLAh5SsYaXR3omTXPCns=' 'sha256-sV9jZa797T0QWBzcU/CNd4tpBhTnh+TFdLnfjlitl28=' 'sha256-aa/Q8CRBDSqTQbCIyioPhZaz+G+dbPyu7BzsjInEmiU=' 'sha256-THuVhwbXPeTR0HszASqMOnIyxqEgvGyBwSPBKBF/iMc=' 'sha256-zTIusdVJJeXz9+iox2a+pdDglzbpRpFVRzEwvW4AONk=' 'sha256-iC8MPqNLw0FDnsBf4DlSkFLNTwhkI85aouiAEB819ic=' 'sha256-2EqrEvcPzl8c6/TSGVvaVMEe7lg700MAz/te4/3kTYY=' 'sha256-y5uW69VItKj51mcc7UD9qfptDVUqicZL+bItEpvVNDw=' 'sha256-DatsFGoJ8gFkzzxo47Ou76WZ+3QBPOQHtBu9p9b3DhA=' 'sha256-k95cyM8gFgPziZe5VQ2IvJvBUVyd5zFt2CokIUwqdHE=' 'sha256-PyCXNcEkzRWqbiNr087fizmiBBrq9O6GGD8eV3P09Ik=' 'sha256-RFqsjmAF1N5LnfpaHFvPqFlVkeIS/DtTAFor+JjJJVc=' 'sha256-2SQ55Erm3CPCb+k03EpNxU9bdV3XL9TnVTriDs7INZ4=' 'sha256-S/KSPe186K/1B0JEjbIXcCdpB97krdzX05S+dHnQjUs=' 'sha256-9pXOIwF4N0gPltLd3AI69lkCjSC2H/Eb3sc5zdmUyYU=' 'sha256-jou6v/Nleyzoc+LXktAv1Fp8M807dVVxy7E/yzVljHc=' 'sha256-6E4e/3dSvj/8JZT2S2yR91mspqM6MyOpKl5lrhHsZa8=' 'sha256-JfJ82reKxtqugVbfRGw/O/1x1Lm1I09rHueXSwvbRws=' 'sha256-BbV1i75oYRtLtfDWs7tnA8QLF5EOO1dVHKL0prVd/fQ=' 'sha256-3woF8BZ54TeXM+czaH3aXoaJsVpiamuAKFsXDykAR/Q=' 'sha256-vIfNcKb8ixJg1cfJIoNNYjWcm0lezj1/XpUNFiZyVsU=' 'sha256-cLsHUHFgT/VGX04cZrJ9xgm4HbzTR7ptutkxK+7BlMk=' 'sha256-BwU8jMnQYUhjOpsDVABpfddV/DlP1ZYrFcTumYw7x54=' 'sha256-wz6ika9i3WU3bpUPdhYDZeO/NrDQniDyiscN0LWnyaY=' 'sha256-3RIGhhApBii1KY+aW1xk7kFyoQY8vSVE5DfT7E9SJUc=' static.licdn.com static-exp1.licdn.com static-exp2.licdn.com static-exp3.licdn.com platform.linkedin.com platform-akam.linkedin.com platform-ecst.linkedin.com platform-azur.linkedin.com snap.licdn.com www.google.com/recaptcha/enterprise.js www.gstatic.com/recaptcha/releases/ www.googletagmanager.com/gtag/js www.googletagmanager.com/gtag/destination googleads.g.doubleclick.net/pagead/viewthroughconversion/ merchantpool1.linkedin.com/mdt.js".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at CRExecutionContext.evaluateWithArguments (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:92:33)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/javascript.js:235:12)
+    at async Frame.retryWithProgressAndTimeouts (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:929:24)
+    at async ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:82:22)
+    at async FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:84)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:96:14)
+    at async DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:22)
+}
+2026-05-17T21:12:09.734+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:12:11.985+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=81
+2026-05-17T21:17:10.696+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=84, url=https://www.huanqiu.com, keyword=人工智能
+2026-05-17T21:17:10.698+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:huanqiu.com 人工智能, limit=10
+2026-05-17T21:17:15.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://opinion.huanqiu.com/article/4G8Rp1G9hvh
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://tech.huanqiu.com/original/?agt=1337
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://opinion.huanqiu.com/article/4QXwJFGGB8i
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://smart.huanqiu.com/ai
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://tech.huanqiu.com/article/4ROamuaSUul
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://opinion.huanqiu.com/article/4DNW5k6r8iT
+2026-05-17T21:17:15.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://energy.huanqiu.com/article/4LqSrw8SMUe
+2026-05-17T21:17:15.195+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.huanqiu.com/article/9CaKrnK4kay
+2026-05-17T21:17:15.195+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://tech.huanqiu.com/article/4OXrH1Nmlb2
+2026-05-17T21:17:15.195+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://world.huanqiu.com/article/9CaKrnJYcK8
+2026-05-17T21:17:38.959+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:17:58.723+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:18:36.548+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:18:48.900+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=84
+2026-05-17T21:18:48.901+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=85, url=https://www.thepaper.cn, keyword=人工智能
+2026-05-17T21:18:48.901+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:thepaper.cn 人工智能, limit=10
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33039351
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33058382
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_32699611
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33027832
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33054722
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_32847209
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_9621983
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33149674
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsdetail_forward_32794779
+2026-05-17T21:18:51.509+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33105677
+2026-05-17T21:20:14.375+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=85
+2026-05-17T21:20:14.376+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=92, url=https://www.bing.com/search?q=, keyword=人工智能
+2026-05-17T21:20:14.376+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=人工智能, limit=10
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://zh.wikipedia.org/zh-hans/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://cloud.google.com/learn/what-is-artificial-intelligence?hl=zh-CN
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://aws.amazon.com/cn/what-is/artificial-intelligence/
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.un.org/zh/global-issues/artificial-intelligence
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.netapp.com/zh-hans/artificial-intelligence/what-is-artificial-intelligence/
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.ibm.com/cn-zh/think/topics/artificial-intelligence
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.trendmicro.com/zh_hk/what-is/ai.html
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.gigabyte.com/tw/Glossary/artificial-intelligence
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.youtube.com/watch?v=t7H16p2mxjU
+2026-05-17T21:20:16.789+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.intel.com.tw/content/www/tw/zh/learn/what-is-artificial-intelligence.html
+2026-05-17T21:20:47.852+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:21:09.410+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:22:45.979+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:23:13.085+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:23:44.502+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=92
+2026-05-17T21:23:44.503+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=81, url=https://www.bing.com/search?q=, keyword=英伟达
+2026-05-17T21:23:44.503+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=英伟达, limit=10
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.cn/
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.com/en-us/
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://zh-min-nan.wikipedia.org/wiki/NVIDIA
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.instagram.com/nvidia/
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://hk.finance.yahoo.com/quote/NVDA/
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://xueqiu.com/S/NVDA
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.youtube.com/user/nvidia
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://xueqiu.com/S/NVDA
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.linkedin.com/company/nvidia
+2026-05-17T21:23:45.766+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.nvidia.com/en-us/solutions/ai/
+2026-05-17T21:24:17.175+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:24:49.244+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='Timeout 30000ms exceeded.
+  name='TimeoutError
+  stack='TimeoutError: Timeout 30000ms exceeded.
+    at ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:78:26)
+    at Frame._waitForFunctionExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:1361:23)
+    at FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:102)
+    at FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:94:40)
+    at DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:39)
+}
+2026-05-17T21:25:29.953+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:25:31.988+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src *.instagram.com static.cdninstagram.com z-p42-static.cdninstagram.com *.facebook.com *.fbcdn.net *.facebook.net 127.0.0.1:* 'nonce-IriWId6S' blob: 'self' 'wasm-unsafe-eval' https://*.google-analytics.com https://translate.google.com https://apis.google.com https://accounts.google.com".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at t (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:288:213)
+    at Object.applyWithGuard (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:10303)
+    at e (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:11000)
+  name='Error
+  stack='Error: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src *.instagram.com static.cdninstagram.com z-p42-static.cdninstagram.com *.facebook.com *.fbcdn.net *.facebook.net 127.0.0.1:* 'nonce-IriWId6S' blob: 'self' 'wasm-unsafe-eval' https://*.google-analytics.com https://translate.google.com https://apis.google.com https://accounts.google.com".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at t (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:288:213)
+    at Object.applyWithGuard (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:10303)
+    at e (https://static.cdninstagram.com/rsrc.php/v4/yI/r/A3PSxQB1RSd.js:79:11000)
+    at CRExecutionContext.evaluateWithArguments (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:92:33)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/javascript.js:235:12)
+    at async Frame.retryWithProgressAndTimeouts (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:929:24)
+    at async ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:82:22)
+    at async FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:84)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:96:14)
+    at async DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:22)
+}
+2026-05-17T21:25:56.285+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:26:11.810+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 强制滚动失败: Error {
+  message='Execution context was destroyed, most likely because of a navigation.
+  name='Error
+  stack='Error: Execution context was destroyed, most likely because of a navigation.
+    at rewriteError (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:127:105)
+    at async CRExecutionContext.evaluateWithArguments (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:78:9)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async Object.evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/javascript.js:235:12)
+    at async Frame.evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:603:19)
+    at async FrameDispatcher.evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:91:55)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:96:14)
+    at async DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:22)
+}
+2026-05-17T21:26:35.489+08:00 ERROR 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 保存页面失败: taskId=81, pageUrl=https://www.youtube.com/user/nvidia, error=Error {
+  message='net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+
+com.microsoft.playwright.PlaywrightException: Error {
+  message='net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+	at com.microsoft.playwright.impl.WaitableResult.get(WaitableResult.java:56) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:132) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.Connection.sendMessage(Connection.java:130) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.sendMessage(ChannelOwner.java:118) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.FrameImpl.navigateImpl(FrameImpl.java:463) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.lambda$navigate$47(PageImpl.java:943) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:47) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.withLogging(ChannelOwner.java:97) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.navigate(PageImpl.java:943) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.PageImpl.navigate(PageImpl.java:42) ~[playwright-1.48.0.jar:1.48.0]
+	at com.example.crawlernode.crawler.Crawler.savePageAsMhtml(Crawler.java:195) ~[classes/:na]
+	at com.example.crawlernode.crawler.Crawler.crawl(Crawler.java:92) ~[classes/:na]
+	at com.example.crawlernode.crawler.CrawlerTaskListener.handleTask(CrawlerTaskListener.java:32) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:168) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.KotlinAwareInvocableHandlerMethod.doInvoke(KotlinAwareInvocableHandlerMethod.java:47) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:83) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:287) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandlerAndProcessResult(MessagingMessageListenerAdapter.java:233) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.onMessage(MessagingMessageListenerAdapter.java:157) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doInvokeListener(AbstractMessageListenerContainer.java:1683) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.actualInvokeListener(AbstractMessageListenerContainer.java:1612) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.invokeListener(AbstractMessageListenerContainer.java:1599) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doExecuteListener(AbstractMessageListenerContainer.java:1590) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListenerAndHandleException(AbstractMessageListenerContainer.java:1539) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListener(AbstractMessageListenerContainer.java:1520) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.doReceiveAndExecute(SimpleMessageListenerContainer.java:1116) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.receiveAndExecute(SimpleMessageListenerContainer.java:1061) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.mainLoop(SimpleMessageListenerContainer.java:1465) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1359) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+Caused by: com.microsoft.playwright.impl.DriverException: Error {
+  message='net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+  name='Error
+  stack='Error: net::ERR_SOCKET_NOT_CONNECTED at https://www.youtube.com/user/nvidia
+    at FrameSession._navigate (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crPage.js:509:35)
+    at async Frame._gotoAction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:535:28)
+}
+Call log:
+- navigating to "https://www.youtube.com/user/nvidia", waiting until "domcontentloaded"
+
+	at com.microsoft.playwright.impl.Connection.dispatch(Connection.java:259) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.Connection.processOneMessage(Connection.java:211) ~[playwright-1.48.0.jar:1.48.0]
+	at com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:130) ~[playwright-1.48.0.jar:1.48.0]
+	... 33 common frames omitted
+
+2026-05-17T21:26:52.135+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:26:54.235+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 等待图片 complete 超时: Error {
+  message='EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'report-sample' 'sha256-th47JTnh6tX15SUn/I+GGmsOSXpa7dh5Skner77gxlY=' 'sha256-SSoodjUD3LGm2FfFCVHGqEb8D4UM3OOigidT2UKDcYg=' 'sha256-cKTgdnmO6+hXd85a9wKg1effVfVzenUAtUCyOKY9bQE=' 'sha256-DwtT8+ZZKpxH9pqZNAmJ3GdbLAh5SsYaXR3omTXPCns=' 'sha256-sV9jZa797T0QWBzcU/CNd4tpBhTnh+TFdLnfjlitl28=' 'sha256-aa/Q8CRBDSqTQbCIyioPhZaz+G+dbPyu7BzsjInEmiU=' 'sha256-THuVhwbXPeTR0HszASqMOnIyxqEgvGyBwSPBKBF/iMc=' 'sha256-zTIusdVJJeXz9+iox2a+pdDglzbpRpFVRzEwvW4AONk=' 'sha256-iC8MPqNLw0FDnsBf4DlSkFLNTwhkI85aouiAEB819ic=' 'sha256-2EqrEvcPzl8c6/TSGVvaVMEe7lg700MAz/te4/3kTYY=' 'sha256-y5uW69VItKj51mcc7UD9qfptDVUqicZL+bItEpvVNDw=' 'sha256-DatsFGoJ8gFkzzxo47Ou76WZ+3QBPOQHtBu9p9b3DhA=' 'sha256-k95cyM8gFgPziZe5VQ2IvJvBUVyd5zFt2CokIUwqdHE=' 'sha256-PyCXNcEkzRWqbiNr087fizmiBBrq9O6GGD8eV3P09Ik=' 'sha256-RFqsjmAF1N5LnfpaHFvPqFlVkeIS/DtTAFor+JjJJVc=' 'sha256-2SQ55Erm3CPCb+k03EpNxU9bdV3XL9TnVTriDs7INZ4=' 'sha256-S/KSPe186K/1B0JEjbIXcCdpB97krdzX05S+dHnQjUs=' 'sha256-9pXOIwF4N0gPltLd3AI69lkCjSC2H/Eb3sc5zdmUyYU=' 'sha256-jou6v/Nleyzoc+LXktAv1Fp8M807dVVxy7E/yzVljHc=' 'sha256-6E4e/3dSvj/8JZT2S2yR91mspqM6MyOpKl5lrhHsZa8=' 'sha256-JfJ82reKxtqugVbfRGw/O/1x1Lm1I09rHueXSwvbRws=' 'sha256-BbV1i75oYRtLtfDWs7tnA8QLF5EOO1dVHKL0prVd/fQ=' 'sha256-3woF8BZ54TeXM+czaH3aXoaJsVpiamuAKFsXDykAR/Q=' 'sha256-vIfNcKb8ixJg1cfJIoNNYjWcm0lezj1/XpUNFiZyVsU=' 'sha256-cLsHUHFgT/VGX04cZrJ9xgm4HbzTR7ptutkxK+7BlMk=' 'sha256-BwU8jMnQYUhjOpsDVABpfddV/DlP1ZYrFcTumYw7x54=' 'sha256-wz6ika9i3WU3bpUPdhYDZeO/NrDQniDyiscN0LWnyaY=' 'sha256-3RIGhhApBii1KY+aW1xk7kFyoQY8vSVE5DfT7E9SJUc=' static.licdn.com static-exp1.licdn.com static-exp2.licdn.com static-exp3.licdn.com platform.linkedin.com platform-akam.linkedin.com platform-ecst.linkedin.com platform-azur.linkedin.com snap.licdn.com www.google.com/recaptcha/enterprise.js www.gstatic.com/recaptcha/releases/ www.googletagmanager.com/gtag/js www.googletagmanager.com/gtag/destination googleads.g.doubleclick.net/pagead/viewthroughconversion/ merchantpool1.linkedin.com/mdt.js".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+  name='Error
+  stack='Error: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'report-sample' 'sha256-th47JTnh6tX15SUn/I+GGmsOSXpa7dh5Skner77gxlY=' 'sha256-SSoodjUD3LGm2FfFCVHGqEb8D4UM3OOigidT2UKDcYg=' 'sha256-cKTgdnmO6+hXd85a9wKg1effVfVzenUAtUCyOKY9bQE=' 'sha256-DwtT8+ZZKpxH9pqZNAmJ3GdbLAh5SsYaXR3omTXPCns=' 'sha256-sV9jZa797T0QWBzcU/CNd4tpBhTnh+TFdLnfjlitl28=' 'sha256-aa/Q8CRBDSqTQbCIyioPhZaz+G+dbPyu7BzsjInEmiU=' 'sha256-THuVhwbXPeTR0HszASqMOnIyxqEgvGyBwSPBKBF/iMc=' 'sha256-zTIusdVJJeXz9+iox2a+pdDglzbpRpFVRzEwvW4AONk=' 'sha256-iC8MPqNLw0FDnsBf4DlSkFLNTwhkI85aouiAEB819ic=' 'sha256-2EqrEvcPzl8c6/TSGVvaVMEe7lg700MAz/te4/3kTYY=' 'sha256-y5uW69VItKj51mcc7UD9qfptDVUqicZL+bItEpvVNDw=' 'sha256-DatsFGoJ8gFkzzxo47Ou76WZ+3QBPOQHtBu9p9b3DhA=' 'sha256-k95cyM8gFgPziZe5VQ2IvJvBUVyd5zFt2CokIUwqdHE=' 'sha256-PyCXNcEkzRWqbiNr087fizmiBBrq9O6GGD8eV3P09Ik=' 'sha256-RFqsjmAF1N5LnfpaHFvPqFlVkeIS/DtTAFor+JjJJVc=' 'sha256-2SQ55Erm3CPCb+k03EpNxU9bdV3XL9TnVTriDs7INZ4=' 'sha256-S/KSPe186K/1B0JEjbIXcCdpB97krdzX05S+dHnQjUs=' 'sha256-9pXOIwF4N0gPltLd3AI69lkCjSC2H/Eb3sc5zdmUyYU=' 'sha256-jou6v/Nleyzoc+LXktAv1Fp8M807dVVxy7E/yzVljHc=' 'sha256-6E4e/3dSvj/8JZT2S2yR91mspqM6MyOpKl5lrhHsZa8=' 'sha256-JfJ82reKxtqugVbfRGw/O/1x1Lm1I09rHueXSwvbRws=' 'sha256-BbV1i75oYRtLtfDWs7tnA8QLF5EOO1dVHKL0prVd/fQ=' 'sha256-3woF8BZ54TeXM+czaH3aXoaJsVpiamuAKFsXDykAR/Q=' 'sha256-vIfNcKb8ixJg1cfJIoNNYjWcm0lezj1/XpUNFiZyVsU=' 'sha256-cLsHUHFgT/VGX04cZrJ9xgm4HbzTR7ptutkxK+7BlMk=' 'sha256-BwU8jMnQYUhjOpsDVABpfddV/DlP1ZYrFcTumYw7x54=' 'sha256-wz6ika9i3WU3bpUPdhYDZeO/NrDQniDyiscN0LWnyaY=' 'sha256-3RIGhhApBii1KY+aW1xk7kFyoQY8vSVE5DfT7E9SJUc=' static.licdn.com static-exp1.licdn.com static-exp2.licdn.com static-exp3.licdn.com platform.linkedin.com platform-akam.linkedin.com platform-ecst.linkedin.com platform-azur.linkedin.com snap.licdn.com www.google.com/recaptcha/enterprise.js www.gstatic.com/recaptcha/releases/ www.googletagmanager.com/gtag/js www.googletagmanager.com/gtag/destination googleads.g.doubleclick.net/pagead/viewthroughconversion/ merchantpool1.linkedin.com/mdt.js".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:234:30), <anonymous>:11:37)
+    at next (eval at evaluate (:234:30), <anonymous>:32:31)
+    at CRExecutionContext.evaluateWithArguments (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/chromium/crExecutionContext.js:92:33)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async evaluateExpression (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/javascript.js:235:12)
+    at async Frame.retryWithProgressAndTimeouts (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/frames.js:929:24)
+    at async ProgressController.run (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/progress.js:82:22)
+    at async FrameDispatcher.waitForFunction (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/frameDispatcher.js:264:84)
+    at async LongStandingScope._race (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/utils/manualPromise.js:96:14)
+    at async FrameDispatcher._handleCommand (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:96:14)
+    at async DispatcherConnection.dispatch (/private/var/folders/sg/6ppf7j8x3td_31174x_ch69h0000gn/T/playwright-java-11730213682888478013/package/lib/server/dispatchers/dispatcher.js:361:22)
+}
+2026-05-17T21:27:31.120+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T21:27:45.063+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=81
+2026-05-17T21:30:19.217+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-05-17T21:30:19.617+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-05-17T21:30:19.617+08:00  INFO 38736 --- [crawlernode] [ionShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-17T21:30:21.628+08:00  INFO 38736 --- [crawlernode] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete

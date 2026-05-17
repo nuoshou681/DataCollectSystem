@@ -92,7 +92,27 @@ public class TaskBatchService {
         }
         TaskBatch batch = taskBatchMapper.selectById(batchId);
         if (batch == null) {
-            return null;
+            // Auto-create missing batch record when tasks reference this batchId
+            List<Task> existingTasks = taskMapper.selectList(new LambdaQueryWrapper<Task>()
+                    .eq(Task::getBatchId, batchId));
+            if (existingTasks.isEmpty()) {
+                return null;
+            }
+            Long createdBy = existingTasks.stream()
+                    .map(Task::getUserId)
+                    .filter(id -> id != null)
+                    .findFirst().orElse(null);
+            LocalDateTime now = LocalDateTime.now();
+            batch = new TaskBatch();
+            batch.setBatchId(batchId);
+            batch.setBatchName(batchId);
+            batch.setCreatedBy(createdBy);
+            batch.setTaskCount(existingTasks.size());
+            batch.setStatus("PENDING");
+            batch.setNotes("(自动修复)");
+            batch.setCreatedAt(now);
+            batch.setUpdatedAt(now);
+            taskBatchMapper.insert(batch);
         }
         if (!isAdmin && (userId == null || !userId.equals(batch.getCreatedBy()))) {
             return null;

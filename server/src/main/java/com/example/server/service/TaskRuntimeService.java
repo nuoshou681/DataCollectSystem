@@ -263,6 +263,39 @@ public class TaskRuntimeService {
                 });
     }
 
+    public void markRunningTimeout(LocalDateTime cutoff) {
+        taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
+                        .eq(TaskRuntime::getStatus, "RUNNING")
+                        .lt(TaskRuntime::getUpdatedAt, cutoff))
+                .forEach(runtime -> {
+                    runtime.setStatus("FAILED");
+                    runtime.setProgressPercent(100);
+                    runtime.setLastErrorMessage("任务运行超时，节点可能已离线");
+                    runtime.setFinishedAt(LocalDateTime.now());
+                    runtime.setUpdatedAt(LocalDateTime.now());
+                    taskRuntimeMapper.updateById(runtime);
+                    syncTaskSnapshot(runtime.getTaskId(), runtime);
+                    taskRuntimeStreamService.publish(runtime);
+                });
+    }
+
+    public void markNodeTasksFailed(String nodeId, String reason) {
+        if (nodeId == null || nodeId.isBlank()) return;
+        taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
+                        .eq(TaskRuntime::getAssignedNodeId, nodeId)
+                        .eq(TaskRuntime::getStatus, "RUNNING"))
+                .forEach(runtime -> {
+                    runtime.setStatus("FAILED");
+                    runtime.setProgressPercent(100);
+                    runtime.setLastErrorMessage(reason);
+                    runtime.setFinishedAt(LocalDateTime.now());
+                    runtime.setUpdatedAt(LocalDateTime.now());
+                    taskRuntimeMapper.updateById(runtime);
+                    syncTaskSnapshot(runtime.getTaskId(), runtime);
+                    taskRuntimeStreamService.publish(runtime);
+                });
+    }
+
     private TaskRuntime ensureRuntime(Long taskId) {
         if (taskId == null) {
             return null;

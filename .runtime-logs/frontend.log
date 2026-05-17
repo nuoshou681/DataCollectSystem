@@ -19,3 +19,24 @@
 14:40:28 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
 14:40:45 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
 14:40:55 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:51:57 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:51:57 [vite] Internal server error: v-model value must be a valid JavaScript member expression.
+  Plugin: vite:vue
+  File: /Users/rain/Desktop/DataCollectSystem/font/src/views/AdminTaskCenterView.vue:364:31
+  362 |            <el-empty description="暂无数据" :image-size="80" />
+  363 |          </div>
+  364 |          <el-collapse v-model="activeBatchId === undefined ? undefined : undefined" v-else>
+      |                                 ^
+  365 |            <el-collapse-item v-for="g in currentGroups" :key="g.key" :name="g.key">
+  366 |              <template #title>
+      at createCompilerError (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:1378:17)
+      at Object.transformModel (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:6396:7)
+      at transformModel (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-dom/dist/compiler-dom.cjs.js:219:35)
+      at buildProps (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:5818:48)
+      at Array.postTransformElement (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:5440:32)
+      at traverseNode (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3647:15)
+      at traverseChildren (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3598:5)
+      at traverseNode (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3641:7)
+      at processIf (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:4776:9)
+      at /Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:4683:12
+14:55:36 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
