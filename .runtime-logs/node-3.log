@@ -1,0 +1,113 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.1)
+
+2026-05-17T14:22:09.163+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Starting CrawlernodeApplication using Java 17.0.16 with PID 38740 (/Users/rain/Desktop/DataCollectSystem/crawlernode/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/crawlernode)
+2026-05-17T14:22:09.167+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-17T14:22:09.232+08:00  INFO 38740 --- [crawlernode] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-17T14:22:09.233+08:00  INFO 38740 --- [crawlernode] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-17T14:22:10.107+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8092 (http)
+2026-05-17T14:22:10.120+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-17T14:22:10.120+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-05-17T14:22:10.151+08:00  INFO 38740 --- [crawlernode] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 915 ms
+2026-05-17T14:22:10.991+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8092 (http) with context path '/'
+2026-05-17T14:22:10.994+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-05-17T14:22:11.034+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#4688058a:0/SimpleConnection@7860c56f [delegate=amqp://guest@127.0.0.1:5672/, localPort=58568]
+2026-05-17T14:22:11.066+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 2.363 seconds (process running for 2.756)
+2026-05-17T14:29:38.444+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-3 收到任务: taskId=63, url=https://www.chinanews.com.cn, keyword=特朗普访华
+2026-05-17T14:29:38.445+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:chinanews.com.cn 特朗普访华, limit=10
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: http://www.zgxwzk.chinanews.com.cn/world/2026-05-15/30181.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/gn/2026/05-15/10621665.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/gj/2026/05-17/10622693.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/tp/hd2011/2026/05-15/1191349.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/gn/2026/05-15/10621944.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: http://www.chinanews.com.cn/gn/2026/05-15/10621544.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/shipin/cns/2026/05-15/news1054362.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/gn/2026/05-13/10620587.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/gj/2026/05-16/10622458.shtml
+2026-05-17T14:29:41.006+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.chinanews.com.cn/m/tp/hd/2026/0513/179974.shtml
+2026-05-17T14:31:05.089+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:31:50.155+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:32:45.235+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-3 任务执行结束: taskId=63
+2026-05-17T14:32:45.237+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-3 收到任务: taskId=60, url=https://search.sohu.com/?keyword=, keyword=特朗普访华
+2026-05-17T14:32:54.323+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/xtopic/TURBeE5ESTFPRFV6?spm=smpc.csrpage.topic-list.1.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023780783_120347736?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.1.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/120347736?spm=smpc.csrpage.news-list.1.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023737850_120411957?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.2.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/120411957?spm=smpc.csrpage.news-list.2.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023709115_163278?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.3.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/163278?spm=smpc.csrpage.news-list.3.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023784906_121199690?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.4.1778999571090nw3WAMx
+2026-05-17T14:32:54.324+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121199690?spm=smpc.csrpage.news-list.4.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023741748_123753?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.5.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/123753?spm=smpc.csrpage.news-list.5.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023791229_121200378?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.6.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121200378?spm=smpc.csrpage.news-list.6.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023716483_121375869?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.7.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121375869?spm=smpc.csrpage.news-list.7.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023781187_120347736?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.8.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/120347736?spm=smpc.csrpage.news-list.8.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023690897_568853?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.9.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/568853?spm=smpc.csrpage.news-list.9.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1023721069_121300363?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.10.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121300363?spm=smpc.csrpage.news-list.10.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E4%B8%BE%E4%B8%96%E7%9E%A9%E7%9B%AE%E7%9A%84%E6%8F%A1%E6%89%8B&queryType=hot-query&spm=smpc.csrpage.hot-list.1.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E2%80%9C%E5%85%88%E6%95%91%E5%A5%B9%20%E6%88%91%E8%83%BD%E7%AD%89%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.2.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E4%B9%A1%E6%9D%91%E7%89%88%E8%A5%BF%E6%B8%B8%E8%AE%B0%E8%B5%B0%E7%BA%A2%20%E6%8A%9580%E4%B8%87%E6%94%B6%E5%85%A5%E4%BB%8510%E4%B8%87&queryType=hot-query&spm=smpc.csrpage.hot-list.3.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E9%A6%96%E6%AC%A1%E9%A6%96%E9%A1%B9%E9%A6%96%E4%B8%AA%EF%BC%81%E6%9C%AC%E5%91%A8%E5%A4%9A%E9%A2%86%E5%9F%9F%E5%AE%9E%E7%8E%B0%E7%AA%81%E7%A0%B4&queryType=hot-query&spm=smpc.csrpage.hot-list.4.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E2%80%9C%E4%BD%A0%E7%9A%845000%E7%BE%8E%E9%87%91%E5%B7%B2%E9%95%BF%E6%88%905%E4%B8%87%E5%A4%9A%E6%A3%B5%E6%A0%91%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.5.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%9A%B4%E9%9B%A8%E5%90%8E%E8%B7%AF%E8%BE%B9%E8%BF%87%E5%B1%B1%E9%B2%AB%E9%B1%BC%E6%88%90%E7%BE%A4%E8%B5%B6%E8%B7%AF&queryType=hot-query&spm=smpc.csrpage.hot-list.6.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%A7%94%E5%86%85%E7%91%9E%E6%8B%89%E9%A9%B1%E9%80%90%E9%A9%AC%E6%9D%9C%E7%BD%97%E4%BA%B2%E4%BF%A1&queryType=hot-query&spm=smpc.csrpage.hot-list.7.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E2%80%9C%E8%B4%B5%E6%97%8F%E6%B0%B4%E6%9E%9C%E2%80%9D%E4%BB%B7%E6%A0%BC%E9%99%8D%E4%BA%86&queryType=hot-query&spm=smpc.csrpage.hot-list.8.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%A9%86%E5%A9%86%E8%8A%B15%E5%85%83%E4%B9%B0%E7%9A%84%E5%B0%8F%E9%BB%91%E7%8C%AB%E8%BA%AB%E4%BB%B7%E6%B6%A8%E5%88%B085%E5%85%83&queryType=hot-query&spm=smpc.csrpage.hot-list.9.1778999571090nw3WAMx
+2026-05-17T14:32:54.325+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%B1%9F%E8%A5%BF%E7%9C%81%E5%A7%94%E4%B9%A6%E8%AE%B0%E6%9A%97%E8%AE%BF%E5%85%A8%E5%9B%BD%E8%8A%B1%E7%82%AE%E4%B8%BB%E4%BA%A7%E5%8C%BA&queryType=hot-query&spm=smpc.csrpage.hot-list.10.1778999571090nw3WAMx
+2026-05-17T14:33:12.602+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:33:37.479+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:34:13.853+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:35:17.415+08:00  WARN 38740 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-3 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:35:42.643+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-3 任务执行结束: taskId=60
+2026-05-17T14:45:27.078+08:00  INFO 38740 --- [crawlernode] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 12 class path changes (0 additions, 0 deletions, 12 modifications)
+2026-05-17T14:45:27.094+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-05-17T14:45:27.764+08:00  INFO 38740 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-05-17T14:45:27.767+08:00  INFO 38740 --- [crawlernode] [       Thread-1] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-17T14:45:29.782+08:00  INFO 38740 --- [crawlernode] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-05-17T14:45:29.782+08:00 ERROR 38740 --- [crawlernode] [o-8092-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.1)
+
+2026-05-17T14:45:29.833+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Starting CrawlernodeApplication using Java 17.0.16 with PID 38740 (/Users/rain/Desktop/DataCollectSystem/crawlernode/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/crawlernode)
+2026-05-17T14:45:29.833+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-17T14:45:29.942+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8092 (http)
+2026-05-17T14:45:29.943+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-17T14:45:29.943+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-05-17T14:45:29.949+08:00  INFO 38740 --- [crawlernode] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 114 ms
+2026-05-17T14:45:30.024+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8092 (http) with context path '/'
+2026-05-17T14:45:30.024+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-05-17T14:45:30.030+08:00  INFO 38740 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#311e83c5:0/SimpleConnection@664e52a5 [delegate=amqp://guest@127.0.0.1:5672/, localPort=50955]
+2026-05-17T14:45:30.035+08:00  INFO 38740 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 0.216 seconds (process running for 1401.506)
+2026-05-17T14:45:30.036+08:00  INFO 38740 --- [crawlernode] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged

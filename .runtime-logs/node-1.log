@@ -1,0 +1,133 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.1)
+
+2026-05-17T14:22:08.544+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Starting CrawlernodeApplication using Java 17.0.16 with PID 38736 (/Users/rain/Desktop/DataCollectSystem/crawlernode/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/crawlernode)
+2026-05-17T14:22:08.548+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-17T14:22:08.595+08:00  INFO 38736 --- [crawlernode] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-17T14:22:08.595+08:00  INFO 38736 --- [crawlernode] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-17T14:22:09.616+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8090 (http)
+2026-05-17T14:22:09.630+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-17T14:22:09.631+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-05-17T14:22:09.661+08:00  INFO 38736 --- [crawlernode] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1064 ms
+2026-05-17T14:22:10.415+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8090 (http) with context path '/'
+2026-05-17T14:22:10.419+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-05-17T14:22:10.482+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#5e38447c:0/SimpleConnection@26b0ecc3 [delegate=amqp://guest@127.0.0.1:5672/, localPort=58558]
+2026-05-17T14:22:10.533+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 2.411 seconds (process running for 3.268)
+2026-05-17T14:29:38.439+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=62, url=https://www.thepaper.cn, keyword=特朗普访华
+2026-05-17T14:29:38.440+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:thepaper.cn 特朗普访华, limit=10
+2026-05-17T14:29:40.858+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T14:29:40.858+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33182040
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33184209
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33181420
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33182927
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33174699
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33175995
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33176352
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33180753
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33176000
+2026-05-17T14:29:40.859+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33181078
+2026-05-17T14:30:00.344+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:32:02.724+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=62
+2026-05-17T14:32:02.728+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=59, url=https://news.qq.com, keyword=特朗普访华
+2026-05-17T14:32:02.728+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:news.qq.com 特朗普访华, limit=10
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260515A06SWE00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/UTR2026051119398800?adChannelId=news_news_top
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260516A07YYC00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260515A0759Y00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260513A03DNS00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260515A068RE00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260515A06BMY00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260514A059XE00?adChannelId=news
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260513A07EXU00
+2026-05-17T14:32:04.220+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://news.qq.com/rain/a/20260512A07Z5300
+2026-05-17T14:32:26.875+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:32:57.218+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:33:26.560+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:34:09.230+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:34:33.554+08:00  WARN 38736 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
+2026-05-17T14:35:52.391+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=59
+2026-05-17T14:35:52.392+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=65, url=https://baike.baidu.com/item/, keyword=特朗普访华
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.baidu.com/s?ie=utf-8&fr=bks0000&wd=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://news.baidu.com/ns?tn=news&cl=2&rn=20&ct=1&fr=bks0000&ie=utf-8&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://tieba.baidu.com/f?ie=utf-8&fr=bks0000&kw=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://zhidao.baidu.com/search?pn=0&&rn=10&lm=0&fr=bks0000&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://pan.baidu.com/disk/home#/search?from=1027327l&key=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://image.baidu.com/search/index?tn=baiduimage&ct=201326592&lm=-1&cl=2&nc=1&ie=utf-8&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.baidu.com/sf/vsearch?pd=video&tn=vsearch&ie=utf-8&rsv_spt=17&wd=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://map.baidu.com/m?ie=utf-8&fr=bks0000&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://wenku.baidu.com/search?lm=0&od=0&ie=utf-8&fr=bks0000&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&fr=baike&word=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://b2b.baidu.com/s?fr=bks0000&q=%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://www.baidu.com/
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://passport.baidu.com/v2/?reg&regType=1&tpl=wk
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/#home
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/help
+2026-05-17T14:36:07.193+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/item/%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E#
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/usercenter
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/uc/favolemma
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/planet/talk?lemmaId=22197592&fromModule=lemma_right-issue-btn
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/item/%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E#1
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/item/%E7%89%B9%E6%9C%97%E6%99%AE%E8%AE%BF%E5%8D%8E#2
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/usercenter/tasks#guide
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/help#main01
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/help#main06
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/item/%E7%99%BE%E5%BA%A6%E7%99%BE%E7%A7%91%EF%BC%9A%E6%9C%AC%E4%BA%BA%E8%AF%8D%E6%9D%A1%E7%BC%96%E8%BE%91%E6%9C%8D%E5%8A%A1/22442459?bk_fr=pcFooter
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://ufosdk.baidu.com/bailingPC/getEntryPath/aKo-PBP84zlnBbgvj2STxzZNwlrmWT8XVd-PzIQ3C-c=
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://tieba.baidu.com/f?ie=utf-8&fr=bks0000&kw=%E7%99%BE%E5%BA%A6%E7%99%BE%E7%A7%91
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/newadd?prod_id=10&category=1
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/newadd?prod_id=10&category=2
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/newadd?prod_id=10&category=6
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/newadd?prod_id=10&category=5
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://www.baidu.com/duty/
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/question?prod_en=baike&class=89&id=1637
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://help.baidu.com/question?prod_id=10&class=690&id=1001779
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://baike.baidu.com/operation/cooperation
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://beian.miit.gov.cn/
+2026-05-17T14:36:07.194+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11000002000001
+2026-05-17T14:36:17.937+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=65
+2026-05-17T14:45:26.688+08:00  INFO 38736 --- [crawlernode] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 12 class path changes (0 additions, 0 deletions, 12 modifications)
+2026-05-17T14:45:26.703+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-05-17T14:45:26.994+08:00  INFO 38736 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-05-17T14:45:26.997+08:00  INFO 38736 --- [crawlernode] [       Thread-1] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-17T14:45:29.011+08:00  INFO 38736 --- [crawlernode] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-05-17T14:45:29.012+08:00 ERROR 38736 --- [crawlernode] [o-8090-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.1)
+
+2026-05-17T14:45:29.090+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Starting CrawlernodeApplication using Java 17.0.16 with PID 38736 (/Users/rain/Desktop/DataCollectSystem/crawlernode/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/crawlernode)
+2026-05-17T14:45:29.090+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-17T14:45:29.212+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8090 (http)
+2026-05-17T14:45:29.213+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-17T14:45:29.213+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-05-17T14:45:29.219+08:00  INFO 38736 --- [crawlernode] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 127 ms
+2026-05-17T14:45:29.295+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8090 (http) with context path '/'
+2026-05-17T14:45:29.295+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-05-17T14:45:29.369+08:00  INFO 38736 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3dc2b5db:0/SimpleConnection@61285cf8 [delegate=amqp://guest@127.0.0.1:5672/, localPort=50953]
+2026-05-17T14:45:29.374+08:00  INFO 38736 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 0.301 seconds (process running for 1401.89)
+2026-05-17T14:45:29.375+08:00  INFO 38736 --- [crawlernode] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged

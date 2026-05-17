@@ -1,0 +1,21 @@
+
+> front@0.0.0 dev
+> vite
+
+
+  VITE v7.3.1  ready in 966 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  Vue DevTools: Open http://localhost:5173/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+14:22:10 [vite] vite.config.ts changed, restarting server...
+14:22:10 [vite] server restarted.
+14:39:34 [vite] (client) hmr update /src/assets/main.css
+14:39:45 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:39:52 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:40:06 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:40:19 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:40:28 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:40:45 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+14:40:55 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css

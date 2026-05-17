@@ -6,6 +6,7 @@ import {
   ArrowPathIcon,
   BoltIcon,
   ExclamationTriangleIcon,
+  GlobeAltIcon,
   QueueListIcon,
   ServerStackIcon,
   UsersIcon,
@@ -39,6 +40,7 @@ const activeDetail = ref<TaskDetail | null>(null)
 const filterNode = ref<string | null>(null)
 const filterUser = ref<number | null>(null)
 const filterBatch = ref<string | null>(null)
+const filterSite = ref<string | null>(null)
 const batchDetail = ref<TaskBatch | null>(null)
 
 watch(filterBatch, async (bid) => {
@@ -72,6 +74,7 @@ async function loadAll() {
     filterNode.value = null
     filterUser.value = null
     filterBatch.value = null
+    filterSite.value = null
   } catch {
     ElMessage.error('加载失败')
   } finally {
@@ -93,6 +96,9 @@ const filteredTasks = computed(() => {
   }
   if (filterBatch.value) {
     result = result.filter(t => (t.batchId || '无批次') === filterBatch.value)
+  }
+  if (filterSite.value) {
+    result = result.filter(t => siteLabel(detectSite(t.url)) === filterSite.value)
   }
   return result
 })
@@ -235,6 +241,7 @@ function clearFilters() {
   filterNode.value = null
   filterUser.value = null
   filterBatch.value = null
+  filterSite.value = null
 }
 
 const activeFilterLabel = computed(() => {
@@ -242,6 +249,7 @@ const activeFilterLabel = computed(() => {
   if (filterNode.value) parts.push(`节点: ${filterNode.value}`)
   if (filterUser.value) parts.push(`用户: ${userNameMap.value.get(filterUser.value) ?? filterUser.value}`)
   if (filterBatch.value) parts.push(`批次: ${filterBatch.value}`)
+  if (filterSite.value) parts.push(`站点: ${filterSite.value}`)
   return parts.join(' · ')
 })
 
@@ -374,7 +382,7 @@ onMounted(() => { void loadAll() })
     </section>
 
     <!-- Active filter bar -->
-    <div v-if="filterNode || filterUser || filterBatch" class="flex items-center gap-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+    <div v-if="filterNode || filterUser || filterBatch || filterSite" class="flex items-center gap-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
       <span class="text-amber-700 font-medium">筛选: {{ activeFilterLabel }}</span>
       <el-button size="small" text type="warning" @click="clearFilters">清除筛选</el-button>
     </div>
@@ -437,7 +445,13 @@ onMounted(() => { void loadAll() })
           <el-table-column type="selection" width="42" :selectable="(row: Task) => !row.archived" />
           <el-table-column prop="taskId" label="ID" width="72" />
           <el-table-column label="站点" width="100">
-            <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
+            <template #default="scope">
+              <span
+                class="cursor-pointer hover:text-blue-600 transition-colors"
+                :class="{ 'text-blue-600 underline font-medium': filterSite === siteLabel(detectSite(scope.row.url)) }"
+                @click="filterSite = filterSite === siteLabel(detectSite(scope.row.url)) ? null : siteLabel(detectSite(scope.row.url))"
+              >{{ siteLabel(detectSite(scope.row.url)) }}</span>
+            </template>
           </el-table-column>
           <el-table-column label="关键词" min-width="110" show-overflow-tooltip>
             <template #default="scope">
@@ -561,6 +575,32 @@ onMounted(() => { void loadAll() })
             </div>
             <el-empty v-if="!nodeDistribution.length" description="暂无节点数据" :image-size="60" />
           </div>
+        </el-card>
+
+        <!-- Site distribution -->
+        <el-card>
+          <template #header>
+            <div class="flex items-center gap-2">
+              <GlobeAltIcon class="w-4 h-4 text-slate-500" />
+              <span class="font-semibold">站点分布</span>
+            </div>
+          </template>
+          <div v-if="siteDist.length" class="space-y-3">
+            <div v-for="item in siteDist" :key="item.label">
+              <button
+                type="button"
+                class="w-full text-left rounded-lg p-2 transition-colors hover:bg-slate-50 border"
+                :class="filterSite === item.label ? 'border-blue-300 bg-blue-50' : 'border-transparent'"
+                @click="filterSite = filterSite === item.label ? null : item.label"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium truncate max-w-[140px]">{{ item.label }}</span>
+                  <span class="text-sm font-bold text-slate-700">{{ item.value }}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          <el-empty v-else description="暂无站点数据" :image-size="60" />
         </el-card>
 
         <!-- User distribution -->
