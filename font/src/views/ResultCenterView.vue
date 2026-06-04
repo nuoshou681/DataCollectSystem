@@ -75,7 +75,8 @@ async function exportAll() {
 async function exportAllMhtml() {
   exportingMhtml.value = true
   try {
-    const result = await exportPageResultMhtml()
+    const ids = selectedRows.value.length > 0 ? selectedRows.value.map(r => r.pageResultId).filter((id): id is number => id != null) : undefined
+    const result = await exportPageResultMhtml(undefined, ids)
     triggerBrowserDownload(result.blob, result.fileName)
     ElMessage.success('MHTML 导出成功')
   } catch {

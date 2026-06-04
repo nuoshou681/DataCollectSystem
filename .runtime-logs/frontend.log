@@ -3,40 +3,12 @@
 > vite
 
 
-  VITE v7.3.1  ready in 966 ms
+  VITE v7.3.1  ready in 594 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
   ➜  Vue DevTools: Open http://localhost:5173/__devtools__/ as a separate window
   ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
-14:22:10 [vite] vite.config.ts changed, restarting server...
-14:22:10 [vite] server restarted.
-14:39:34 [vite] (client) hmr update /src/assets/main.css
-14:39:45 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:39:52 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:40:06 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:40:19 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:40:28 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:40:45 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:40:55 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:51:57 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-14:51:57 [vite] Internal server error: v-model value must be a valid JavaScript member expression.
-  Plugin: vite:vue
-  File: /Users/rain/Desktop/DataCollectSystem/font/src/views/AdminTaskCenterView.vue:364:31
-  362 |            <el-empty description="暂无数据" :image-size="80" />
-  363 |          </div>
-  364 |          <el-collapse v-model="activeBatchId === undefined ? undefined : undefined" v-else>
-      |                                 ^
-  365 |            <el-collapse-item v-for="g in currentGroups" :key="g.key" :name="g.key">
-  366 |              <template #title>
-      at createCompilerError (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:1378:17)
-      at Object.transformModel (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:6396:7)
-      at transformModel (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-dom/dist/compiler-dom.cjs.js:219:35)
-      at buildProps (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:5818:48)
-      at Array.postTransformElement (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:5440:32)
-      at traverseNode (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3647:15)
-      at traverseChildren (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3598:5)
-      at traverseNode (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:3641:7)
-      at processIf (/Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:4776:9)
-      at /Users/rain/Desktop/DataCollectSystem/font/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:4683:12
-14:55:36 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+16:11:40 [vite] (client) hmr update /src/assets/main.css, /src/views/layouts/UserLayout.vue, /src/views/layouts/AdminLayout.vue, /src/views/AdminDashboardView.vue, /src/views/LoginView.vue, /src/views/HomeView.vue, /src/views/TaskListView.vue, /src/views/TaskDetailView.vue, /src/views/TaskManagementView.vue, /src/views/TaskScheduleView.vue, /src/views/StatsDashboardView.vue, /src/views/ResultCenterView.vue, /src/views/RegisterView.vue, /src/views/AdminTaskCenterView.vue, /src/views/AdminExportCenterView.vue, /src/views/AdminNodeView.vue, /src/views/AdminUserView.vue, /src/views/LogView.vue, /src/views/AdminNotificationView.vue, /src/views/AdminConfigView.vue, /src/views/TaskCreateView.vue
+16:11:46 [vite] (client) hmr update /src/views/ResultCenterView.vue, /src/assets/main.css
+16:12:17 [vite] (client) hmr update /src/views/ResultCenterView.vue, /src/assets/main.css

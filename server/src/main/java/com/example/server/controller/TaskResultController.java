@@ -121,10 +121,13 @@ public class TaskResultController {
     }
 
     @GetMapping("/task/page-results/export-mhtml")
-    public ResponseEntity<?> exportPageResultMhtmlFiles(@RequestParam(required = false) Long taskId) {
+    public ResponseEntity<?> exportPageResultMhtmlFiles(
+            @RequestParam(required = false) Long taskId,
+            @RequestParam(required = false) List<Long> pageResultIds) {
         try {
             List<CrawlerPageResultService.MhtmlDownloadData> files = crawlerPageResultService.loadMhtmlFilesForExport(
                     taskId,
+                    pageResultIds,
                     SecurityUtils.getCurrentUserId(),
                     SecurityUtils.isAdmin());
             if (files.isEmpty()) {
@@ -151,7 +154,7 @@ public class TaskResultController {
     }
 
     private String buildCsv(List<CrawlerPageResultRecord> records) {
-        String header = "pageResultId,taskId,pageIndex,success,siteType,pageTitle,pageUrl,errorCode,errorMessage";
+        String header = "﻿pageResultId,taskId,pageIndex,success,siteType,pageTitle,pageUrl,errorCode,errorMessage";
         String body = records.stream()
                 .map(record -> String.join(",",
                         csv(record.getPageResultId()),

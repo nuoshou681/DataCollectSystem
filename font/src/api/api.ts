@@ -370,9 +370,10 @@ export async function exportPageResults(taskId?: number) {
   }
 }
 
-export async function exportPageResultMhtml(taskId?: number) {
+export async function exportPageResultMhtml(taskId?: number, pageResultIds?: number[]) {
   const response = await request.get('/task/page-results/export-mhtml', {
-    params: taskId ? { taskId } : {},
+    params: { taskId, pageResultIds: pageResultIds?.join(',') },
+    paramsSerializer: { indexes: null },
     responseType: 'blob',
   })
   const blobResponse = response as AxiosResponse<Blob>

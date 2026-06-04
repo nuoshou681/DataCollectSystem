@@ -183,15 +183,24 @@ public class CrawlerPageResultService {
     }
 
     public List<MhtmlDownloadData> loadMhtmlFilesForExport(Long taskId, Long userId, boolean isAdmin) throws IOException {
+        return loadMhtmlFilesForExport(taskId, null, userId, isAdmin);
+    }
+
+    public List<MhtmlDownloadData> loadMhtmlFilesForExport(Long taskId, List<Long> pageResultIds, Long userId, boolean isAdmin) throws IOException {
         List<CrawlerPageResultRecord> records = queryResults(taskId, userId, isAdmin).stream()
                 .filter(record -> Boolean.TRUE.equals(record.getSuccess()))
                 .filter(record -> record.getPageResultId() != null)
+                .filter(record -> pageResultIds == null || pageResultIds.contains(record.getPageResultId()))
                 .toList();
         List<MhtmlDownloadData> result = new java.util.ArrayList<>();
         for (CrawlerPageResultRecord record : records) {
-            MhtmlDownloadData item = loadMhtmlForDownload(record.getPageResultId(), userId, isAdmin);
-            if (item != null) {
-                result.add(item);
+            try {
+                MhtmlDownloadData item = loadMhtmlForDownload(record.getPageResultId(), userId, isAdmin);
+                if (item != null) {
+                    result.add(item);
+                }
+            } catch (IOException e) {
+                // Skip individual results whose MHTML file is missing, don't fail the entire export
             }
         }
         return result;
