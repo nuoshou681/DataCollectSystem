@@ -26,33 +26,47 @@ public class NotificationController {
     @GetMapping
     public ApiResponse<List<Notification>> list(@RequestParam(required = false) Boolean unread) {
         Long userId = SecurityUtils.getCurrentUserId();
+        if (SecurityUtils.isAdmin()) {
+            return ApiResponse.success(notificationService.listAll(unread));
+        }
         return ApiResponse.success(notificationService.listByUser(userId, unread));
     }
 
     @GetMapping("/unread-count")
     public ApiResponse<Integer> unreadCount() {
         Long userId = SecurityUtils.getCurrentUserId();
+        if (SecurityUtils.isAdmin()) {
+            return ApiResponse.success(notificationService.unreadCountAll());
+        }
         return ApiResponse.success(notificationService.unreadCount(userId));
     }
 
     @PostMapping("/{id}/read")
     public ApiResponse<?> markRead(@PathVariable Long id) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        notificationService.markRead(id, userId);
+        if (SecurityUtils.isAdmin()) {
+            notificationService.markReadAny(id);
+        } else {
+            notificationService.markRead(id, SecurityUtils.getCurrentUserId());
+        }
         return ApiResponse.success(null);
     }
 
     @PostMapping("/read-all")
     public ApiResponse<?> markAllRead() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        notificationService.markAllRead(userId);
+        if (SecurityUtils.isAdmin()) {
+            notificationService.markAllReadAny();
+        } else {
+            notificationService.markAllRead(SecurityUtils.getCurrentUserId());
+        }
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<?> delete(@PathVariable Long id) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        if (!notificationService.delete(id, userId)) {
+        boolean ok = SecurityUtils.isAdmin()
+                ? notificationService.deleteAny(id)
+                : notificationService.delete(id, SecurityUtils.getCurrentUserId());
+        if (!ok) {
             return ApiResponse.error(ErrorCode.NOT_FOUND, "通知不存在");
         }
         return ApiResponse.success(null);

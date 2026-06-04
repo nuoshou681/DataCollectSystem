@@ -281,3 +281,40 @@ Caused by: java.net.UnknownHostException: api.firecrawl.dev
 2026-06-04T15:16:37.884+08:00  INFO 64742 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E8%BF%99%E4%BA%9B%E6%B1%9B%E6%83%85%E4%BF%A1%E6%81%AF%E9%83%BD%E6%98%AF%E5%81%87%E7%9A%84&queryType=hot-query&spm=smpc.csrpage.hot-list.10.1780539019072VuKRQjk
 2026-06-04T15:17:33.181+08:00  WARN 64742 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-2 页面网络空闲等待超时，继续保存快照: Timeout 10000ms exceeded
 2026-06-04T15:18:09.166+08:00  INFO 64742 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-2 任务执行结束: taskId=111
+2026-06-04T16:28:34.036+08:00  INFO 64742 --- [crawlernode] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 28 class path changes (0 additions, 0 deletions, 28 modifications)
+2026-06-04T16:28:34.049+08:00  INFO 64742 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:28:34.182+08:00  INFO 64742 --- [crawlernode] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:28:34.183+08:00  INFO 64742 --- [crawlernode] [       Thread-1] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:28:36.190+08:00  INFO 64742 --- [crawlernode] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:28:36.190+08:00 ERROR 64742 --- [crawlernode] [o-8091-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.15.jar:11.0.15]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.1)
+
+2026-06-04T16:28:36.225+08:00  INFO 64742 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Starting CrawlernodeApplication using Java 17.0.16 with PID 64742 (/Users/rain/Desktop/DataCollectSystem/crawlernode/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/crawlernode)
+2026-06-04T16:28:36.225+08:00  INFO 64742 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:28:36.297+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8091 (http)
+2026-06-04T16:28:36.298+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:28:36.298+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-06-04T16:28:36.301+08:00  INFO 64742 --- [crawlernode] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 74 ms
+2026-06-04T16:28:36.343+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8091 (http) with context path '/'
+2026-06-04T16:28:36.343+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:28:36.348+08:00  INFO 64742 --- [crawlernode] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#7c7d1d62:0/SimpleConnection@41d8c972 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51631]
+2026-06-04T16:28:36.351+08:00  INFO 64742 --- [crawlernode] [  restartedMain] c.e.crawlernode.CrawlernodeApplication   : Started CrawlernodeApplication in 0.135 seconds (process running for 13348.565)
+2026-06-04T16:28:36.352+08:00  INFO 64742 --- [crawlernode] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged

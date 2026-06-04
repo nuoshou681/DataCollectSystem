@@ -228,8 +228,10 @@ export interface Notification {
   notificationId?: number
   userId?: number
   type: string
+  level?: string
   title: string
   content?: string
+  link?: string
   isRead?: boolean
   createdAt?: string
 }

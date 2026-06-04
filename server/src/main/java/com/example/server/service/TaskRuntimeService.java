@@ -247,11 +247,13 @@ public class TaskRuntimeService {
         taskRuntimeStreamService.publish(runtime);
     }
 
-    public void markPendingTimeout(LocalDateTime cutoff) {
+    public List<Long> markPendingTimeout(LocalDateTime cutoff) {
+        List<Long> affected = new java.util.ArrayList<>();
         taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
                         .eq(TaskRuntime::getStatus, "PENDING")
                         .lt(TaskRuntime::getQueuedAt, cutoff))
                 .forEach(runtime -> {
+                    affected.add(runtime.getTaskId());
                     runtime.setStatus("FAILED");
                     runtime.setProgressPercent(100);
                     runtime.setLastErrorMessage("任务排队超时");
@@ -261,13 +263,16 @@ public class TaskRuntimeService {
                     syncTaskSnapshot(runtime.getTaskId(), runtime);
                     taskRuntimeStreamService.publish(runtime);
                 });
+        return affected;
     }
 
-    public void markRunningTimeout(LocalDateTime cutoff) {
+    public List<Long> markRunningTimeout(LocalDateTime cutoff) {
+        List<Long> affected = new java.util.ArrayList<>();
         taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
                         .eq(TaskRuntime::getStatus, "RUNNING")
                         .lt(TaskRuntime::getUpdatedAt, cutoff))
                 .forEach(runtime -> {
+                    affected.add(runtime.getTaskId());
                     runtime.setStatus("FAILED");
                     runtime.setProgressPercent(100);
                     runtime.setLastErrorMessage("任务运行超时，节点可能已离线");
@@ -277,14 +282,17 @@ public class TaskRuntimeService {
                     syncTaskSnapshot(runtime.getTaskId(), runtime);
                     taskRuntimeStreamService.publish(runtime);
                 });
+        return affected;
     }
 
-    public void markNodeTasksFailed(String nodeId, String reason) {
-        if (nodeId == null || nodeId.isBlank()) return;
+    public List<Long> markNodeTasksFailed(String nodeId, String reason) {
+        List<Long> affected = new java.util.ArrayList<>();
+        if (nodeId == null || nodeId.isBlank()) return affected;
         taskRuntimeMapper.selectList(new LambdaQueryWrapper<TaskRuntime>()
                         .eq(TaskRuntime::getAssignedNodeId, nodeId)
                         .eq(TaskRuntime::getStatus, "RUNNING"))
                 .forEach(runtime -> {
+                    affected.add(runtime.getTaskId());
                     runtime.setStatus("FAILED");
                     runtime.setProgressPercent(100);
                     runtime.setLastErrorMessage(reason);
@@ -294,6 +302,7 @@ public class TaskRuntimeService {
                     syncTaskSnapshot(runtime.getTaskId(), runtime);
                     taskRuntimeStreamService.publish(runtime);
                 });
+        return affected;
     }
 
     private TaskRuntime ensureRuntime(Long taskId) {

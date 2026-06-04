@@ -6940,3 +6940,987 @@ This generated password is for development use only. Your security configuration
 2026-06-04T16:16:43.317+08:00  INFO 64743 --- [server] [   scheduling-1] c.e.server.service.TaskScheduleService   : 定时调度触发: scheduleId=3, keyword=热点, url=https://search.sohu.com/?keyword=
 2026-06-04T16:16:43.347+08:00  INFO 64743 --- [server] [   scheduling-1] c.e.server.service.TaskScheduleService   : 定时调度完成: scheduleId=3
 2026-06-04T16:18:28.883+08:00  INFO 64743 --- [server] [ntContainer#2-1] c.e.s.L.CrawlerTaskFinishedListener      : 任务完成: taskId=112, nodeId=node-1, success=true, totalPages=10
+2026-06-04T16:28:34.845+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 117 class path changes (0 additions, 0 deletions, 117 modifications)
+2026-06-04T16:28:34.851+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:28:34.852+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:28:34.852+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:28:35.137+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:28:35.150+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:28:35.496+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:28:35.496+08:00  INFO 64743 --- [server] [      Thread-13] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:28:37.503+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:07.506+08:00  INFO 64743 --- [server] [      Thread-13] o.s.c.support.DefaultLifecycleProcessor  : Shutdown phase 2147482623 ends with 1 bean still running after timeout of 30000ms: [webServerGracefulShutdown]
+2026-06-04T16:29:07.512+08:00  INFO 64743 --- [server] [      Thread-13] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-06-04T16:29:07.514+08:00  INFO 64743 --- [server] [      Thread-13] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2026-06-04T16:29:07.535+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown aborted with one or more requests still active
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:29:09.590+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:29:09.590+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:29:09.734+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:29:09.734+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:29:09.734+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:29:09.738+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 147 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:29:09.869+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: bf9201cf-89a5-4138-9aca-773f10264f02
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:29:09.869+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:29:09.922+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:29:09.936+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@6a630ed2
+2026-06-04T16:29:09.962+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:29:09.962+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:29:09.968+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3a2b3e55:0/SimpleConnection@24afd6b3 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51743]
+2026-06-04T16:29:09.986+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-06-04T16:29:09.988+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.405 seconds (process running for 13382.052)
+2026-06-04T16:29:09.988+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:29:10.000+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1387eeee
+2026-06-04T16:29:10.000+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-06-04T16:29:11.362+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 5 class path changes (0 additions, 0 deletions, 5 modifications)
+2026-06-04T16:29:11.366+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:11.366+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:11.366+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:11.991+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:11.992+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:12.347+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:12.347+08:00  INFO 64743 --- [server] [      Thread-17] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:29:14.352+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:29:14.352+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:14.356+08:00  INFO 64743 --- [server] [      Thread-17] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-06-04T16:29:14.357+08:00  INFO 64743 --- [server] [      Thread-17] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:29:14.400+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:29:14.400+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:29:14.497+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:29:14.498+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:29:14.498+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:29:14.500+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 99 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:29:14.622+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: cd513c42-f0d6-4595-a36f-666d87f5d31c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:29:14.622+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:29:14.665+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:29:14.676+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@7f40c6c9
+2026-06-04T16:29:14.699+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:29:14.700+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:29:14.706+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#2eadf870:0/SimpleConnection@12be1c3d [delegate=amqp://guest@127.0.0.1:5672/, localPort=51756]
+2026-06-04T16:29:14.719+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2026-06-04T16:29:14.720+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.328 seconds (process running for 13386.785)
+2026-06-04T16:29:14.721+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:29:14.726+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4b39adec
+2026-06-04T16:29:14.726+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+2026-06-04T16:29:46.446+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2026-06-04T16:29:46.449+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:46.450+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:46.450+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:46.822+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:46.837+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:47.418+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:47.419+08:00  INFO 64743 --- [server] [      Thread-21] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:29:49.424+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:29:49.425+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:49.429+08:00  INFO 64743 --- [server] [      Thread-21] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown initiated...
+2026-06-04T16:29:49.431+08:00  INFO 64743 --- [server] [      Thread-21] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:29:49.465+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:29:49.466+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:29:49.565+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:29:49.566+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:29:49.566+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:29:49.569+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 103 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:29:49.696+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2b739d84-1316-43bc-b7cc-54c63c14e728
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:29:49.697+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:29:49.739+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:29:49.750+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@5f3406c
+2026-06-04T16:29:49.775+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:29:49.775+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:29:49.780+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#4cfca11e:0/SimpleConnection@18e4b99 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51824]
+2026-06-04T16:29:49.799+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Starting...
+2026-06-04T16:29:49.799+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.339 seconds (process running for 13421.864)
+2026-06-04T16:29:49.800+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:29:49.807+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-7 - Added connection com.mysql.cj.jdbc.ConnectionImpl@33a581d6
+2026-06-04T16:29:49.807+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Start completed.
+2026-06-04T16:29:49.808+08:00 ERROR 64743 --- [server] [   scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+java.lang.Error: Unresolved compilation problem: 
+	This method must return a result of type List<Long>
+
+	at com.example.server.service.TaskRuntimeService.markPendingTimeout(TaskRuntimeService.java:250) ~[classes/:na]
+	at com.example.server.service.TaskMonitor.markStalePendingTasks(TaskMonitor.java:29) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at io.micrometer.observation.Observation.observe(Observation.java:569) ~[micrometer-observation-1.16.4.jar:1.16.4]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-7.0.6.jar:7.0.6]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:51.180+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2026-06-04T16:29:51.184+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:51.184+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:51.185+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:51.802+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:51.802+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:51.804+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:51.805+08:00  INFO 64743 --- [server] [      Thread-25] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:29:53.810+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:29:53.810+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:53.814+08:00  INFO 64743 --- [server] [      Thread-25] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown initiated...
+2026-06-04T16:29:53.816+08:00  INFO 64743 --- [server] [      Thread-25] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:29:53.867+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:29:53.867+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:29:53.984+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:29:53.984+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:29:53.984+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:29:53.988+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 120 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:29:54.123+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: ba64d18e-387a-49f5-862c-878e143afdde
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:29:54.123+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:29:54.168+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:29:54.179+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@708810b
+2026-06-04T16:29:54.202+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:29:54.202+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:29:54.207+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#47dcd7c4:0/SimpleConnection@113e07f7 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51839]
+2026-06-04T16:29:54.222+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Starting...
+2026-06-04T16:29:54.224+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.366 seconds (process running for 13426.288)
+2026-06-04T16:29:54.224+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:29:54.230+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-8 - Added connection com.mysql.cj.jdbc.ConnectionImpl@31674746
+2026-06-04T16:29:54.230+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Start completed.
+2026-06-04T16:29:54.234+08:00 ERROR 64743 --- [server] [   scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+java.lang.Error: Unresolved compilation problem: 
+	This method must return a result of type List<Long>
+
+	at com.example.server.service.TaskRuntimeService.markRunningTimeout(TaskRuntimeService.java:269) ~[classes/:na]
+	at com.example.server.service.TaskMonitor.markStaleRunningTasks(TaskMonitor.java:36) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at io.micrometer.observation.Observation.observe(Observation.java:569) ~[micrometer-observation-1.16.4.jar:1.16.4]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-7.0.6.jar:7.0.6]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:55.612+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:29:55.615+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:55.616+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:55.616+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:29:56.225+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:56.232+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:56.247+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:29:56.247+08:00  INFO 64743 --- [server] [      Thread-29] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:29:58.253+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:29:58.253+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:29:58.258+08:00  INFO 64743 --- [server] [      Thread-29] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown initiated...
+2026-06-04T16:29:58.259+08:00  INFO 64743 --- [server] [      Thread-29] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:29:58.299+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:29:58.299+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:29:58.402+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:29:58.402+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:29:58.402+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:29:58.405+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 105 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:29:58.524+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5ef2e53c-a960-442a-ab66-8f378c92af37
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:29:58.524+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:29:58.566+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:29:58.577+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@61a73eef
+2026-06-04T16:29:58.604+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:29:58.604+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:29:58.609+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#28dcb916:0/SimpleConnection@2f0ec6d8 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51858]
+2026-06-04T16:29:58.619+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Starting...
+2026-06-04T16:29:58.621+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.326 seconds (process running for 13430.685)
+2026-06-04T16:29:58.621+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:29:58.624+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-9 - Added connection com.mysql.cj.jdbc.ConnectionImpl@486068e4
+2026-06-04T16:29:58.624+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Start completed.
+2026-06-04T16:29:58.628+08:00 ERROR 64743 --- [server] [   scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+java.lang.Error: Unresolved compilation problem: 
+	This method must return a result of type List<Long>
+
+	at com.example.server.service.TaskRuntimeService.markRunningTimeout(TaskRuntimeService.java:269) ~[classes/:na]
+	at com.example.server.service.TaskMonitor.markStaleRunningTasks(TaskMonitor.java:36) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at io.micrometer.observation.Observation.observe(Observation.java:569) ~[micrometer-observation-1.16.4.jar:1.16.4]
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-7.0.6.jar:7.0.6]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:01.027+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2026-06-04T16:30:01.032+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:01.032+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:01.033+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:01.625+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:01.627+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:01.645+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:01.645+08:00  INFO 64743 --- [server] [      Thread-33] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:30:03.650+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:30:03.650+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:03.655+08:00  INFO 64743 --- [server] [      Thread-33] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown initiated...
+2026-06-04T16:30:03.657+08:00  INFO 64743 --- [server] [      Thread-33] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:30:03.696+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:30:03.696+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:30:03.809+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:30:03.810+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:30:03.810+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:30:03.814+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 117 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:30:03.958+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7818d8a6-cd1d-415b-833e-cbc4340ddf5d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:30:03.959+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:30:04.004+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:30:04.015+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@4516f48e
+2026-06-04T16:30:04.045+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:30:04.045+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:30:04.050+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#4fcc7ef7:0/SimpleConnection@65fe4f37 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51902]
+2026-06-04T16:30:04.063+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Starting...
+2026-06-04T16:30:04.065+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.374 seconds (process running for 13436.129)
+2026-06-04T16:30:04.065+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:30:04.070+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-10 - Added connection com.mysql.cj.jdbc.ConnectionImpl@182e64fc
+2026-06-04T16:30:04.070+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Start completed.
+2026-06-04T16:30:05.446+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:30:05.449+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:05.449+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:05.450+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:06.066+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:06.070+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:06.085+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:06.085+08:00  INFO 64743 --- [server] [      Thread-37] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:30:08.090+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:30:08.090+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:08.093+08:00  INFO 64743 --- [server] [      Thread-37] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Shutdown initiated...
+2026-06-04T16:30:08.094+08:00  INFO 64743 --- [server] [      Thread-37] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:30:08.129+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:30:08.129+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:30:08.235+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:30:08.235+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:30:08.235+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:30:08.237+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 107 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:30:08.353+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: e594561b-de25-4ca5-8984-9b9dcfb7dab2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:30:08.354+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:30:08.396+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:30:08.410+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@4c8d7db6
+2026-06-04T16:30:08.438+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:30:08.438+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:30:08.445+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#c4a1cb7:0/SimpleConnection@748f9a14 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51917]
+2026-06-04T16:30:08.457+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Starting...
+2026-06-04T16:30:08.460+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.336 seconds (process running for 13440.524)
+2026-06-04T16:30:08.460+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:30:08.464+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-11 - Added connection com.mysql.cj.jdbc.ConnectionImpl@ec130b
+2026-06-04T16:30:08.464+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Start completed.
+2026-06-04T16:30:09.847+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:30:09.850+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:09.850+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:09.850+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:10.460+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:10.465+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:10.477+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:10.477+08:00  INFO 64743 --- [server] [      Thread-41] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:30:12.483+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:30:12.483+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:12.488+08:00  INFO 64743 --- [server] [      Thread-41] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Shutdown initiated...
+2026-06-04T16:30:12.489+08:00  INFO 64743 --- [server] [      Thread-41] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:30:12.528+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:30:12.528+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:30:12.625+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:30:12.625+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:30:12.625+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:30:12.628+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 99 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:30:12.750+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 942d7a47-d46c-40b9-b161-8e4c1d2c5a99
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:30:12.751+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:30:12.793+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:30:12.805+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@75226e06
+2026-06-04T16:30:12.827+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:30:12.827+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:30:12.832+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#1aff54ea:0/SimpleConnection@1963417 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51932]
+2026-06-04T16:30:12.845+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Starting...
+2026-06-04T16:30:12.846+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.323 seconds (process running for 13444.911)
+2026-06-04T16:30:12.847+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:30:12.851+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-12 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4be20bd
+2026-06-04T16:30:12.852+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Start completed.
+2026-06-04T16:30:15.246+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:30:15.250+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:15.251+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:15.251+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:15.843+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:15.859+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:15.867+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:15.867+08:00  INFO 64743 --- [server] [      Thread-45] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:30:17.872+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:30:17.872+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:17.876+08:00  INFO 64743 --- [server] [      Thread-45] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Shutdown initiated...
+2026-06-04T16:30:17.878+08:00  INFO 64743 --- [server] [      Thread-45] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:30:17.917+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:30:17.917+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:30:18.019+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:30:18.020+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:30:18.020+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:30:18.022+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 104 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:30:18.142+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: d4e27fed-0d6e-4997-a35a-12da3eba97bd
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:30:18.143+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:30:18.185+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:30:18.196+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@7549b003
+2026-06-04T16:30:18.219+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:30:18.219+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:30:18.224+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#2e827983:0/SimpleConnection@2aebd236 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51947]
+2026-06-04T16:30:18.237+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Starting...
+2026-06-04T16:30:18.239+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.326 seconds (process running for 13450.303)
+2026-06-04T16:30:18.239+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:30:18.245+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-13 - Added connection com.mysql.cj.jdbc.ConnectionImpl@660d2e62
+2026-06-04T16:30:18.245+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Start completed.
+2026-06-04T16:30:27.717+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:30:27.721+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:27.721+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:27.721+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:30:28.265+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:28.269+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:28.456+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:30:28.456+08:00  INFO 64743 --- [server] [      Thread-49] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:30:30.462+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:30:30.462+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:30:30.466+08:00  INFO 64743 --- [server] [      Thread-49] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Shutdown initiated...
+2026-06-04T16:30:30.468+08:00  INFO 64743 --- [server] [      Thread-49] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:30:30.508+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:30:30.508+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:30:30.612+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:30:30.612+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:30:30.612+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:30:30.615+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 106 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:30:30.732+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 017e4b2c-becf-4375-848a-ee6caa148986
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:30:30.732+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:30:30.775+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:30:30.786+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@62ca64ce
+2026-06-04T16:30:30.809+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:30:30.809+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:30:30.813+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3101c092:0/SimpleConnection@20b55555 [delegate=amqp://guest@127.0.0.1:5672/, localPort=51989]
+2026-06-04T16:30:30.829+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.326 seconds (process running for 13462.893)
+2026-06-04T16:30:30.829+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Starting...
+2026-06-04T16:30:30.829+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:30:30.837+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-14 - Added connection com.mysql.cj.jdbc.ConnectionImpl@9cf7c49
+2026-06-04T16:30:30.837+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Start completed.
+2026-06-04T16:31:25.232+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T16:31:25.233+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T16:31:25.233+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-06-04T16:31:25.234+08:00  WARN 64743 --- [server] [nio-8080-exec-2] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/notifications/unread-count' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-06-04T16:34:49.400+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:34:49.410+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:34:49.410+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:34:49.411+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:34:49.673+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:34:49.816+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:34:49.867+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:34:49.867+08:00  INFO 64743 --- [server] [      Thread-53] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:34:51.032+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:34:51.039+08:00  INFO 64743 --- [server] [      Thread-53] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown initiated...
+2026-06-04T16:34:51.043+08:00  INFO 64743 --- [server] [      Thread-53] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:34:51.162+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:34:51.162+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:34:51.302+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:34:51.302+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:34:51.302+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:34:51.305+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 142 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:34:51.462+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2884e6af-b7f6-4484-9b29-e7c5ce05a1c6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:34:51.462+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:34:51.511+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:34:51.526+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@1b033ff7
+2026-06-04T16:34:51.557+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:34:51.558+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:34:51.563+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#47a516ac:0/SimpleConnection@503c0aa5 [delegate=amqp://guest@127.0.0.1:5672/, localPort=52759]
+2026-06-04T16:34:51.579+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.424 seconds (process running for 13723.642)
+2026-06-04T16:34:51.579+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Starting...
+2026-06-04T16:34:51.580+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:34:51.589+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-15 - Added connection com.mysql.cj.jdbc.ConnectionImpl@661c25c4
+2026-06-04T16:34:51.589+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Start completed.
+2026-06-04T16:35:09.136+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2026-06-04T16:35:09.141+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:09.141+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:09.142+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:09.618+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:09.630+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:09.693+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:09.693+08:00  INFO 64743 --- [server] [      Thread-57] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:35:11.699+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:35:11.699+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:35:11.703+08:00  INFO 64743 --- [server] [      Thread-57] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown initiated...
+2026-06-04T16:35:11.705+08:00  INFO 64743 --- [server] [      Thread-57] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:35:11.767+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:35:11.767+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:35:11.881+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:35:11.881+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:35:11.881+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:35:11.884+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 116 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:35:12.005+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8eac66a3-6dbe-4b7f-a40a-dd2fd52d8bfa
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:35:12.005+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:35:12.048+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:35:12.059+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@495c08f0
+2026-06-04T16:35:12.084+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:35:12.084+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:35:12.088+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3a7cccc7:0/SimpleConnection@5d3cace1 [delegate=amqp://guest@127.0.0.1:5672/, localPort=53365]
+2026-06-04T16:35:12.101+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Starting...
+2026-06-04T16:35:12.102+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.34 seconds (process running for 13744.166)
+2026-06-04T16:35:12.103+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:35:12.106+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-16 - Added connection com.mysql.cj.jdbc.ConnectionImpl@29db9360
+2026-06-04T16:35:12.106+08:00  INFO 64743 --- [server] [ntContainer#1-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Start completed.
+2026-06-04T16:35:17.533+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:35:17.539+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:17.540+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:17.540+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:17.688+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:18.124+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:18.124+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:18.125+08:00  INFO 64743 --- [server] [      Thread-61] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:35:20.131+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:35:20.131+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:35:20.134+08:00  INFO 64743 --- [server] [      Thread-61] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown initiated...
+2026-06-04T16:35:20.135+08:00  INFO 64743 --- [server] [      Thread-61] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:35:20.178+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:35:20.178+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:35:20.273+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:35:20.274+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:35:20.274+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:35:20.276+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 97 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:35:20.395+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8c9a9c12-36d4-4eb6-ac4b-47bda81b5d5d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:35:20.395+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:35:20.437+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:35:20.448+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@48501f42
+2026-06-04T16:35:20.472+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:35:20.472+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:35:20.478+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#8abac34:0/SimpleConnection@6ce207e7 [delegate=amqp://guest@127.0.0.1:5672/, localPort=53420]
+2026-06-04T16:35:20.492+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.319 seconds (process running for 13752.556)
+2026-06-04T16:35:20.492+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Starting...
+2026-06-04T16:35:20.493+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:35:20.500+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-17 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2c5eb4b9
+2026-06-04T16:35:20.500+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Start completed.
+2026-06-04T16:35:21.034+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T16:35:21.034+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T16:35:21.035+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-04T16:35:21.036+08:00  WARN 64743 --- [server] [nio-8080-exec-1] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/notifications' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-06-04T16:35:38.068+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:35:38.073+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:38.073+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:38.073+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:38.556+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:38.558+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:38.713+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:38.713+08:00  INFO 64743 --- [server] [      Thread-65] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:35:40.719+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:35:40.719+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:35:40.724+08:00  INFO 64743 --- [server] [      Thread-65] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown initiated...
+2026-06-04T16:35:40.726+08:00  INFO 64743 --- [server] [      Thread-65] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:35:40.767+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:35:40.767+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:35:40.878+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:35:40.878+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:35:40.878+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:35:40.881+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 113 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:35:41.000+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f58696eb-05f9-4a35-81f5-60d127483f99
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:35:41.000+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:35:41.044+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:35:41.055+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@a273253
+2026-06-04T16:35:41.076+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:35:41.076+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:35:41.082+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#2d87f3e6:0/SimpleConnection@4abec2ae [delegate=amqp://guest@127.0.0.1:5672/, localPort=53501]
+2026-06-04T16:35:41.100+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Starting...
+2026-06-04T16:35:41.100+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.338 seconds (process running for 13773.163)
+2026-06-04T16:35:41.100+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:35:41.107+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-18 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3db4ec91
+2026-06-04T16:35:41.107+08:00  INFO 64743 --- [server] [   scheduling-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Start completed.
+2026-06-04T16:35:45.511+08:00  INFO 64743 --- [server] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-06-04T16:35:45.515+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:45.516+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:45.516+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-06-04T16:35:45.726+08:00  INFO 64743 --- [server] [ntContainer#1-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:46.116+08:00  INFO 64743 --- [server] [ntContainer#2-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:46.116+08:00  INFO 64743 --- [server] [ntContainer#0-2] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+2026-06-04T16:35:46.117+08:00  INFO 64743 --- [server] [      Thread-69] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T16:35:48.121+08:00  INFO 64743 --- [server] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T16:35:48.121+08:00 ERROR 64743 --- [server] [o-8080-Acceptor] org.apache.tomcat.util.net.Acceptor      : Socket accept failed
+
+java.nio.channels.AsynchronousCloseException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.end(ServerSocketChannelImpl.java:376) ~[na:na]
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:399) ~[na:na]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:532) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.NioEndpoint.serverSocketAccept(NioEndpoint.java:71) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at org.apache.tomcat.util.net.Acceptor.run(Acceptor.java:127) ~[tomcat-embed-core-11.0.20.jar:11.0.20]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-06-04T16:35:48.126+08:00  INFO 64743 --- [server] [      Thread-69] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown initiated...
+2026-06-04T16:35:48.127+08:00  INFO 64743 --- [server] [      Thread-69] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-06-04T16:35:48.169+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Starting ServerApplication using Java 17.0.16 with PID 64743 (/Users/rain/Desktop/DataCollectSystem/server/target/classes started by rain in /Users/rain/Desktop/DataCollectSystem/server)
+2026-06-04T16:35:48.169+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T16:35:48.271+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-04T16:35:48.271+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T16:35:48.272+08:00  INFO 64743 --- [server] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T16:35:48.274+08:00  INFO 64743 --- [server] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 105 ms
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.15 
+2026-06-04T16:35:48.337+08:00  INFO 64743 --- [server] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Starting...
+2026-06-04T16:35:48.347+08:00  INFO 64743 --- [server] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Added connection com.mysql.cj.jdbc.ConnectionImpl@218b274c
+2026-06-04T16:35:48.349+08:00  INFO 64743 --- [server] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Start completed.
+2026-06-04T16:35:48.406+08:00  WARN 64743 --- [server] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: e96565d7-7cdb-4711-bce9-13eeb42d9c22
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T16:35:48.406+08:00  INFO 64743 --- [server] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T16:35:48.452+08:00  INFO 64743 --- [server] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-04T16:35:48.464+08:00  INFO 64743 --- [server] [  restartedMain] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@38399a38
+2026-06-04T16:35:48.486+08:00  INFO 64743 --- [server] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T16:35:48.486+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+2026-06-04T16:35:48.490+08:00  INFO 64743 --- [server] [  restartedMain] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#61845662:0/SimpleConnection@6d532de0 [delegate=amqp://guest@127.0.0.1:5672/, localPort=53528]
+2026-06-04T16:35:48.502+08:00  INFO 64743 --- [server] [  restartedMain] com.example.server.ServerApplication     : Started ServerApplication in 0.338 seconds (process running for 13780.566)
+2026-06-04T16:35:48.503+08:00  INFO 64743 --- [server] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-06-04T16:35:51.032+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T16:35:51.032+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T16:35:51.033+08:00  INFO 64743 --- [server] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-04T16:35:51.034+08:00  WARN 64743 --- [server] [nio-8080-exec-1] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/notifications' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-06-04T17:08:33.344+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=15m44s665ms).
+2026-06-04T17:25:05.963+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m32s619ms).
+2026-06-04T17:41:39.876+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m3s909ms).
+2026-06-04T17:58:53.846+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=17m13s970ms).
+2026-06-04T18:15:07.898+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=15m44s48ms).
+2026-06-04T18:32:03.864+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m55s966ms).
+2026-06-04T18:48:49.822+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m15s947ms).
+2026-06-04T19:00:25.064+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=11m35s242ms).
+2026-06-04T19:30:02.954+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m7s775ms).
+2026-06-04T19:37:04.904+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=7m1s949ms).
+2026-06-04T19:53:08.161+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=15m33s247ms).
+2026-06-04T20:10:29.177+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m50s988ms).
+2026-06-04T20:28:04.142+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=17m34s965ms).
+2026-06-04T20:45:44.180+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=17m10s28ms).
+2026-06-04T21:01:48.123+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m3s943ms).
+2026-06-04T21:10:06.226+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=7m48s101ms).
+2026-06-04T21:21:56.071+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=11m49s845ms).
+2026-06-04T21:38:37.417+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=15m41s335ms).
+2026-06-04T21:54:44.411+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=15m36s992ms).
+2026-06-04T22:11:24.384+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=16m39s973ms).
+2026-06-04T22:29:18.383+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=17m23s990ms).
+2026-06-04T22:37:21.294+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=8m2s910ms).
+2026-06-04T22:37:51.139+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Retrograde clock change detected (housekeeper delta=29s846ms), soft-evicting connections from pool.
+2026-06-04T22:53:20.981+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Retrograde clock change detected (housekeeper delta=29s696ms), soft-evicting connections from pool.
+2026-06-04T23:05:43.089+08:00  WARN 64743 --- [server] [-19:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Thread starvation or clock leap detected (housekeeper delta=12m22s108ms).

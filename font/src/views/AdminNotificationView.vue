@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { BellAlertIcon, BellIcon, CheckBadgeIcon, EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline'
+import {
+  BellAlertIcon,
+  BellIcon,
+  CheckBadgeIcon,
+  CpuChipIcon,
+  EnvelopeOpenIcon,
+  ExclamationTriangleIcon,
+  ServerStackIcon,
+} from '@heroicons/vue/24/outline'
+import { useRouter } from 'vue-router'
 import {
   deleteNotification,
   fetchNotifications,
@@ -11,6 +20,7 @@ import {
 } from '@/api/api'
 import type { Notification } from '@/types/entity'
 
+const router = useRouter()
 const notifications = ref<Notification[]>([])
 const loading = ref(false)
 const filterRead = ref<'ALL' | 'UNREAD' | 'READ'>('ALL')
@@ -64,10 +74,24 @@ async function handleDelete(notificationId: number) {
   } catch { /* cancelled */ }
 }
 
+function handleClick(row: Notification) {
+  if (!row.isRead && row.notificationId) handleRead(row.notificationId)
+  if (row.link) router.push(row.link)
+}
+
 function levelTagType(level?: string) {
   if (level === 'ERROR') return 'danger'
   if (level === 'WARN' || level === 'WARNING') return 'warning'
   return 'info'
+}
+
+const typeConfig: Record<string, { label: string; color: string; bg: string }> = {
+  TASK: { label: '任务', color: '#3b82f6', bg: '#eff6ff' },
+  NODE: { label: '节点', color: '#8b5cf6', bg: '#f5f3ff' },
+  SYSTEM: { label: '系统', color: '#64748b', bg: '#f8fafc' },
+}
+function typeStyle(t: string) {
+  return typeConfig[t] ?? { label: t || '-', color: '#94a3b8', bg: '#f8fafc' }
 }
 
 function formatTime(raw?: string) {
@@ -160,8 +184,14 @@ onMounted(loadAll)
         </div>
       </template>
 
-      <el-table :data="filteredNotifications" border stripe v-loading="loading" highlight-current-row
-        :row-class-name="({ row }: { row: Notification }) => row.isRead ? '' : 'unread-row'"
+      <el-table :data="filteredNotifications" border stripe v-loading="loading"
+        :row-class-name="({ row }: { row: Notification }) => {
+          const classes: string[] = []
+          if (!row.isRead) classes.push('unread-row')
+          if (row.link) classes.push('clickable-row')
+          return classes.join(' ')
+        }"
+        @row-click="handleClick"
       >
         <el-table-column prop="notificationId" label="ID" width="80" align="center" />
         <el-table-column label="" width="36">
@@ -169,12 +199,21 @@ onMounted(loadAll)
             <span v-if="!scope.row.isRead" class="w-2 h-2 bg-blue-500 rounded-full inline-block" />
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="标题" min-width="180" show-overflow-tooltip>
+        <el-table-column label="类型" width="100">
+          <template #default="scope">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+              :style="{ color: typeStyle(scope.row.type).color, background: typeStyle(scope.row.type).bg }"
+            >
+              {{ typeStyle(scope.row.type).label }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="title" label="标题" min-width="160" show-overflow-tooltip>
           <template #default="scope">
             <span :class="{ 'font-semibold': !scope.row.isRead }">{{ scope.row.title }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="内容" min-width="320" show-overflow-tooltip>
+        <el-table-column prop="content" label="内容" min-width="280" show-overflow-tooltip>
           <template #default="scope">
             <span class="text-sm" :class="scope.row.isRead ? 'text-slate-500' : 'text-slate-800'">
               {{ scope.row.content }}
@@ -188,11 +227,6 @@ onMounted(loadAll)
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="类型" width="110">
-          <template #default="scope">
-            <span class="text-xs text-slate-500">{{ scope.row.type || '-' }}</span>
-          </template>
-        </el-table-column>
         <el-table-column prop="createdAt" label="时间" min-width="150">
           <template #default="scope">
             <span class="text-sm text-slate-600">{{ formatTime(scope.row.createdAt) }}</span>
@@ -202,15 +236,22 @@ onMounted(loadAll)
           <template #default="scope">
             <div class="flex items-center gap-1 justify-center">
               <el-button
-                v-if="!scope.row.isRead"
+                v-if="scope.row.link"
                 size="small" text type="primary"
-                @click="handleRead(scope.row.notificationId!)"
+                @click.stop="router.push(scope.row.link)"
+              >
+                查看
+              </el-button>
+              <el-button
+                v-if="!scope.row.isRead"
+                size="small" text type="success"
+                @click.stop="handleRead(scope.row.notificationId!)"
               >
                 已读
               </el-button>
               <el-button
                 size="small" text type="danger"
-                @click="handleDelete(scope.row.notificationId!)"
+                @click.stop="handleDelete(scope.row.notificationId!)"
               >
                 删除
               </el-button>
@@ -226,5 +267,14 @@ onMounted(loadAll)
 <style scoped>
 :deep(.unread-row) {
   background-color: #f0f9ff !important;
+}
+:deep(.clickable-row) {
+  cursor: pointer;
+}
+:deep(.clickable-row:hover) {
+  background-color: #f1f5f9 !important;
+}
+:deep(.unread-row.clickable-row:hover) {
+  background-color: #e0f2fe !important;
 }
 </style>

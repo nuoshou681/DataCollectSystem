@@ -14,26 +14,36 @@ public class TaskMonitor {
     private final TaskEventService taskEventService;
     private final SystemConfigService systemConfigService;
     private final ClientMapper clientMapper;
+    private final NotificationService notificationService;
 
-    public TaskMonitor(TaskRuntimeService taskRuntimeService, TaskEventService taskEventService, SystemConfigService systemConfigService, ClientMapper clientMapper) {
+    public TaskMonitor(TaskRuntimeService taskRuntimeService, TaskEventService taskEventService, SystemConfigService systemConfigService, ClientMapper clientMapper, NotificationService notificationService) {
         this.taskRuntimeService = taskRuntimeService;
         this.taskEventService = taskEventService;
         this.systemConfigService = systemConfigService;
         this.clientMapper = clientMapper;
+        this.notificationService = notificationService;
     }
 
     @Scheduled(fixedDelay = 60000)
     public void markStalePendingTasks() {
         int timeoutMinutes = systemConfigService.getIntValue("task.queue.timeout.minutes", 10);
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(timeoutMinutes);
-        taskRuntimeService.markPendingTimeout(cutoff);
+        List<Long> affected = taskRuntimeService.markPendingTimeout(cutoff);
+        if (!affected.isEmpty()) {
+            notificationService.notifyTaskOwners(affected, "TASK", "WARN",
+                    "任务 #{taskId} 排队超时已终止", null);
+        }
     }
 
     @Scheduled(fixedDelay = 120000)
     public void markStaleRunningTasks() {
         int timeoutMinutes = systemConfigService.getIntValue("task.running.timeout.minutes", 30);
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(timeoutMinutes);
-        taskRuntimeService.markRunningTimeout(cutoff);
+        List<Long> affected = taskRuntimeService.markRunningTimeout(cutoff);
+        if (!affected.isEmpty()) {
+            notificationService.notifyTaskOwners(affected, "TASK", "ERROR",
+                    "任务 #{taskId} 运行超时已终止", null);
+        }
     }
 
     @Scheduled(fixedDelay = 30000)
@@ -46,7 +56,11 @@ public class TaskMonitor {
             if (node.getLastHeartbeat().isBefore(deadline)) {
                 node.setStatus("OFFLINE");
                 clientMapper.updateById(node);
-                taskRuntimeService.markNodeTasksFailed(node.getNodeId(), "爬虫节点离线超时，任务终止");
+                List<Long> affected = taskRuntimeService.markNodeTasksFailed(node.getNodeId(), "爬虫节点离线超时，任务终止");
+                if (!affected.isEmpty()) {
+                    notificationService.notifyTaskOwners(affected, "NODE", "ERROR",
+                            "任务 #{taskId} 因节点 " + node.getNodeId() + " 离线被终止", null);
+                }
             }
         }
     }

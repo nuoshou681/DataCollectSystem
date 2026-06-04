@@ -12,7 +12,7 @@ import {
   SparklesIcon,
 } from '@heroicons/vue/24/outline'
 import { BugAntIcon } from '@heroicons/vue/24/solid'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchPageResults, fetchTasks, fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead } from '@/api/api'
 import type { CrawlerPageResult, Task, Notification } from '@/types/entity'
@@ -172,8 +172,16 @@ function logout() {
   router.push('/login')
 }
 
+const unreadTimer = ref<ReturnType<typeof setInterval> | null>(null)
+
 onMounted(() => {
   void loadSearchData()
+  void loadNotifications()
+  unreadTimer.value = setInterval(() => { void loadNotifications() }, 30000)
+})
+
+onUnmounted(() => {
+  if (unreadTimer.value) clearInterval(unreadTimer.value)
 })
 </script>
 
@@ -303,10 +311,13 @@ onMounted(() => {
                 type="button"
                 class="dropdown-item"
                 :class="{ 'opacity-60': notice.isRead }"
-                @click="readNotification(notice.notificationId!)"
+                @click="readNotification(notice.notificationId!); if (notice.link) router.push(notice.link)"
               >
                 <div class="flex items-center gap-1">
                   <span v-if="!notice.isRead" class="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></span>
+                  <span class="text-[10px] font-medium px-1 rounded"
+                    :class="notice.level === 'ERROR' ? 'text-red-600 bg-red-50' : notice.level === 'WARN' ? 'text-amber-600 bg-amber-50' : 'text-slate-500 bg-slate-100'"
+                  >{{ notice.level || 'INFO' }}</span>
                   {{ notice.title }}
                 </div>
                 <div class="dropdown-meta">{{ notice.content }}</div>

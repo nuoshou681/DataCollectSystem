@@ -22,9 +22,13 @@ public class Notification {
 
     private String type;
 
+    private String level;
+
     private String title;
 
     private String content;
+
+    private String link;
 
     @TableField("is_read")
     private Boolean isRead;
