@@ -133,6 +133,11 @@ const unreadCount = ref(0)
 const notificationItems = computed(() => notifications.value.slice(0, 5))
 const unreadNotificationCount = computed(() => unreadCount.value)
 
+function resolveNotifLink(link?: string) {
+  if (!link) return null
+  return link.startsWith('/tasks/') ? link.replace('/tasks/', '/admin/task/') : link
+}
+
 async function loadNotifications() {
   try {
     const [data, count] = await Promise.all([fetchNotifications(), fetchUnreadCount()])
@@ -423,7 +428,7 @@ onUnmounted(() => {
                 type="button"
                 class="dropdown-item"
                 :class="{ 'opacity-60': notice.isRead }"
-                @click="readNotification(notice.notificationId!); if (notice.link) router.push(notice.link)"
+                @click="readNotification(notice.notificationId!); const target = resolveNotifLink(notice.link); if (target) router.push(target)"
               >
                 <div class="flex items-center gap-1.5">
                   <span v-if="!notice.isRead" class="unread-dot" />

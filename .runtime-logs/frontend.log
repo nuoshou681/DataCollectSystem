@@ -3,21 +3,10 @@
 > vite
 
 
-  VITE v7.3.1  ready in 731 ms
+  VITE v7.3.1  ready in 627 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
   ➜  Vue DevTools: Open http://localhost:5173/__devtools__/ as a separate window
   ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
-00:05:50 [vite] (client) hmr update /src/assets/main.css, /src/views/layouts/UserLayout.vue, /src/views/layouts/AdminLayout.vue, /src/views/AdminTaskCenterView.vue, /src/views/LoginView.vue, /src/views/AdminDashboardView.vue
-10:38:40 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:38:44 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:41:37 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:41:48 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:41:53 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:42:02 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:42:09 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:44:12 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:44:15 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:44:20 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
-10:44:24 [vite] (client) hmr update /src/views/AdminTaskCenterView.vue, /src/assets/main.css
+12:18:04 [vite] (client) hmr update /src/views/AdminNotificationView.vue, /src/assets/main.css

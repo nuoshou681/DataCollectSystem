@@ -28,6 +28,7 @@ const routes = [
     children: [
       { path: '', component: () => import('@/views/AdminDashboardView.vue') },
       { path: 'task-center', component: () => import('@/views/AdminTaskCenterView.vue') },
+      { path: 'task/:id', component: () => import('@/views/TaskDetailView.vue') },
 
       { path: 'exports', component: () => import('@/views/AdminExportCenterView.vue') },
       { path: 'nodes', component: () => import('@/views/AdminNodeView.vue') },

@@ -74,9 +74,15 @@ async function handleDelete(notificationId: number) {
   } catch { /* cancelled */ }
 }
 
+function resolveLink(link?: string) {
+  if (!link) return null
+  return link.startsWith('/tasks/') ? link.replace('/tasks/', '/admin/task/') : link
+}
+
 function handleClick(row: Notification) {
   if (!row.isRead && row.notificationId) handleRead(row.notificationId)
-  if (row.link) router.push(row.link)
+  const target = resolveLink(row.link)
+  if (target) router.push(target)
 }
 
 function levelTagType(level?: string) {
@@ -235,13 +241,6 @@ onMounted(loadAll)
         <el-table-column label="操作" width="160" fixed="right" align="center">
           <template #default="scope">
             <div class="flex items-center gap-1 justify-center">
-              <el-button
-                v-if="scope.row.link"
-                size="small" text type="primary"
-                @click.stop="router.push(scope.row.link)"
-              >
-                查看
-              </el-button>
               <el-button
                 v-if="!scope.row.isRead"
                 size="small" text type="success"

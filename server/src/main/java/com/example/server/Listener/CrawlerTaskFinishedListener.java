@@ -63,7 +63,7 @@ public class CrawlerTaskFinishedListener {
                 ? String.format("任务 #%d 已完成，成功 %d 页，失败 %d 页", finished.getTaskId(), finished.getSuccessPages(), finished.getFailedPages())
                 : String.format("任务 #%d 执行失败：%s", finished.getTaskId(), finished.getMessage() != null ? finished.getMessage() : "未知错误");
         String notifLevel = finished.isSuccess() ? "INFO" : "ERROR";
-        String notifLink = "/task/" + finished.getTaskId();
+        String notifLink = "/tasks/" + finished.getTaskId();
         notificationService.createForTask(finished.getTaskId(), "TASK", notifLevel, notifTitle, notifContent, notifLink);
     }
 }
