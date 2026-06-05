@@ -44,6 +44,13 @@ public class CrawlerPageResultListener {
         }
 
         CrawlerPageResultRecord saved = crawlerPageResultService.saveOrUpdateFromMessage(result);
+        taskRuntimeService.syncWithPageResults(
+                result.getTaskId(),
+                result.getNodeId(),
+                result.getTotalPages(),
+                result.isSuccess(),
+                result.getErrorCode(),
+                result.getErrorMessage());
         crawlerPageResultStreamService.publish(saved);
     }
 }

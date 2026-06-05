@@ -7,8 +7,11 @@ import com.example.server.entity.TaskRuntime;
 import com.example.server.mapper.CrawlerPageResultMapper;
 import com.example.server.mapper.TaskMapper;
 import com.example.server.mapper.TaskRuntimeMapper;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -194,6 +197,27 @@ public class TaskRuntimeService {
                 safe(runtime.getFailedPages()) == 0,
                 runtime.getLastErrorCode(),
                 runtime.getLastErrorMessage());
+    }
+
+    @PostConstruct
+    void repairStaleRuntimeCounters() {
+        try {
+            List<TaskRuntime> all = taskRuntimeMapper.selectList(null);
+            int repaired = 0;
+            for (TaskRuntime rt : all) {
+                try {
+                    recountFromPageResults(rt.getTaskId());
+                    repaired++;
+                } catch (Exception ignored) {
+                    // skip individual failures
+                }
+            }
+            if (repaired > 0) {
+                LoggerFactory.getLogger(TaskRuntimeService.class).info("已修复 {} 条任务运行记录的进度计数器", repaired);
+            }
+        } catch (Exception ignored) {
+            // table may not exist on first startup
+        }
     }
 
     public void markFinished(Long taskId, String nodeId, boolean success, Integer totalPages, Integer successPages, Integer failedPages, String errorCode, String errorMessage) {

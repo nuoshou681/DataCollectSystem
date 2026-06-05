@@ -322,7 +322,10 @@ export async function dispatchBatchTask(payload: DispatchTaskPayload & { keyword
 
 export async function fetchTasks() {
   const res = await request.get<ApiResponse<Task[]>>('/task')
-  return (unwrapResponse<RawTask[]>(res) ?? []).map(raw => mapTask(raw))
+  return (unwrapResponse<RawTask[]>(res) ?? []).map(raw => {
+    const runtime = mapTaskRuntime((raw as any).runtime)
+    return mapTask(raw, runtime)
+  })
 }
 
 export async function fetchTaskDetail(taskId: number) {
