@@ -137,3 +137,138 @@
 2026-06-05T12:23:07.158+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1645671
 2026-06-05T12:23:07.158+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/economy/2026_06_03_819268.shtml
 2026-06-05T12:23:46.623+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=137
+2026-06-05T15:47:50.497+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=142, url=https://www.thepaper.cn, keyword=光模块
+2026-06-05T15:47:50.501+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:thepaper.cn 光模块, limit=10
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33025564
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33313775
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33260730
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33183784
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33296822
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33237925
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33261340
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33197082
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.thepaper.cn/newsDetail_forward_33305172
+2026-06-05T15:47:54.814+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://m.thepaper.cn/newsDetail_forward_33105788
+2026-06-05T15:49:04.174+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=142
+2026-06-05T15:49:04.176+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=140, url=https://search.sohu.com/?keyword=, keyword=光模块
+2026-06-05T15:49:12.203+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/xtopic/TURBd05qazJOalEy?spm=smpc.csrpage.topic-list.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/profile?xpt=ZTc4MzQ5ZmUtNjExZS00YmZiLTgwYmYtOGY2OTU5YjNhYzFi&scm=10023.20005_107-20005_107-20005_20005.0-0.0-1-0-0-0.0&spm=smpc.csrpage.suggest-list.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/search?keyword=%E5%85%89%E6%A8%A1%E5%9D%97&type=right&queryType=outside&spm=smpc.csrpage.suggest-list-more.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032635675_114984?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114984?spm=smpc.csrpage.news-list.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032490875_114984?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.2.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114984?spm=smpc.csrpage.news-list.2.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032458416_121157270?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.3.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/121157270?spm=smpc.csrpage.news-list.3.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032490785_114984?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.4.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114984?spm=smpc.csrpage.news-list.4.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032505502_115377?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.5.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/115377?spm=smpc.csrpage.news-list.5.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032504991_115377?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.6.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/115377?spm=smpc.csrpage.news-list.6.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032506234_114984?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.7.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/114984?spm=smpc.csrpage.news-list.7.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032503703_115377?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.8.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/115377?spm=smpc.csrpage.news-list.8.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032632204_115377?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.9.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/115377?spm=smpc.csrpage.news-list.9.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://www.sohu.com/a/1032520375_122121789?scm=10023.20001_107-20001_107-0_20001.0-0.0-1-0-0-0.0&spm=smpc.csrpage.news-list.10.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://mp.sohu.com/media/122121789?spm=smpc.csrpage.news-list.10.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E4%B9%A0%E8%BF%91%E5%B9%B3%E5%B0%86%E8%AE%BF%E9%97%AE%E6%9C%9D%E9%B2%9C&queryType=hot-query&spm=smpc.csrpage.hot-list.1.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E8%8B%B1%E5%9B%BD%E9%97%B4%E8%B0%8D2%E6%AC%A1%E5%81%B7%E7%AA%83%E4%B8%AD%E5%9B%BD%E8%8C%B6%E5%8F%B6%E6%9C%BA%E5%AF%86&queryType=hot-query&spm=smpc.csrpage.hot-list.2.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E7%94%A8%E2%80%9C%E5%B9%B3%E5%B8%B8%E5%BF%83%E2%80%9D%E4%B8%BA%E9%AB%98%E8%80%83%E2%80%9C%E5%8A%A9%E6%94%BB%E2%80%9D&queryType=hot-query&spm=smpc.csrpage.hot-list.3.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%9B%BE%E7%BB%8F%E7%9A%84%E2%80%9C%E5%9B%BD%E6%B0%91%E9%A5%AE%E6%96%99%E2%80%9D%E5%BA%B7%E5%B8%88%E5%82%85%E5%8D%96%E4%B8%8D%E5%8A%A8%E4%BA%86&queryType=hot-query&spm=smpc.csrpage.hot-list.4.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E5%8D%97%E5%BC%80%E5%A4%A7%E5%AD%A6%E4%B8%80%E5%AD%A6%E7%94%9F%E8%A2%AB%E7%94%B5%E8%AF%88%E9%AA%97220%E4%B8%87&queryType=hot-query&spm=smpc.csrpage.hot-list.5.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%97%A5%E6%9C%AC%E6%8B%A5%E6%A0%B8%E5%B7%B2%E6%98%AF%E7%8E%B0%E5%AE%9E%E5%A8%81%E8%83%81&queryType=hot-query&spm=smpc.csrpage.hot-list.6.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%B8%B8%E5%AE%A2%E6%B5%B7%E4%B8%8A%E6%BC%82%E4%BA%867%E5%A4%A96%E5%A4%9C%20%E7%94%9F%E5%90%83%E8%9E%83%E8%9F%B9%E6%B1%82%E7%94%9F&queryType=hot-query&spm=smpc.csrpage.hot-list.7.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%B3%BD%E8%BF%9E%E6%96%AF%E5%9F%BA%E5%85%AC%E5%BC%80%E8%87%B4%E4%BF%A1%E6%99%AE%E4%BA%AC&queryType=hot-query&spm=smpc.csrpage.hot-list.8.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=%E6%88%90%E9%83%BD%E5%85%AC%E7%A7%AF%E9%87%91%E5%8D%95%E4%BA%BA%E5%8F%AF%E8%B4%B7150%E4%B8%87%E7%B3%BB%E8%B0%A3%E8%A8%80&queryType=hot-query&spm=smpc.csrpage.hot-list.9.1780645746546Zi4QM5M
+2026-06-05T15:49:12.204+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : 收集到的网页地址:https://search.sohu.com/?keyword=3%E4%BA%BAP%E5%9B%BE%E5%8A%9E%E5%81%87%E8%AF%81%E5%BC%80%E4%BA%8640%E5%A4%9A%E5%AE%B6%E8%9B%8B%E7%B3%95%E5%BA%97&queryType=hot-query&spm=smpc.csrpage.hot-list.10.1780645746546Zi4QM5M
+2026-06-05T15:51:07.724+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=140
+2026-06-05T15:51:07.726+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=148, url=https://www.guancha.cn, keyword=光模块
+2026-06-05T15:51:07.726+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search: query=site:guancha.cn 光模块, limit=10
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           : Firecrawl /search 返回 10 条结果
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1647443
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1640968
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/economy/2026_04_25_814953.shtml
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/haoping/2026_06_03_819322.shtml
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/GuanJinRong/2026_05_18_817414.shtml
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/economy/2026_05_18_817490.shtml
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://www.guancha.cn/economy/2026_04_24_814784.shtml
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1541409&s=fwzlwzbt
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1664427
+2026-06-05T15:51:09.397+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.service.FirecrawlService           :   search结果: https://user.guancha.cn/main/content?id=1650439&s=fwzwyzzwzbt
+2026-06-05T15:51:58.653+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=148
+2026-06-05T15:51:58.654+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=150, url=https://baike.baidu.com/item/, keyword=光模块
+2026-06-05T15:52:20.134+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=150
+2026-06-05T19:24:29.685+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 收到任务: taskId=151, url=https://search.sohu.com/?keyword=, keyword=热点
+2026-06-05T19:24:44.230+08:00 ERROR 59859 --- [crawlernode] [ntContainer#0-1] c.example.crawlernode.crawler.Crawler    : 【CrawlerNode】node-1 Firecrawl 解析链接失败: seedUrl=https://search.sohu.com/?keyword=, keyword=热点, error=Request failed: Remote host terminated the handshake
+
+com.firecrawl.errors.FirecrawlException: Request failed: Remote host terminated the handshake
+	at com.firecrawl.client.FirecrawlHttpClient.executeWithRetry(FirecrawlHttpClient.java:184) ~[firecrawl-java-1.1.1.jar:na]
+	at com.firecrawl.client.FirecrawlHttpClient.post(FirecrawlHttpClient.java:86) ~[firecrawl-java-1.1.1.jar:na]
+	at com.firecrawl.client.FirecrawlHttpClient.post(FirecrawlHttpClient.java:62) ~[firecrawl-java-1.1.1.jar:na]
+	at com.firecrawl.client.FirecrawlClient.scrape(FirecrawlClient.java:103) ~[firecrawl-java-1.1.1.jar:na]
+	at com.example.crawlernode.service.FirecrawlService.scrapeLinks(FirecrawlService.java:191) ~[classes/:na]
+	at com.example.crawlernode.service.FirecrawlService.getLinks(FirecrawlService.java:143) ~[classes/:na]
+	at com.example.crawlernode.crawler.Crawler.resolveLinks(Crawler.java:167) ~[classes/:na]
+	at com.example.crawlernode.crawler.Crawler.crawl(Crawler.java:78) ~[classes/:na]
+	at com.example.crawlernode.crawler.CrawlerTaskListener.handleTask(CrawlerTaskListener.java:32) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:168) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.KotlinAwareInvocableHandlerMethod.doInvoke(KotlinAwareInvocableHandlerMethod.java:47) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) ~[spring-messaging-7.0.2.jar:7.0.2]
+	at org.springframework.amqp.rabbit.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:83) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:287) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandlerAndProcessResult(MessagingMessageListenerAdapter.java:233) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.onMessage(MessagingMessageListenerAdapter.java:157) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doInvokeListener(AbstractMessageListenerContainer.java:1683) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.actualInvokeListener(AbstractMessageListenerContainer.java:1612) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.invokeListener(AbstractMessageListenerContainer.java:1599) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doExecuteListener(AbstractMessageListenerContainer.java:1590) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListenerAndHandleException(AbstractMessageListenerContainer.java:1539) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListener(AbstractMessageListenerContainer.java:1520) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.doReceiveAndExecute(SimpleMessageListenerContainer.java:1116) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.receiveAndExecute(SimpleMessageListenerContainer.java:1061) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.mainLoop(SimpleMessageListenerContainer.java:1465) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1359) ~[spring-rabbit-4.0.1.jar:4.0.1]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+Caused by: javax.net.ssl.SSLHandshakeException: Remote host terminated the handshake
+	at java.base/sun.security.ssl.SSLSocketImpl.handleEOF(SSLSocketImpl.java:1719) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1518) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1425) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426) ~[na:na]
+	at okhttp3.internal.connection.RealConnection.connectTls(RealConnection.kt:379) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.RealConnection.establishProtocol(RealConnection.kt:337) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:209) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201) ~[okhttp-4.12.0.jar:na]
+	at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154) ~[okhttp-4.12.0.jar:na]
+	at com.firecrawl.client.FirecrawlHttpClient.executeWithRetry(FirecrawlHttpClient.java:139) ~[firecrawl-java-1.1.1.jar:na]
+	... 30 common frames omitted
+Caused by: java.io.EOFException: SSL peer shut down incorrectly
+	at java.base/sun.security.ssl.SSLSocketInputRecord.read(SSLSocketInputRecord.java:489) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.readHeader(SSLSocketInputRecord.java:478) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:160) ~[na:na]
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1510) ~[na:na]
+	... 51 common frames omitted
+
+2026-06-05T19:24:44.261+08:00  INFO 59859 --- [crawlernode] [ntContainer#0-1] c.e.c.crawler.CrawlerTaskListener        : 【CrawlerNode】node-1 任务执行结束: taskId=151

@@ -582,6 +582,29 @@ export async function bindTaskGroup(taskId: number, groupId: number) {
   return unwrapResponse<boolean>(res)
 }
 
+export async function unbindTaskGroup(taskId: number, groupId: number) {
+  const res = await request.delete<ApiResponse<boolean>>(`/task/metadata/${taskId}/groups/${groupId}`)
+  return unwrapResponse<boolean>(res)
+}
+
+export async function updateTaskGroup(groupId: number, payload: Partial<TaskGroup>) {
+  const res = await request.put<ApiResponse<boolean>>(`/task/metadata/groups/${groupId}`, payload)
+  return unwrapResponse<boolean>(res)
+}
+
+export async function deleteTaskGroup(groupId: number) {
+  const res = await request.delete<ApiResponse<boolean>>(`/task/metadata/groups/${groupId}`)
+  return unwrapResponse<boolean>(res)
+}
+
+export async function batchBindTaskGroup(taskIds: number[], groupId: number) {
+  const res = await request.post<ApiResponse<{ count: number }>>('/task/metadata/groups/batch-bind', {
+    taskIds,
+    groupId,
+  })
+  return unwrapResponse<{ count: number }>(res)
+}
+
 export async function updateTaskArchived(taskId: number, archived: boolean) {
   const res = await request.post<ApiResponse<boolean>>(`/task/${taskId}/archive`, null, {
     params: { archived },

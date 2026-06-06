@@ -20,14 +20,14 @@ public class SecurityConfig {
         http.cors(cors -> {
         })
                 .csrf(crsf -> crsf.disable())
+                // admin权限放行/admin/**
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/client", "/log", "/task/maintenance/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/task/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                // 登录注册接口放行
+                        .anyRequest().authenticated())
+                // 登录注册接口全部放行
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // 无状态
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

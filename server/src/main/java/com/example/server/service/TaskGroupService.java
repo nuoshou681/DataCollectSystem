@@ -76,6 +76,56 @@ public class TaskGroupService {
         return true;
     }
 
+    public boolean unbind(Long taskId, Long groupId, Long userId, boolean isAdmin) {
+        if (!crawlerPageResultService.canAccessTask(taskId, userId, isAdmin)) {
+            return false;
+        }
+        TaskGroup group = taskGroupMapper.selectById(groupId);
+        if (group == null || !userId.equals(group.getUserId())) {
+            return false;
+        }
+        return taskGroupBindingMapper.delete(new LambdaQueryWrapper<TaskGroupBinding>()
+                .eq(TaskGroupBinding::getTaskId, taskId)
+                .eq(TaskGroupBinding::getGroupId, groupId)) > 0;
+    }
+
+    public boolean updateGroup(Long groupId, TaskGroup update, Long userId, boolean isAdmin) {
+        if (update == null || groupId == null || userId == null) return false;
+        TaskGroup group = taskGroupMapper.selectById(groupId);
+        if (group == null || !userId.equals(group.getUserId())) return false;
+        if (update.getGroupName() != null && !update.getGroupName().isBlank()) {
+            group.setGroupName(update.getGroupName().trim());
+        }
+        if (update.getGroupColor() != null) {
+            group.setGroupColor(update.getGroupColor());
+        }
+        if (update.getDescription() != null) {
+            group.setDescription(update.getDescription());
+        }
+        group.setUpdatedAt(LocalDateTime.now());
+        taskGroupMapper.updateById(group);
+        return true;
+    }
+
+    public boolean deleteGroup(Long groupId, Long userId, boolean isAdmin) {
+        if (groupId == null || userId == null) return false;
+        TaskGroup group = taskGroupMapper.selectById(groupId);
+        if (group == null || !userId.equals(group.getUserId())) return false;
+        taskGroupBindingMapper.delete(new LambdaQueryWrapper<TaskGroupBinding>()
+                .eq(TaskGroupBinding::getGroupId, groupId));
+        taskGroupMapper.deleteById(groupId);
+        return true;
+    }
+
+    public boolean batchBind(List<Long> taskIds, Long groupId, Long userId, boolean isAdmin) {
+        if (taskIds == null || taskIds.isEmpty() || groupId == null) return false;
+        boolean anyBound = false;
+        for (Long taskId : taskIds) {
+            if (bind(taskId, groupId, userId, isAdmin)) anyBound = true;
+        }
+        return anyBound;
+    }
+
     public List<TaskGroupBinding> bindings(Long taskId, Long userId, boolean isAdmin) {
         if (!crawlerPageResultService.canAccessTask(taskId, userId, isAdmin)) {
             return List.of();

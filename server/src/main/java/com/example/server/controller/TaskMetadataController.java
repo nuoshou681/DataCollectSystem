@@ -9,6 +9,7 @@ import com.example.server.entity.TaskNote;
 import com.example.server.service.TaskGroupService;
 import com.example.server.service.TaskNoteService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,5 +92,44 @@ public class TaskMetadataController {
             return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限绑定任务分组");
         }
         return ApiResponse.success(true);
+    }
+
+    @DeleteMapping("/{taskId}/groups/{groupId}")
+    public ApiResponse<?> unbindGroup(@PathVariable Long taskId, @PathVariable Long groupId) {
+        if (!taskGroupService.unbind(taskId, groupId, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin())) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限移除任务分组");
+        }
+        return ApiResponse.success(true);
+    }
+
+    @PutMapping("/groups/{groupId}")
+    public ApiResponse<?> updateGroup(@PathVariable Long groupId, @RequestBody TaskGroup group) {
+        if (!taskGroupService.updateGroup(groupId, group, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin())) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限修改分组");
+        }
+        return ApiResponse.success(true);
+    }
+
+    @DeleteMapping("/groups/{groupId}")
+    public ApiResponse<?> deleteGroup(@PathVariable Long groupId) {
+        if (!taskGroupService.deleteGroup(groupId, SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin())) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限删除分组");
+        }
+        return ApiResponse.success(true);
+    }
+
+    @PostMapping("/groups/batch-bind")
+    public ApiResponse<?> batchBind(@RequestBody java.util.Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
+        List<Integer> idsRaw = (List<Integer>) body.get("taskIds");
+        Integer gid = body.get("groupId") instanceof Integer ? (Integer) body.get("groupId") : null;
+        if (idsRaw == null || idsRaw.isEmpty() || gid == null) {
+            return ApiResponse.error(ErrorCode.PARAM_ERROR, "参数错误");
+        }
+        List<Long> taskIds = idsRaw.stream().map(Long::valueOf).toList();
+        if (!taskGroupService.batchBind(taskIds, gid.longValue(), SecurityUtils.getCurrentUserId(), SecurityUtils.isAdmin())) {
+            return ApiResponse.error(ErrorCode.FORBIDDEN, "无权限批量绑定分组");
+        }
+        return ApiResponse.success(Map.of("count", taskIds.size()));
     }
 }

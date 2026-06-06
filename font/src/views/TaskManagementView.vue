@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { ArchiveBoxIcon, FolderIcon, PencilSquareIcon, QueueListIcon } from '@heroicons/vue/24/outline'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArchiveBoxIcon, FolderIcon, PencilSquareIcon, QueueListIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import {
+  batchBindTaskGroup,
+  createTaskGroup,
+  deleteTaskGroup,
+  fetchAllTaskGroupBindings,
   fetchExportRecords,
   fetchTaskGroups,
-  fetchTaskGroupBindings,
   fetchTaskNotes,
   fetchTasks,
+  unbindTaskGroup,
+  updateTaskGroup,
 } from '@/api/api'
 import type { ExportRecord, Task, TaskGroup, TaskGroupBinding, TaskNote } from '@/types/entity'
 import { detectSite, siteLabel, statusTagType, statusText } from '@/utils/task'
@@ -17,7 +22,7 @@ const tasks = ref<Task[]>([])
 const taskGroups = ref<TaskGroup[]>([])
 const exportRecords = ref<ExportRecord[]>([])
 const taskNotesMap = ref<Record<number, TaskNote[]>>({})
-const taskGroupBindingMap = ref<Record<number, TaskGroupBinding[]>>({})
+const allBindings = ref<TaskGroupBinding[]>([])
 const statusFilter = ref('ALL')
 const siteFilter = ref('ALL')
 const archiveFilter = ref('ALL')
@@ -25,6 +30,12 @@ const selectedGroupId = ref<number | 'ALL'>('ALL')
 const keywordFilter = ref('')
 const groupDetailVisible = ref(false)
 const activeGroup = ref<TaskGroup | null>(null)
+const selectedTaskIds = ref<Set<number>>(new Set())
+
+// Group form
+const groupDialogVisible = ref(false)
+const editingGroup = ref<TaskGroup | null>(null)
+const groupForm = ref({ groupName: '', groupColor: '#3b82f6', description: '' })
 
 async function loadData() {
   loading.value = true
@@ -32,16 +43,17 @@ async function loadData() {
     const taskData = await fetchTasks()
     tasks.value = taskData
     const taskIds = taskData.map(item => item.taskId)
-    const [groups, exports, noteEntries, bindingEntries] = await Promise.all([
+    const [groups, exports, noteEntries, bindings] = await Promise.all([
       fetchTaskGroups(),
       fetchExportRecords(),
-      Promise.all(taskIds.map(async taskId => [taskId, await fetchTaskNotes(taskId)] as const)),
-      Promise.all(taskIds.map(async taskId => [taskId, await fetchTaskGroupBindings(taskId)] as const)),
+      Promise.all(taskIds.map(async id => [id, await fetchTaskNotes(id)] as const)),
+      fetchAllTaskGroupBindings(),
     ])
     taskGroups.value = groups
     exportRecords.value = exports
     taskNotesMap.value = Object.fromEntries(noteEntries)
-    taskGroupBindingMap.value = Object.fromEntries(bindingEntries)
+    allBindings.value = bindings
+    selectedTaskIds.value.clear()
   } catch {
     ElMessage.error('任务管理中心数据加载失败')
   } finally {
@@ -49,13 +61,16 @@ async function loadData() {
   }
 }
 
-const groupMap = computed(() => new Map(taskGroups.value.map(group => [group.groupId, group])))
+const groupMap = computed(() => new Map(taskGroups.value.map(g => [g.groupId, g])))
+
+function getTaskBindings(taskId: number) {
+  return allBindings.value.filter(b => b.taskId === taskId)
+}
 
 function resolveTaskGroups(taskId: number) {
-  const bindings = taskGroupBindingMap.value[taskId] ?? []
-  return bindings
-    .map(binding => groupMap.value.get(binding.groupId))
-    .filter((group): group is TaskGroup => Boolean(group))
+  return getTaskBindings(taskId)
+    .map(b => groupMap.value.get(b.groupId))
+    .filter((g): g is TaskGroup => Boolean(g))
 }
 
 const filteredTasks = computed(() => {
@@ -69,7 +84,7 @@ const filteredTasks = computed(() => {
     const matchesArchive = archiveFilter.value === 'ALL'
       || (archiveFilter.value === 'ARCHIVED' && task.archived)
       || (archiveFilter.value === 'ACTIVE' && !task.archived)
-    const matchesGroup = selectedGroupId.value === 'ALL' || groups.some(group => group.groupId === selectedGroupId.value)
+    const matchesGroup = selectedGroupId.value === 'ALL' || groups.some(g => g.groupId === selectedGroupId.value)
     const matchesKeyword = !keyword
       || String(task.taskId).includes(keyword)
       || task.keyword.toLowerCase().includes(keyword)
@@ -89,35 +104,108 @@ const groupRanking = computed(() => {
   return taskGroups.value
     .map(group => ({
       ...group,
-      taskCount: tasks.value.filter(task => resolveTaskGroups(task.taskId).some(item => item.groupId === group.groupId)).length,
+      taskCount: tasks.value.filter(task => resolveTaskGroups(task.taskId).some(g => g.groupId === group.groupId)).length,
     }))
     .sort((a, b) => b.taskCount - a.taskCount)
 })
 
 const activeGroupTasks = computed(() => {
-  if (!activeGroup.value?.groupId) {
-    return []
-  }
-  return tasks.value.filter(task => resolveTaskGroups(task.taskId).some(group => group.groupId === activeGroup.value?.groupId))
+  if (!activeGroup.value?.groupId) return []
+  return tasks.value.filter(task => resolveTaskGroups(task.taskId).some(g => g.groupId === activeGroup.value?.groupId))
 })
 
-const activeGroupNoteCount = computed(() => {
-  return activeGroupTasks.value.reduce((sum, task) => sum + (taskNotesMap.value[task.taskId]?.length ?? 0), 0)
-})
+const activeGroupNoteCount = computed(() =>
+  activeGroupTasks.value.reduce((sum, task) => sum + (taskNotesMap.value[task.taskId]?.length ?? 0), 0))
 
 const activeGroupExportCount = computed(() => {
-  const taskIds = new Set(activeGroupTasks.value.map(task => task.taskId))
-  return exportRecords.value.filter(record => record.taskId && taskIds.has(record.taskId)).length
+  const ids = new Set(activeGroupTasks.value.map(t => t.taskId))
+  return exportRecords.value.filter(r => r.taskId && ids.has(r.taskId)).length
 })
 
+function handleSelectionChange(rows: Task[]) {
+  selectedTaskIds.value = new Set(rows.map(r => r.taskId))
+}
+
+// ── Group CRUD ──
+function openCreateGroup() {
+  editingGroup.value = null
+  groupForm.value = { groupName: '', groupColor: '#3b82f6', description: '' }
+  groupDialogVisible.value = true
+}
+
+function openEditGroup(group: TaskGroup) {
+  editingGroup.value = group
+  groupForm.value = {
+    groupName: group.groupName,
+    groupColor: group.groupColor || '#3b82f6',
+    description: group.description || '',
+  }
+  groupDialogVisible.value = true
+}
+
+async function submitGroup() {
+  if (!groupForm.value.groupName.trim()) {
+    ElMessage.warning('分组名称不能为空')
+    return
+  }
+  try {
+    if (editingGroup.value) {
+      await updateTaskGroup(editingGroup.value.groupId!, groupForm.value)
+      ElMessage.success('分组已更新')
+    } else {
+      await createTaskGroup(groupForm.value as TaskGroup)
+      ElMessage.success('分组创建成功')
+    }
+    groupDialogVisible.value = false
+    await loadData()
+  } catch {
+    ElMessage.error('操作失败')
+  }
+}
+
+async function handleDeleteGroup(group: TaskGroup) {
+  try {
+    await ElMessageBox.confirm(`确定删除分组「${group.groupName}」吗？分组内的任务不会被删除。`, '删除分组', { type: 'warning' })
+    await deleteTaskGroup(group.groupId!)
+    ElMessage.success('分组已删除')
+    await loadData()
+  } catch { /* cancelled */ }
+}
+
+// ── Batch bind ──
+const batchGroupId = ref<number | null>(null)
+
+async function handleBatchBind() {
+  if (!selectedTaskIds.value.size) { ElMessage.warning('请先选择任务'); return }
+  if (!batchGroupId.value) { ElMessage.warning('请选择目标分组'); return }
+  try {
+    await batchBindTaskGroup(Array.from(selectedTaskIds.value), batchGroupId.value)
+    ElMessage.success(`已将 ${selectedTaskIds.value.size} 个任务加入分组`)
+    batchGroupId.value = null
+    await loadData()
+  } catch {
+    ElMessage.error('批量加入分组失败')
+  }
+}
+
+// ── Unbind ──
+async function handleUnbind(taskId: number, groupId: number, groupName: string) {
+  try {
+    await unbindTaskGroup(taskId, groupId)
+    ElMessage.success(`已从「${groupName}」移出`)
+    await loadData()
+  } catch {
+    ElMessage.error('移出分组失败')
+  }
+}
+
+// ── Group detail ──
 function openGroupDetail(group: TaskGroup) {
   activeGroup.value = group
   groupDetailVisible.value = true
 }
 
-onMounted(() => {
-  void loadData()
-})
+onMounted(() => { void loadData() })
 </script>
 
 <template>
@@ -180,7 +268,17 @@ onMounted(() => {
           </div>
         </template>
 
-        <el-table :data="filteredTasks" border stripe v-loading="loading">
+        <!-- Batch bar -->
+        <div v-if="selectedTaskIds.size" class="flex items-center gap-3 mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+          <span class="text-blue-700 font-medium">已选 {{ selectedTaskIds.size }} 个任务</span>
+          <el-select v-model="batchGroupId" size="small" placeholder="选择分组" style="width: 160px">
+            <el-option v-for="g in taskGroups" :key="g.groupId" :label="g.groupName" :value="g.groupId!" />
+          </el-select>
+          <el-button size="small" type="primary" :disabled="!batchGroupId" @click="handleBatchBind">加入分组</el-button>
+        </div>
+
+        <el-table :data="filteredTasks" border stripe v-loading="loading" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="42" />
           <el-table-column prop="taskId" label="任务ID" width="100" />
           <el-table-column label="站点" width="110">
             <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
@@ -200,12 +298,15 @@ onMounted(() => {
           </el-table-column>
           <el-table-column label="分组" min-width="200">
             <template #default="scope">
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-1">
                 <el-tag
                   v-for="group in resolveTaskGroups(scope.row.taskId)"
                   :key="group.groupId"
+                  size="small"
                   effect="dark"
                   :color="group.groupColor || undefined"
+                  closable
+                  @close="handleUnbind(scope.row.taskId, group.groupId!, group.groupName)"
                 >
                   {{ group.groupName }}
                 </el-tag>
@@ -221,25 +322,43 @@ onMounted(() => {
       </el-card>
 
       <el-card>
-        <template #header><span class="font-semibold">任务分组热度</span></template>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold">任务分组</span>
+            <el-button size="small" type="primary" text @click="openCreateGroup">新建分组</el-button>
+          </div>
+        </template>
         <div class="space-y-3">
-          <button v-for="group in groupRanking" :key="group.groupId" type="button" class="w-full text-left rounded-xl border border-slate-200 p-4 hover:border-sky-300 transition" @click="openGroupDetail(group)">
+          <button
+            v-for="group in groupRanking" :key="group.groupId" type="button"
+            class="w-full text-left rounded-xl border border-slate-200 p-4 hover:border-sky-300 transition group"
+            @click="openGroupDetail(group)"
+          >
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
-                <span class="inline-block h-3 w-3 rounded-full" :style="{ backgroundColor: group.groupColor || '#94a3b8' }" />
+                <span class="inline-block h-3 w-3 rounded-full flex-shrink-0" :style="{ backgroundColor: group.groupColor || '#94a3b8' }" />
                 <div class="min-w-0">
                   <div class="font-medium truncate">{{ group.groupName }}</div>
                   <div class="text-xs text-slate-500 truncate">{{ group.description || '未填写说明' }}</div>
                 </div>
               </div>
-              <el-tag type="info">{{ group.taskCount }} 个任务</el-tag>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <el-tag type="info" size="small">{{ group.taskCount }} 个</el-tag>
+                <el-button size="small" text @click.stop="openEditGroup(group)" class="opacity-0 group-hover:opacity-100 transition">
+                  <PencilSquareIcon class="w-4 h-4" />
+                </el-button>
+                <el-button size="small" text type="danger" @click.stop="handleDeleteGroup(group)" class="opacity-0 group-hover:opacity-100 transition">
+                  <TrashIcon class="w-4 h-4" />
+                </el-button>
+              </div>
             </div>
           </button>
-          <el-empty v-if="!groupRanking.length" description="还没有任务分组" />
+          <el-empty v-if="!groupRanking.length" description="还没有任务分组，点击上方按钮创建" />
         </div>
       </el-card>
     </section>
 
+    <!-- Group detail drawer -->
     <el-drawer v-model="groupDetailVisible" :title="activeGroup ? `${activeGroup.groupName} · 分组详情` : '分组详情'" size="48%">
       <div v-if="activeGroup" class="space-y-5">
         <el-descriptions :column="2" border>
@@ -257,6 +376,7 @@ onMounted(() => {
         </el-descriptions>
 
         <el-table :data="activeGroupTasks" border stripe>
+          <el-table-column type="selection" width="42" />
           <el-table-column prop="taskId" label="任务ID" width="90" />
           <el-table-column label="站点" width="110">
             <template #default="scope">{{ siteLabel(detectSite(scope.row.url)) }}</template>
@@ -269,15 +389,35 @@ onMounted(() => {
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="备注" width="90">
-            <template #default="scope">{{ taskNotesMap[scope.row.taskId]?.length ?? 0 }}</template>
+          <el-table-column label="操作" width="100">
+            <template #default="scope">
+              <el-button size="small" text type="danger" @click="handleUnbind(scope.row.taskId, activeGroup!.groupId!, activeGroup!.groupName)">移出</el-button>
+            </template>
           </el-table-column>
-          <el-table-column label="归档" width="100">
-            <template #default="scope">{{ scope.row.archived ? '是' : '否' }}</template>
-          </el-table-column>
-          <el-table-column prop="createdAt" label="创建时间" min-width="170" />
         </el-table>
       </div>
     </el-drawer>
+
+    <!-- Group create/edit dialog -->
+    <el-dialog v-model="groupDialogVisible" :title="editingGroup ? '编辑分组' : '新建分组'" width="420px">
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-600 mb-1 block">分组名称</label>
+          <el-input v-model="groupForm.groupName" maxlength="40" placeholder="输入分组名称" />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 mb-1 block">颜色</label>
+          <el-color-picker v-model="groupForm.groupColor" />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600 mb-1 block">说明</label>
+          <el-input v-model="groupForm.description" type="textarea" :rows="3" maxlength="200" placeholder="可选，分组说明" />
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="groupDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitGroup">{{ editingGroup ? '保存' : '创建' }}</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>

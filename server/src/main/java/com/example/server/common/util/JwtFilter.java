@@ -25,9 +25,11 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
+        // 用户访问token在请求头里
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         } else {
+            // SSE的token默认放在参数中
             String queryToken = request.getParameter("token");
             if (queryToken != null && !queryToken.isBlank()) {
                 token = queryToken;
@@ -40,6 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Long userId = jwtUtil.getUserIdFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
                 AuthenticatedUser principal = new AuthenticatedUser(userId, email, role);
+                // SpringSecurity判定权限 放行admin的api
                 String authority = "ROLE_ADMIN";
                 if (role == null || !"admin".equalsIgnoreCase(role)) {
                     authority = "ROLE_USER";
