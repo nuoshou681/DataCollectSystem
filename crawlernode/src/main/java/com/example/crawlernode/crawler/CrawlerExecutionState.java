@@ -3,6 +3,7 @@ package com.example.crawlernode.crawler;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CrawlerExecutionState {
+    // 并发包 Java原子锁
     private static final AtomicInteger CURRENT_LOAD = new AtomicInteger(0);
 
     private CrawlerExecutionState() {

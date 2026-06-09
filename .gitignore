@@ -4,6 +4,27 @@ shared/**
 
 # macOS
 .DS_Store
-server/src/main/resources/schema.sql
+
+# Build output
+server/target/
+crawlernode/target/
+
+# Frontend dependencies
+font/node_modules/
+font/dist/
+
+# Runtime
 .runtime-logs
 .runtime-pids.txt
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Claude Code agent config
+.claude/
+
+# Database exports (keep in separate backup)
+db_export/
